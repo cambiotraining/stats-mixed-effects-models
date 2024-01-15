@@ -1,0 +1,15 @@
+website:
+  sidebar:
+    - title: "Materials"
+      contents:
+        - materials.md
+        # Only edit from this line down
+        - section: "Random effects"
+          contents:
+            - materials/independence-psuedoreplication.qmd
+            - materials/random-effects.qmd
+            - materials/fitting-mixed-models.qmd
+        - section: "Interpreting mixed models"
+          contents:
+            - materials/significance-testing.qmd
+            - materials/checking-assumptions.qmd

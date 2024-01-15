@@ -1,0 +1,394 @@
+---
+title: "Fitting mixed models"
+output: html_document
+---
+
+```{r}
+#| echo: false
+#| message: false
+#| results: hide
+source(file = "setup_files/setup.R")
+```
+
+The course materials so far have discussed the motivation behind mixed effects models, and why we might choose to include random effects.
+
+In this section, we will learn how to fit these models in R, and how to visualise the results.
+
+## Libraries and functions
+
+::: {.callout-note collapse="true"}
+## Click to expand
+
+We'll be using the `lme4` package in R, which is by far the most common and best choice of package for this type of model. (It's an update of the older package `nlme`, which you might also see people using.) The syntax is nice and simple and extends what we've been doing so far with the `lm()` function in (hopefully!) a very intuitive way. 
+
+The package also contains functions for fitting non-linear mixed effects and generalised mixed effects models - though we won't be focusing on those here, it's nice to know that the package can handle them in case you ever choose to explore them in future!
+
+For Python users, the `pymer4` package in Python allows you to "borrow" most of the functionality of R's `lme4`, though it still has many bugs that make it difficult to run on any system except Linux. There is also some functionality for fitting mixed models using `statsmodels` in Python. We won't be using those packages here, but you may wish to explore them if you are a die-hard Python user!
+
+```{r}
+#| eval: false
+# load the required packages for fitting & visualising
+library(tidyverse)
+library(lme4)
+library(broom)
+library(broom.mixed)
+```
+:::
+
+## The sleepstudy data
+
+We'll be using the internal `sleepstudy` dataset from the `lme4` package in R as an example (this dataset is also provided as a `.csv` file, if you'd prefer to read it in or are using Python). 
+
+This is a simple dataset taken from a real study that investigated the effects of sleep deprivation on reaction times in 18 subjects, and has just three variables: `Reaction`, reaction time in milliseconds; `Days`, number of days of sleep deprivation; and `Subject`, subject ID.
+
+```{r}
+#| message: false
+data("sleepstudy")
+
+head(sleepstudy)
+```
+
+Have a look at the data more closely. You'll notice that for each subject, we've got 10 measurements, one for each day of sleep deprivation. This repeated measurement means that our data are not independent of one another; for each subject in the study we would expect measurements of reaction times to be more similar to one another than they are to reaction times of another subject.
+
+Let's start by doing something that we know is wrong, and ignoring this dependence for now. We'll begin by visualising the data with a simple scatterplot.
+
+```{r}
+#| message: false
+ggplot(sleepstudy, aes(x = Days, y = Reaction)) +
+  geom_point() +
+  geom_smooth(method = "lm")
+```
+This gives the overall impression that we might expect - reaction time does seem to slow as people become more sleep deprived.
+
+But, as we've already pointed out, ignoring the fact that subjects' own reaction times will be more similar to themselves than to another subject's, we should make a point of accounting for this.
+
+## Adding a random effect
+
+In this dataset, we want to treat `Subject` as a random effect, which means fitting a mixed effects model. Why `Subject`? There are two things at play here that make us what to treat this as a random effect:
+
+1. `Subject` is a *grouping* variable within our dataset, and is causing us problems with independence.
+2. It's not these specific 18 subjects that we're interested in - they instead represent 18 random selections from a broader distribution/population of subjects that we could have tested. We would like to generalise our findings to this broader population.
+
+To fit the model, we use a different function to what we've used so far, but the syntax looks very similar. The difference is the addition of a new term `(1|Subject)`, which represents our random effect.
+
+```{r}
+# construct a linear mixed effects model with Subject
+# as a random effect
+lme_sleep1 <- lmer(Reaction ~ Days + (1|Subject),
+                   data = sleepstudy)
+
+# summarise the model
+summary(lme_sleep1)
+```
+Okay. The syntax might have looked similar to a standard linear model, but the output does not.
+
+In later sections of the course, we'll discuss how to test significance based on this sort of output. In the meantime, however, to help get our head around the model we've fitted, we're going to visualise it.
+
+Here, we'll make use of the `broom` and `broom.mixed` packages to extract fitted values from the models.
+
+```{r}
+# create a linear model - we'll use this in our graph
+lm_sleep <- lm(Reaction ~ Days,
+               data = sleepstudy)
+
+# set up our basic plot
+ggplot(sleepstudy, aes(x = Days, y = Reaction)) +
+  
+  # create separate plots for each subject in the sample
+  # and add the data points
+  facet_wrap(facets = vars(Subject), nrow = 3) +
+  geom_point() +
+  
+  # this adds the line of best fit for the whole sample
+  # (without the random effect), using coefficients
+  # from our simple linear model object
+  geom_line(data = augment(lm_sleep), aes(y = .fitted)) + 
+  
+  # and finally, this will add different lines of best fit
+  # for each subject as calculated in our mixed model object
+  geom_line(data = augment(lme_sleep1), aes(y = .fitted), 
+            colour = "blue")
+```
+Each plot represents a different subject's data. On each plot, we've added the following:
+
+* in black we have the same overall line of best fit from our original (incorrect) linear model.
+* in blue are the individual lines of best fit for each subject. These lines move up and down the plot relative to the global line of best fit. This reflects the fact that, though all subjects are declining as they become more sleep deprived, some of them started with slower baseline reaction times, with different y-intercepts to match. Subject 310, for instance, seems to have pretty good reflexes relative to everyone else, while subject 337 isn't quite as quick on the trigger.
+
+The eagle-eyed among you, though, might have spotted that the *gradient* of each of these blue lines is still the same as the overall line of best fit. This is because we've added a random intercept in our model, but have **kept the same slope**. 
+
+This reflects an underlying assumption that the relationship between sleep deprivation and reaction time is the same - i.e. that people get worse at the same rate - even if their starting baselines differ.
+
+We might not think that this assumption is a good one, however. And that's where random slopes come in.
+
+## Adding random slopes and random intercepts
+
+To add a random slope as well as a random intercept, we need to alter the syntax slightly for our random effect. Now, instead of `(1|Subject)`, we'll instead use `(1 + Days|Subject)`. This allows the relationship between `Days` and `Reaction` to vary between subjects.
+
+Let's fit that new model and summarise it.
+
+```{r}
+lme_sleep2 <- lmer(Reaction ~ Days + (1 + Days|Subject),
+                   data = sleepstudy)
+
+summary(lme_sleep2)
+```
+We can go ahead and add our new lines (in red) to our earlier facet plot:
+
+```{r}
+ggplot(sleepstudy, aes(x = Days, y = Reaction)) +
+  facet_wrap(facets = vars(Subject), nrow = 3) +
+  geom_point() +
+  
+  # the global line of best fit
+  geom_line(data = augment(lm_sleep), aes(y = .fitted)) + 
+  
+  # our previous lines of best fit, with random intercepts
+  # but constant slope
+  geom_line(data = augment(lme_sleep1), aes(y = .fitted), 
+            colour = "blue") +
+  
+  # our lines of best with random intercepts and random slopes
+  geom_line(data = augment(lme_sleep2), aes(y = .fitted), 
+            colour = "red") 
+```
+While for some of our subjects, the red, blue and black lines look quite similar, for others they diverge a fair amount. Subjects 309 and 335, for instance, are displaying a remarkably flat trend that suggests they're not really suffering delays in reaction time from their sleep deprivation very much at all, while subject 308 definitely seems to struggle without their eight hours. 
+
+## Fitting random slopes without random intercepts
+
+It's quite unusual to fit a model with random slopes but without random intercepts - but it's absolutely possible.
+
+The `lme4` package includes "implicit random intercepts", meaning that we don't actually need to specify the 1 in our random effects structure for random intercepts to be fitted. 
+
+Try running the following, and compare the two outputs - these models are indentical:
+
+```{r}
+lme_explicit <- lmer(Reaction ~ Days + (1 + Days|Subject),
+                   data = sleepstudy)
+
+summary(lme_explicit)
+
+lme_implicit <- lmer(Reaction ~ Days + (Days|Subject),
+                   data = sleepstudy)
+
+summary(lme_implicit)
+```
+If we were determined to remove the random intercepts, we have to explicitly tell `lme4` not to fit them, like this:
+
+```{r}
+lme_slopesonly <- lmer(Reaction ~ Days + (0 + Days|Subject),
+                   data = sleepstudy)
+
+summary(lme_slopesonly)
+```
+You should see that the random intercepts have now disappeared from the output.
+
+## Two-level models
+
+Both of the two models that we've fitted so far to these data (with and without the random slopes) can both be described as two-level models.
+
+A standard linear model would be a one-level model, where we have independence in our dataset and no natural clustering/grouping variables.
+
+But for this dataset, the `Reaction` variable is clustered within the `Subject` variable. Whether we choose to fit random intercepts, slopes, or both, this overall structure remains the same: one variable nested inside another, creating a hierarchy with two levels. Hence, a two-level model!
+
+Later in the course, we will look at more complicated models, where we have three or more levels, or where our variables are not completely nested inside each other, due to a more complex experimental design.
+
+## Partial pooling & shrinkage
+
+While we're working with this dataset, let's take the opportunity to visualise something else that's special about random effects (which we'll discuss more later in the course): shrinkage.
+
+As an extra observation, let's use `geom_smooth` to add the lines of best fit that we would see if we fitted each subject with their own individual regression:
+
+```{r}
+#| message: false
+ggplot(sleepstudy, aes(x = Days, y = Reaction)) +
+  facet_wrap(facets = vars(Subject), nrow = 3) +
+  geom_point() +
+  
+  # the global line of best fit
+  geom_line(data = augment(lm_sleep), aes(y = .fitted)) + 
+  
+  # random slopes only
+  geom_line(data = augment(lme_sleep1), aes(y = .fitted), 
+            colour = "blue") +
+  
+  # random intercepts and random slopes
+  geom_line(data = augment(lme_sleep2), aes(y = .fitted), 
+            colour = "red") +
+  
+  # individual regression lines for each individual
+  geom_smooth(method = "lm", se = FALSE,
+              colour = "green", linewidth = 0.5)
+```
+Here, the black line (which is the same on every plot) represents a global line of best fit - this is what we would see using **complete pooling**.
+
+The green lines, meanwhile, represent what happens when we allow **no pooling**. In other words, we've fit individual regressions between `Reaction` and `Days` for each subject, treating each subject as a completely separate dataset.
+
+The blue and red lines represent our mixed effects models - the difference between the two is whether we allowed the slope to vary randomly, as well as the random intercept. In both cases, we are using something called **partial pooling**. 
+
+Comparing the green and red lines allows us to see the phenomenon of "shrinkage". The red lines are all closer to the black line than the green line is; in other words, there's some shrinkage towards the global line (Subjects 330, 335 and 370 perhaps show this best.) 
+
+This happens because, when random effects are estimated, information is shared between the different levels of the random effect (in this case, between subjects). Though we still estimate separate slopes and/or intercepts for each subject, we take into account the global average, and this pulls the individual lines of best fit towards the global one.
+
+## Exercise
+
+Read in the `dragons.csv` file, explore these data, then fit, summarise and visualise at least one mixed effects model in the same way that we did for the `sleepstudy` data.
+
+There are five different variables in the `dragons` dataset:
+
+- `dragon`, which is simply an ID number for each dragon measured; here, each dragon is unique
+- `wingspan`, a measure of the size of the dragon
+- `scales`, a categorical (binary) variable for what colour scales the dragon has
+- `mountain`, a categorical variable representing which mountain range the dragon was found on
+- `intelligence`, our continuous response variable
+
+We're interested in the relationships between `wingspan`, `scales` colour and `intelligence`, but we want to factor in the fact that we have measured these variables across 5 different mountain ranges.
+
+As a slightly more complicated dataset (with more variables), there are more possible models that could be fitted. Think about: what different structures might the fixed and random effects take? How does that change our visualisation?
+
+Try to work through this yourself, before expanding the answer below.
+
+::: {.callout-note collapse="true"}
+#### Worked answer
+
+Here, we'll work through how to fit and visualise one possible mixed effects model that could be fitted to these data.
+
+But, if you fitted models with other sets of fixed/random effects and explored those, well done. We'll talk in the next section of the course about how you can decide between these models to determine which is the best at explaining the data. Right now, it's just the process that matters.
+
+#### Step 1: Visualise your data
+
+Before we do anything else, let's have a look at what we're working with:
+
+```{r}
+dragons <- read_csv("datasets/dragons.csv")
+
+head(dragons)
+```
+
+```{r}
+ggplot(dragons, aes(x = wingspan, y = intelligence, colour = scales)) +
+  geom_point()
+
+ggplot(dragons, aes(x = scales, y = intelligence)) +
+  geom_boxplot()
+```
+As a whole, we get the impression that as wingspan increases, so does intelligence. It also looks as if intelligence is slightly higher on average in metallic dragons than in chromatic dragons.
+
+Might there be an interaction between `wingspan` and `scales`? It's hard to tell from our first plot, but it's not impossible. (You could try using the `geom_smooth` function to fit a basic grouped linear regression, if you wanted a clearer idea at this stage.)
+
+Now, let's produce the same plots, but faceted/split by mountain range:
+
+```{r}
+ggplot(dragons, aes(x = wingspan, y = intelligence, colour = scales)) +
+  facet_wrap(vars(mountain)) +
+  geom_point()
+
+ggplot(dragons, aes(x = scales, y = intelligence)) +
+  facet_wrap(vars(mountain)) +
+  geom_boxplot()
+```
+The broad impression remains the same, but for one thing: the strength of the relationship between `wingspan` and `intelligence` seems to vary across our different facets, i.e. between mountain ranges. 
+
+It's hard to tell whether the relationship between `scales` and `intelligence` also differs across mountain ranges, as this effect is subtler overall.
+
+#### Step 2: Consider our fixed effects 
+
+We have four options for our fixed effects structure:
+
+- No fixed effects (a random effects only model)
+- A single effect, of either `wingspan` or `scales`
+- An additive model
+- Including both main effects and an interaction
+
+We'll talk in the next section of the course about how we can compare between different models and determine whether individual predictors are significant or not.
+
+However, in this case we want to fit at least an additive fixed effects structure, as the exercise summary indicated that we are interested in whether `scales` and `wingspan` have a bearing on `intelligence`. For this walkthrough, we'll include the interaction term as well.
+
+#### Step 3: Consider our random effects
+
+There is only one variable in this dataset that it would be suitable to consider "random": `mountain`. And, given how the plots look when we split them by mountain range, it would seem that this is very much something we want to take into account.
+
+(The `wingspan` variable is continuous, and the categorical `scales` variable only contains two levels, making both of these inappropriate/impossible to treat as random variables.)
+
+However, as we learned by looking at the `sleepstudy` dataset, we can fit multiple separate random effects, meaning that even with just `mountain` as a clustering variable, we have options!
+
+- Random intercepts, by mountain; `(1|mountain)`
+- Random slopes for `wingspan`, by mountain; `(0 + wingspan|mountain)`
+- Random slopes for `scales`, by mountain; `(0 + scales|mountain)`
+- Random slopes for `wingspan:scales`, by mountain; `(0 + wingspan:scales|mountain)`
+
+::: {.callout-tip}
+This last option is worth taking a moment to unpack. 
+
+Allowing `wingspan:scales` to vary by mountain means that we are asking the model to assume that the strength of the interaction between `wingspan` and `scales` varies between mountain ranges such that the different coefficients for that interaction are drawn from a random distribution.
+
+Or, phrased differently: the strength of the relationship between `wingspan` and `intelligence` depends on `scales` colour, but the degree to which it is dependent on `scales` colour also varies between `mountain` ranges.
+
+This is biologically plausible! Though, we're dealing with imaginary creatures, so one could facetiously claim that *anything* is biologically plausible...
+:::
+
+Again, the next section of the course will talk about how we can compare models to decide which predictors (including random effects) are making useful contributions to our model.
+
+It would be perfectly allowable for you to fit all four of these random effects if you wanted to. The syntax to include them all would be `(1 + wingspan*scales|mountain)`, or written out in full, `(1 + wingspan + scales + wingspan:colour|mountain)`.
+
+For now, though, we'll just fit the first two random effects (random intercepts, and random slopes for `wingspan`, by `mountain`), to keep things a little simpler.
+
+#### Step 4: Fit the model
+
+```{r}
+lme_dragons <- lmer(intelligence ~ wingspan*scales + (1 + wingspan|mountain), 
+                    data=dragons)
+summary(lme_dragons)
+```
+This output looks very similar to what we saw before. The main difference here is that our fixed effect structure is more complex than for the `sleepstudy` dataset - hence, we have two additional rows, for our second main effect and our interaction. (The correlation matrix for our fixed effects, right at the bottom, has also become more complicated.)
+
+#### Step 5: Visualise the model
+
+We'll start by building a plot that's faceted by `mountain`, since we know this is a crucial clustering variable. To add our mixed model to the plot, we use the `augment` function from the `broom.mixed` package.
+
+```{r}
+ggplot(dragons, aes(wingspan, intelligence, colour = scales)) +
+  facet_wrap(vars(mountain)) +
+  geom_point() +
+  # use augment so that we can plot our mixed model
+  geom_line(data = augment(lme_dragons), aes(y = .fitted))
+```
+
+If we wanted to visually compare our model to others that we could have fitted, we can include them on the same plot.
+
+Here, we're adding a) the results of a standard linear model, which will be the same across every facet, and b) what our mixed model would look like if we hadn't included `scales` or the `wingspan:scales` interaction, for the purposes of comparison:
+
+```{r}
+# construct the models, so we can use the augment function
+lm_dragons <- lm(intelligence ~ wingspan, data = dragons)
+lme_dragons2 <- lmer(intelligence ~ wingspan + (1 + wingspan|mountain),
+                     data = dragons)
+
+ggplot(dragons, aes(x = wingspan, y = intelligence, colour = scales)) +
+  facet_wrap(vars(mountain)) +
+  geom_point() +
+  geom_line(data = augment(lme_dragons), aes(y = .fitted))+
+  
+  #standard linear model
+  geom_line(data = augment(lm_dragons), aes(y = .fitted),
+            colour = "black") +
+  
+  #mixed model with only wingspan as fixed effect
+  geom_line(data = augment(lme_dragons2), aes(y = .fitted), 
+            colour = "green")
+```
+:::
+
+## Summary
+
+This section of the course is designed to introduce the syntax that's required for fitting 2-level mixed models in R, including both random intercepts and random slopes, and how we can visualise the resulting models.
+
+Later sections will address significance testing and assumption checking, as well as how to fit more complex mixed models.
+
+::: callout-note
+#### Key points
+- Mixed effects models can be fitted using the `lme4` package in R, which extends the linear model by introducing specialised syntax for random effects
+- For random intercepts, we use the format `(1|B)`, where B is our grouping variable
+- For random intercepts with random slopes, we use the format `(1 + A|B)`, where we allow the slope of A as well as the intercept to vary between levels of B
+- For random slopes only, we use `(0 + A|B)`, which gives random slopes for A without random intercepts
+- Random effects are fitted using partial pooling, which results in the phenomenon of "shrinkage"
+:::

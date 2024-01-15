@@ -1,0 +1,136 @@
+---
+title: "Checking assumptions"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(lme4)
+library(lmerTest)
+library(broom.mixed)
+library(performance)
+library(see)
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| results: hide
+source(file = "setup_files/setup.R")
+```
+
+As with all statistical models, mixed effects models make certain assumptions about the dataset and the population it's drawn from. If these assumptions are not well met, then any results we get from our model must be taken with a huge grain of salt.
+
+## What are the assumptions?
+
+The assumptions of a linear mixed effects model - which we've been dealing with so far in the course - are very similar to the assumptions of a standard linear model, and include all the things you're likely used to seeing:
+
+- Continuous response variable
+- Independence of data points (beyond the non-independence that we have accounted for with our random effects)
+- Linearity in the relationship between the predictor(s) and the response
+- Residuals are normally distributed
+- Residuals have equality of variance
+
+And, though it isn't a "formal" assumption in the strictest sense, we also want to ensure that there aren't any overly influential data points.
+
+Because we now have random effects in our model, there are a few additional assumptions that we make:
+
+- The coefficients of the random effects are normally distributed
+- Random effects are not influenced by any of the other predictors
+
+## Testing these assumptions
+
+The first two of our assumptions - continuous response variable and independence - can't be tested just by examining the dataset or residuals. These two assumptions fit within a broader idea of "choose the right model", which requires you as a researcher to think carefully about your experimental design.
+
+The rest of our assumptions can be assessed using the same method that we use for a standard linear regression analysis: visualisation.
+
+Let's look at our `sleepstudy` dataset again. Here is the full model that we fitted to those data:
+```{r}
+data("sleepstudy")
+
+lme_sleep <- lmer(Reaction ~ Days + (1 + Days|Subject),
+                   data = sleepstudy)
+```
+
+Now, let's visualise it. We could create each of the plots by hand if we wished (using the `broom.mixed` package to augment our dataset), but thankfully there exists a much quicker method, using an R package called `performance`.
+
+::: {.callout-tip}
+The `performance` package contains a bunch of functions that allow us to test the quality of our model. For the purposes of visualisation, we'll use `check_model`, but I encourage you to explore this package in more detail as there's a lot more to it (it's super helpful for evaluating the performance of generalised linear models and Bayesian models, as well as mixed models).
+
+Note that you might also need to install and/or load the `see` package in order to use the `performance` package.
+:::
+
+```{r}
+# install and load the package
+install.packages("performance")
+library(performance)
+
+check_model(lme_sleep, 
+            check = c("linearity", "homogeneity", "qq", "outliers"))
+```
+Here, we've specified just the 4 residual plots that we're used to seeing. Perhaps the one exception is the plot for influential observations, which looks a little different to the residuals vs leverage or Cook's distance plots that you might be used to. On this plot, there are 4 data points labelled in red which fall really far outside our dashed contour lines (8, 57, 60 and 131). This tells us that we might want to re-examine these points, perhaps by excluding them from the dataset, fitting a new linear mixed model, and seeing whether our conclusions are still the same.
+
+The linearity and homogeneity of variance plots look alright, overall, although there's some indication that our influential points might be causing a bit of drama there too. There's some snaking in the Q-Q plot that suggests our residuals have a "heavy-tailed", or leptokurtic, distribution.
+
+### Normality of random effects
+
+The other important assumption to check via visualisation is the normality of our random effects estimates.
+
+```{r}
+check_model(lme_sleep, check = "reqq")
+```
+We have two random effects in our model - the random slopes and random intercepts. For each of these, a separate normal Q-Q plot has been constructed. Notice that there are 18 points in each of our Q-Q plots here, which correspond to our 18 subjects (because `Subject` was our clustering variable for our random effects).
+
+This lets us evaluate whether our set of coefficients for these random effects are normally distributed. In other words - does the set of y-intercepts and the set of gradients that were generated (one for each of our subjects) appear to have been sampled from a normal underlying distribution? Here, it looks like they do, which is excellent news.
+
+### Posterior predictive check
+
+One of the other plots that is offered in this package is called the posterior predictive check. It's quite a nice option to include, as it can give you an overall idea of how good a job your model does in predicting your data.
+
+```{r}
+check_model(lme_sleep, check = "pp_check")
+```
+
+Here, the function has run a set of simulations for us, using the linear mixed model we created. Each of these simulated datasets, created from our model, is shown on the plot by a thin blue line (as you can see, many simulations have been run).
+
+The green line then shows us our current dataset. If the green line shows the same sort of pattern as all the thinner blue lines, this indicates good overall model fit.
+
+For this dataset, it really isn't bad at all for the most part! However, our dataset (the green line) does have a bit of a "dip" or "dent" that doesn't seem to be occurring in very many of our blue lines. This could potentially indicate that our model is a bit too simple, i.e., there is some other important variable that we've not factored in here; or it could simply be a result of random noise.
+
+::: {.callout-tip, collapse=TRUE}
+### Changing plotting colours in check_model
+
+If you find the green, blue and red default colours in `check_model` to be a little too similar to each other for your liking, there is an optional `colours` argument in the function that you can add. For instance, you could change the green to a yellow, by adding this to the `check_model` function: `colors = c("#fada5e", "#1b6ca8", "#cd201f")`
+:::
+
+## Dragons dataset
+
+Let's revisit the `dragons` dataset, and the minimal model that we chose in the previous section based on significance testing:
+
+```{r}
+dragons <- read_csv("datasets/dragons.csv")
+
+lme_dragons_dropx <- lmer(intelligence ~ wingspan + scales + 
+                            (1 + wingspan|mountain), 
+                            data=dragons)
+```
+
+What do you think of the diagnostic plots below for this model? Feel free to discuss with a neighbour.
+
+```{r}
+check_model(lme_dragons_dropx, 
+            check = c("linearity", "homogeneity", "qq", "outliers"))
+
+check_model(lme_dragons_dropx, 
+            check = c("reqq", "pp_check"))
+```
+
+## Summary
+
+::: {.callout-tip}
+#### Key Points
+
+- Linear mixed effects models have the same assumptions as standard linear models, along with assumptions about the distribution of random effects
+- The `performance` package in R can be used to assess whether these assumptions are met using diagnostic plots
+:::

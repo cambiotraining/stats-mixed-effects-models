@@ -1,0 +1,20 @@
+book:
+  chapters:
+    - part: "Random effects"
+      chapters:
+        - materials/independence-psuedoreplication.qmd #complete
+        - materials/random-effects.qmd #complete
+        - materials/fitting-mixed-models.qmd #complete
+    - part: "Interpreting mixed models"
+      chapters:
+        - materials/significance-testing.qmd #complete
+        - materials/checking-assumptions.qmd #complete, could have an additional exercise though
+    #- part: "More complex designs"
+      #chapters:
+        #- materials/nested-crossed-effects.qmd
+        #- materials/additional-exercises.qmd
+    #- part: "Bonus materials"
+      #chapters:
+        #- materials/correlation-matrices.qmd
+        #- materials/power-analysis.qmd
+        #- materials/generalised-mixed-models.qmd
