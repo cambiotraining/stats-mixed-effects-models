@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>6&nbsp; Significance testing</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../materials/checking-assumptions.html" rel="next">
+<link href="../materials/fitting-mixed-models.html" rel="prev">
+<link href="../site_libs/quarto-contrib/quarto-project/courseformat/img/university-of-cambridge-favicon.ico" rel="icon">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../site_libs/quarto-contrib/quarto-project/courseformat/img/university_crest_reversed.png" alt="" class="navbar-logo">
+    </a>
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Mixed effects models</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/cambiotraining/" rel="" target=""><i class="bi bi-github" role="img" aria-label="Bioinformatics Training Facility GitHub">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/bioinfocambs" rel="" target=""><i class="bi bi-twitter" role="img" aria-label="Bioinformatics Training Facility Twitter">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../materials/significance-testing.html">Interpreting mixed models</a></li><li class="breadcrumb-item"><a href="../materials/significance-testing.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Significance testing</span></a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text">Welcome</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../setup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Data &amp; Setup</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text">Random effects</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../materials/independence-psuedoreplication.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Independence &amp; pseudoreplication</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../materials/random-effects.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Introducing random effects</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../materials/fitting-mixed-models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Fitting mixed models</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text">Interpreting mixed models</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../materials/significance-testing.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Significance testing</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../materials/checking-assumptions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Checking assumptions</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#multiple-methods-for-assessing-significance" id="toc-multiple-methods-for-assessing-significance" class="nav-link active" data-scroll-target="#multiple-methods-for-assessing-significance"><span class="header-section-number">6.1</span> Multiple methods for assessing significance</a></li>
+  <li><a href="#method-1-approximation-of-the-degrees-of-freedom" id="toc-method-1-approximation-of-the-degrees-of-freedom" class="nav-link" data-scroll-target="#method-1-approximation-of-the-degrees-of-freedom"><span class="header-section-number">6.2</span> Method 1: Approximation of the degrees of freedom</a>
+  <ul class="collapse">
+  <li><a href="#using-the-kenward-roger-approximation" id="toc-using-the-kenward-roger-approximation" class="nav-link" data-scroll-target="#using-the-kenward-roger-approximation"><span class="header-section-number">6.2.1</span> Using the Kenward-Roger approximation</a></li>
+  </ul></li>
+  <li><a href="#method-2-likelihood-ratio-tests-lrts" id="toc-method-2-likelihood-ratio-tests-lrts" class="nav-link" data-scroll-target="#method-2-likelihood-ratio-tests-lrts"><span class="header-section-number">6.3</span> Method 2: Likelihood ratio tests (LRTs)</a>
+  <ul class="collapse">
+  <li><a href="#running-lrts" id="toc-running-lrts" class="nav-link" data-scroll-target="#running-lrts"><span class="header-section-number">6.3.1</span> Running LRTs</a></li>
+  </ul></li>
+  <li><a href="#method-3-t-to-z-approximations" id="toc-method-3-t-to-z-approximations" class="nav-link" data-scroll-target="#method-3-t-to-z-approximations"><span class="header-section-number">6.4</span> Method 3: t-to-z approximations</a>
+  <ul class="collapse">
+  <li><a href="#calculating-p-values-using-z-scores" id="toc-calculating-p-values-using-z-scores" class="nav-link" data-scroll-target="#calculating-p-values-using-z-scores"><span class="header-section-number">6.4.1</span> Calculating p-values using z-scores</a></li>
+  </ul></li>
+  <li><a href="#exercise-1---dragons-revisited" id="toc-exercise-1---dragons-revisited" class="nav-link" data-scroll-target="#exercise-1---dragons-revisited"><span class="header-section-number">6.5</span> Exercise 1 - Dragons revisited</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary"><span class="header-section-number">6.6</span> Summary</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Significance testing</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<p>Unlike standard linear models, p-values are not calculated automatically for a mixed effects model in <code>lme4</code>, as you may have noticed in the previous section of the materials. There is a little extra work and thought that goes into testing significance for these models.</p>
+<p>The reason for this is the inclusion of random effects, and the way that random effects are estimated. When using partial pooling to estimate the random effects, there is no way to precisely determine the number of <strong>degrees of freedom</strong>.</p>
+<p>This matters, because we need to know the degrees of freedom to calculate p-values in the way we usually do for a linear model (see the drop-down box below if you want a more detailed explanation for this).</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Degrees of freedom &amp; p-values
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The degrees of freedom in a statistical analysis refers to the number of observations in the dataset that are free to vary (i.e., free to take any value) once the necessary parameters have been estimated. This means that the degrees of freedom varies with both the sample size, and the complexity of the model you’ve fitted.</p>
+<p>Why does this matter? Well, each test statistic (such as F, t, chi-square etc.) has its own distribution, from which we can derive the probability of that statistic taking a certain value. That’s precisely what a p-value is: the probability of having collected a sample with this particular test statistic, if the null hypothesis were true.</p>
+<p>Crucially, the exact shape of this distribution is determined by the number of degrees of freedom. This means we need to know the degrees of freedom in order to calculate the correct p-value for each of our test statistics.</p>
+</div>
+</div>
+</div>
+<p>However, when we fit a mixed effects model, we still want to be able to discuss significance of a) our overall model and b) individual predictors within our model.</p>
+<section id="multiple-methods-for-assessing-significance" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="multiple-methods-for-assessing-significance"><span class="header-section-number">6.1</span> Multiple methods for assessing significance</h2>
+<p>So, how do we get around the degrees of freedom problem?</p>
+<p>There are several methods for doing this, and different methods for fixed vs random effects. But we’ll work through some of the most popular together, including:</p>
+<ul>
+<li>Likelihood ratio tests</li>
+<li>Approximations of degrees of freedom</li>
+<li>t-as-z approximations</li>
+</ul>
+</section>
+<section id="method-1-approximation-of-the-degrees-of-freedom" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="method-1-approximation-of-the-degrees-of-freedom"><span class="header-section-number">6.2</span> Method 1: Approximation of the degrees of freedom</h2>
+<p>We’ll start by exploring the most intuitive of the three methods.</p>
+<p>Put simply, this approach involves making an educated guess about the degrees of freedom with some formulae, and then deriving a p-value as we usually would. This lets us obtain p-values for any t- and F-values that are calculated, with just the one extra step compared to what we’re used with linear models.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+A major caveat
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Despite being very simple and intuitive, there is a downside: this method does not provide p-values for random effects, only for fixed effects.</p>
+</div>
+</div>
+<p>For this approach, we will use the companion package to <code>lme4</code>, a package called <code>lmerTest</code>. It provides an “updated” version of the <code>lmer()</code> function, one that can approximate the number of degrees of freedom, and thus provide estimated p-values.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" aria-current="page">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lmerTest)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<p>Now, whenever you use the <code>lmer()</code> function, R will automatically use the version from the <code>lmerTest</code> package. (You can prevent it from doing so by typing <code>lme4::lmer()</code> instead.)</p>
+<p>The <code>lmerTest</code> package uses the Satterthwaite approximation by default. This particular approximation is appropriate for mixed models that are fitted using either MLE or ReML, making it pretty flexible.</p>
+<p>Using this new package, let’s look again at our random slopes &amp; intercepts model for the <code>sleepstudy</code> dataset:</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># refit the random intercepts &amp; random slopes model</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># using lmerTest instead of lme4</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>lme_sleep2 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Reaction <span class="sc">~</span> Days <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> Days<span class="sc">|</span>Subject),</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> sleepstudy)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<p>The new version of the <code>lmer</code> function fits a very similar model object to before, except now it contains the outputs of a number of calculations that are required for the Satterthwaite approximation already built in.</p>
+<p>This means that we can now use the <code>anova</code> function from the <code>lmerTest</code> package to produce an analysis of variance table. This gives us an estimate for the F-statistic and associated p-value for our fixed effect of <code>Days</code>:</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lme_sleep2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Type III Analysis of Variance Table with Satterthwaite's method
+     Sum Sq Mean Sq NumDF DenDF F value    Pr(&gt;F)    
+Days  30031   30031     1    17  45.853 3.264e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<section id="using-the-kenward-roger-approximation" class="level3" data-number="6.2.1">
+<h3 data-number="6.2.1" class="anchored" data-anchor-id="using-the-kenward-roger-approximation"><span class="header-section-number">6.2.1</span> Using the Kenward-Roger approximation</h3>
+<p>Although the Satterthwaite approximation is the <code>lmerTest</code> default, another option called the Kenward-Roger approximation also exists. It’s less popular than Satterthwaite because it’s a bit less flexible (it can only be applied to models fitted with ReML).</p>
+<p>If you wanted to switch to the Kenward-Roger approximation, you can do it easily by specifying the <code>ddf</code> argument:</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-4-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-1" role="tab" aria-controls="tabset-4-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-4-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-4-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lme_sleep2, <span class="at">ddf=</span><span class="st">"Kenward-Roger"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Type III Analysis of Variance Table with Kenward-Roger's method
+     Sum Sq Mean Sq NumDF DenDF F value    Pr(&gt;F)    
+Days  30031   30031     1    17  45.853 3.264e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>In reality, though, chances are that you’ll just stick with the Satterthwaite default if you plan to use approximations for your own analyses. Statisticians have debated the relative merits of Satterthwaite vs K-R, but the differences only really tend to emerge under specific conditions. Here, it’s given us the same result.</p>
+</section>
+</section>
+<section id="method-2-likelihood-ratio-tests-lrts" class="level2" data-number="6.3">
+<h2 data-number="6.3" class="anchored" data-anchor-id="method-2-likelihood-ratio-tests-lrts"><span class="header-section-number">6.3</span> Method 2: Likelihood ratio tests (LRTs)</h2>
+<p>When introducing degrees of freedom approximations above, I mentioned a major caveat to them: they only work for testing fixed effects. So, now we’re going to look at an alternative method, which we can use for testing both fixed <em>and</em> random effects.</p>
+<p>This is a more flexible and general method for assessing significance, called a likelihood ratio test (LRT). An LRT is used to compare goodness-of-fit between two models, and crucially, doesn’t require us to know the degrees of freedom of those model(s).</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What makes this test a “likelihood ratio”?
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Remember that mixed effects models are fitted by maximising their likelihood, which is defined as the joint probability of the sample given a particular set of parameters (i.e., how likely is it that this particular set of data points would occur, given a model with this equation?).</p>
+<p>Each distinct mixed model that is fitted to a given dataset therefore has its own value of likelihood. When we want to compare two models, we can calculate the ratio of their individual likelihoods. This ratio can be thought of as a statistic of its own (akin to the t- or F-statistic), and approximately follows a chi-square distribution.</p>
+<p>To determine whether this ratio is significantly different from 1, we calculate the degrees of freedom for the analysis - which is equal to the difference in the number of parameters in the model - to find the corresponding chi-square distribution, from which we can then calculate a p-value.</p>
+</div>
+</div>
+</div>
+<p>Crucially, we are only able to use this sort of test when one of the two models that we are comparing is a “simpler” version of the other, i.e., one model has a subset of the parameters of the other model.</p>
+<p>So while we could perform an LRT just fine between these two models: <code>Y ~ A + B + C</code> and <code>Y ~ A + B + C + D</code>, or between any model and the null (<code>Y ~ 1</code>), we would not be able to use this test to compare <code>Y ~ A + B + C</code> and <code>Y ~ A + B + D</code>.</p>
+<p>We can use LRTs to assess the significance of pretty much any individual effect (random or fixed) in our mixed effects model, by comparing versions of the model with versus without that predictor. We can also use LRTs to assess the fit of the model as a whole, by comparing it to the null model.</p>
+<section id="running-lrts" class="level3" data-number="6.3.1">
+<h3 data-number="6.3.1" class="anchored" data-anchor-id="running-lrts"><span class="header-section-number">6.3.1</span> Running LRTs</h3>
+<p>Since LRTs involve making a comparison between two models, we must first decide which models we’re comparing, and check that one model is a “subset” of the other.</p>
+<p>Let’s return to our <code>sleepstudy</code> dataset, and fit two models - one with random intercepts only, and one with random intercepts and random slopes.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-5-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-1" role="tab" aria-controls="tabset-5-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-5-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-5-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># load lme4, and the dataset from the package</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lme4)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"sleepstudy"</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># fit the random intercepts model</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>lme_sleep1 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Reaction <span class="sc">~</span> Days <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>Subject),</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> sleepstudy)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co"># fit the random intercepts &amp; slopes model</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>lme_sleep2 <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Reaction <span class="sc">~</span> Days <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> Days<span class="sc">|</span>Subject),</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> sleepstudy)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<p>Now, we will use the old faithful <code>anova</code> function. Rather than putting just one model in, however, we will include both the models that we want to compare, listing them one after another.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Note the warning/information message R provides when we use the <code>anova</code> function this way: “refitting model(s) with ML (instead of REML)”.</p>
+<p>R, or more specifically the <code>anova</code> function, has done something helpful for us here. For reasons that we won’t go into too much (though, feel free to ask if you’re curious!), we cannot use LRTs to compare models that have been fitted with the ReML method, even though this is the standard method for the <code>lme4</code> package. So we must refit the model with ML.</p>
+<p>(Incidentally, we could have chosen to fit the models manually with ML, if we’d wanted to. The <code>lmer</code> function takes an optional <code>REML</code> argument that we can set to FALSE - it’s set to TRUE by default. But letting the <code>anova</code> function do it for us is much easier!)</p>
+</div>
+</div>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-6-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-1" role="tab" aria-controls="tabset-6-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-6-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-6-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lme_sleep2, lme_sleep1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>refitting model(s) with ML (instead of REML)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Data: sleepstudy
+Models:
+lme_sleep1: Reaction ~ Days + (1 | Subject)
+lme_sleep2: Reaction ~ Days + (1 + Days | Subject)
+           npar    AIC    BIC  logLik deviance  Chisq Df Pr(&gt;Chisq)    
+lme_sleep1    4 1802.1 1814.8 -897.04   1794.1                         
+lme_sleep2    6 1763.9 1783.1 -875.97   1751.9 42.139  2  7.072e-10 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>This table gives us the chi-square statistic (i.e., the likelihood ratio) and an associated p-value.</p>
+<p>Here, we have a large chi-square statistic and a small p-value. This tells us that dropping the random slopes term from our model <em>does</em> have a significant effect - in other words, the random slopes term is meaningful and useful when predicting reaction times.</p>
+<p>We can also test the significance of our fixed effect of <code>Days</code>. We keep the structure of random effects the same, and replace our fixed effect with <code>1</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>lme_random <span class="ot">&lt;-</span> <span class="fu">lmer</span>(Reaction <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> Days<span class="sc">|</span>Subject), <span class="at">data =</span> sleepstudy)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lme_sleep2, lme_random)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>refitting model(s) with ML (instead of REML)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Data: sleepstudy
+Models:
+lme_random: Reaction ~ 1 + (1 + Days | Subject)
+lme_sleep2: Reaction ~ Days + (1 + Days | Subject)
+           npar    AIC    BIC  logLik deviance  Chisq Df Pr(&gt;Chisq)    
+lme_random    5 1785.5 1801.4 -887.74   1775.5                         
+lme_sleep2    6 1763.9 1783.1 -875.97   1751.9 23.537  1  1.226e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>Once again, there is a significant difference between the two models, as seen by our small p-value. This tells us that the fixed effect of days is a significant predictor of reaction time.</p>
+</section>
+</section>
+<section id="method-3-t-to-z-approximations" class="level2" data-number="6.4">
+<h2 data-number="6.4" class="anchored" data-anchor-id="method-3-t-to-z-approximations"><span class="header-section-number">6.4</span> Method 3: t-to-z approximations</h2>
+<p>The third and final method that we’ll touch on in this course is another form of approximation - here, we make use of the Wald t-values, which are reported as standard in the <code>lme4</code> output.</p>
+<p>Specifically, we can choose to treat these t-values as if they were z-scores instead, if our sample size is considered large enough. And, because z-scores are standardised, we don’t need any degrees of freedom information to derive a p-value - we can just read them directly out of a table (or get R to do it for us).</p>
+<section id="the-logic-of-using-z-scores-instead" class="level4 callout.note" data-collapse="true">
+<h4 class="anchored" data-anchor-id="the-logic-of-using-z-scores-instead">The logic of using z-scores instead</h4>
+<p>A z-score is different from a statistic such as t or F. They’re standardised, because they’re measured in standard deviations - i.e., a z-score of 1.3 tells you that you are 1.3 standard deviations away from the mean.</p>
+<p>This is helpful for deriving a p-value without degrees of freedom, but it raises the question: why is it okay to treat t-values as z-scores?</p>
+<p>The logic here is that the t distribution actually begins to approximate (i.e., match up with) the z distribution as the sample size increases. Officially, when the sample size is infinite, the two distributions are identical. So, with a sufficiently large sample size, we can “pretend” or “imagine” that the Wald t-values are actually z-distributed, giving us p-values.</p>
+</section>
+<p>Unfortunately, there are no formal guidelines to tell you whether your dataset is “large enough” to do this. It will depend on the number and type of predictors in your model. Plus, the t-to-z approximation is considered to be “anti-conservative” - in other words, there’s a higher chance of false positives than with other methods.</p>
+<p>Some researchers adapt the t-to-z approximation approach a little to help with this; instead of explicitly calculating p-values, they instead use a rule of thumb that any Wald t-value greater than 2 is large enough to be considered significant. This is quite a strict threshold, so it can help to filter out some of the false positives or less convincing results.</p>
+<section id="calculating-p-values-using-z-scores" class="level3" data-number="6.4.1">
+<h3 data-number="6.4.1" class="anchored" data-anchor-id="calculating-p-values-using-z-scores"><span class="header-section-number">6.4.1</span> Calculating p-values using z-scores</h3>
+<p>Let’s look again at the <code>summary</code> output for our model:</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-7-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-1" role="tab" aria-controls="tabset-7-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-7-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-7-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lme_sleep2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: Reaction ~ Days + (1 + Days | Subject)
+   Data: sleepstudy
+
+REML criterion at convergence: 1743.6
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.9536 -0.4634  0.0231  0.4634  5.1793 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr
+ Subject  (Intercept) 612.10   24.741       
+          Days         35.07    5.922   0.07
+ Residual             654.94   25.592       
+Number of obs: 180, groups:  Subject, 18
+
+Fixed effects:
+            Estimate Std. Error      df t value Pr(&gt;|t|)    
+(Intercept)  251.405      6.825  17.000  36.838  &lt; 2e-16 ***
+Days          10.467      1.546  17.000   6.771 3.26e-06 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+     (Intr)
+Days -0.138</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>Calculating the p-value for a z-score can be done quickly in R using the <code>pnorm</code> function. We include the z-score (or, here, the t-value that we are treating as a z-score) as the value for our argument <code>q</code>. To make this a two-tailed test, we have to set <code>lower.tail</code> to FALSE, and multiply the answer by 2.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-8-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-8-1" role="tab" aria-controls="tabset-8-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-8-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-8-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span><span class="sc">*</span><span class="fu">pnorm</span>(<span class="at">q =</span> <span class="fl">6.771</span>, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.278953e-11</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>If we input the t-value for our <code>Days</code> fixed effect, we can see that it gives us a very small p-value. This p-value of 1.28 x 10<sup>-11</sup> is quite a bit smaller than the one that our Satterthwaite degrees of freedom approximation provided (3.26 x 10<sup>-6</sup>) - an example of how this t-to-z approximation is more generous. However, in this case it’s very clear that the <code>Days</code> effect definitely is significant, whichever way we test it, so it’s perhaps not a concern.</p>
+<section id="and-that-in-fact-leads-me-to-a-final-point-id-like-to-make" class="level4">
+<h4 class="anchored" data-anchor-id="and-that-in-fact-leads-me-to-a-final-point-id-like-to-make">And that, in fact, leads me to a final point I’d like to make:</h4>
+<p>One of the main reasons I’ve bothered to include all three of these methods here is because there’s nothing stopping you using more than one approach when it comes to testing your own models. If you do use multiple methods, and they agree/lead you to the same conclusion, then that increases your overall confidence in that conclusion. If they disagree, then it’s better that you know that your result might not be reliable, and you can do some further investigations to figure out why (e.g., perhaps it’s a statistical power issue).</p>
+</section>
+</section>
+</section>
+<section id="exercise-1---dragons-revisited" class="level2" data-number="6.5">
+<h2 data-number="6.5" class="anchored" data-anchor-id="exercise-1---dragons-revisited"><span class="header-section-number">6.5</span> Exercise 1 - Dragons revisited</h2>
+<p>Let’s return to the dataset from our previous example, our dragons dataset.</p>
+<p>Previously, we fit a mixed model to this dataset that included response variable <code>intelligence</code>, fixed effects of <code>wingspan</code>, <code>scales</code> and <code>wingspan:colour</code>, and two random effects: random intercepts by <code>mountain</code>, and random slopes for <code>wingspan</code> by <code>mountain</code>.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-9-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-9-1" role="tab" aria-controls="tabset-9-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-9-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-9-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>dragons <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/dragons.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 200 Columns: 5
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (2): scales, mountain
+dbl (3): dragon, wingspan, intelligence
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>lme_dragons <span class="ot">&lt;-</span> <span class="fu">lmer</span>(intelligence <span class="sc">~</span> wingspan<span class="sc">*</span>scales <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> wingspan<span class="sc">|</span>mountain), </span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">data=</span>dragons)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<p>Now, test the significance of this model and its parameters using the methods shown above. Think about:</p>
+<ul>
+<li>whether any/all of our fixed effects are significant</li>
+<li>whether either of our random effects are significant</li>
+<li>whether the three methods lead you to the same conclusions, and if not, why this might be</li>
+</ul>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Worked answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Let’s start by using an LRT to test the overall significance of our model.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-10-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-10-1" role="tab" aria-controls="tabset-10-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-10-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-10-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># construct a null model</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>lme_dragons_null <span class="ot">&lt;-</span> <span class="fu">lm</span>(intelligence <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> dragons)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co"># compare the full and null models</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lme_dragons, lme_dragons_null)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>refitting model(s) with ML (instead of REML)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Data: dragons
+Models:
+lme_dragons_null: intelligence ~ 1
+lme_dragons: intelligence ~ wingspan * scales + (1 + wingspan | mountain)
+                 npar    AIC    BIC  logLik deviance  Chisq Df Pr(&gt;Chisq)    
+lme_dragons_null    2 1997.0 2003.6 -996.51   1993.0                         
+lme_dragons         8 1647.8 1674.2 -815.92   1631.8 361.18  6  &lt; 2.2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>It’s significant. Something in our model is doing something helpful. A really good start!</p>
+<p>Next, we can use LRTs to check the significance of our individual random effects. We’ll build some new models - one with random intercepts only and one with random slopes only - and compare them to the full model. Remember that for these models to be comparable, we need to keep the fixed effects the same.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-11-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-11-1" role="tab" aria-controls="tabset-11-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-11-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-11-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>lme_dragons_dropslope <span class="ot">&lt;-</span> <span class="fu">lmer</span>(intelligence <span class="sc">~</span> wingspan<span class="sc">*</span>scales <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>mountain), </span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>                            <span class="at">data=</span>dragons)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>lme_dragons_dropint <span class="ot">&lt;-</span> <span class="fu">lmer</span>(intelligence <span class="sc">~</span> wingspan<span class="sc">*</span>scales <span class="sc">+</span> (<span class="dv">0</span> <span class="sc">+</span> wingspan<span class="sc">|</span>mountain), </span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>                            <span class="at">data=</span>dragons)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<p>Now, we can compare both of these new models to our original model, using <code>anova</code>:</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-12-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-12-1" role="tab" aria-controls="tabset-12-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-12-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-12-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lme_dragons, lme_dragons_dropint)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>refitting model(s) with ML (instead of REML)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Data: dragons
+Models:
+lme_dragons_dropint: intelligence ~ wingspan * scales + (0 + wingspan | mountain)
+lme_dragons: intelligence ~ wingspan * scales + (1 + wingspan | mountain)
+                    npar    AIC    BIC  logLik deviance  Chisq Df Pr(&gt;Chisq)
+lme_dragons_dropint    6 1643.9 1663.7 -815.95   1631.9                     
+lme_dragons            8 1647.8 1674.2 -815.92   1631.8 0.0691  2     0.9661</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-13-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-13-1" role="tab" aria-controls="tabset-13-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-13-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-13-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lme_dragons, lme_dragons_dropslope)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>refitting model(s) with ML (instead of REML)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Data: dragons
+Models:
+lme_dragons_dropslope: intelligence ~ wingspan * scales + (1 | mountain)
+lme_dragons: intelligence ~ wingspan * scales + (1 + wingspan | mountain)
+                      npar    AIC    BIC  logLik deviance  Chisq Df Pr(&gt;Chisq)
+lme_dragons_dropslope    6 1737.9 1757.7 -862.95   1725.9                     
+lme_dragons              8 1647.8 1674.2 -815.92   1631.8 94.057  2  &lt; 2.2e-16
+                         
+lme_dragons_dropslope    
+lme_dragons           ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>These results would seem to suggest that while the random slopes are significant, the random intercepts are not.</p>
+<p>This opens up a bit of a debate about whether it’s a good idea to drop a random effect from a model if it’s not significant. You can, of course, use any model you like to describe your dataset. But if you’re not pushed for statistical power, it can be worth leaving non-significant random effects in a model, so that it better reflects your experimental design. In this case, I would personally opt for leaving the random intercepts in my final model, because it’s quite unusual to see random slopes on their own. But this is, of course, personal choice!</p>
+<p>Let’s move on to thinking about our fixed effects. Following the same LRT procedure, we can construct some new models - one where we’ve dropped the <code>wingspan:scales</code> interaction, and two more where we exclude <code>wingspan</code> or <code>scales</code> entirely (plus the interaction in both cases). We’ll keep the random effects the same across these models.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-14-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-14-1" role="tab" aria-controls="tabset-14-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-14-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-14-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># testing the interaction term</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>lme_dragons_dropx <span class="ot">&lt;-</span> <span class="fu">lmer</span>(intelligence <span class="sc">~</span> wingspan <span class="sc">+</span> scales <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> wingspan<span class="sc">|</span>mountain), </span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>                          <span class="at">data=</span>dragons)</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lme_dragons, lme_dragons_dropx)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>refitting model(s) with ML (instead of REML)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Data: dragons
+Models:
+lme_dragons_dropx: intelligence ~ wingspan + scales + (1 + wingspan | mountain)
+lme_dragons: intelligence ~ wingspan * scales + (1 + wingspan | mountain)
+                  npar    AIC    BIC  logLik deviance  Chisq Df Pr(&gt;Chisq)
+lme_dragons_dropx    7 1647.2 1670.3 -816.60   1633.2                     
+lme_dragons          8 1647.8 1674.2 -815.92   1631.8 1.3648  1     0.2427</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># testing the main effect of scales</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>lme_dragons_dropwing <span class="ot">&lt;-</span> <span class="fu">lmer</span>(intelligence <span class="sc">~</span> scales <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> wingspan<span class="sc">|</span>mountain), </span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>                            <span class="at">data=</span>dragons)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv, :
+Model failed to converge with max|grad| = 0.003579 (tol = 0.002, component 1)</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lme_dragons, lme_dragons_dropwing)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>refitting model(s) with ML (instead of REML)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Data: dragons
+Models:
+lme_dragons_dropwing: intelligence ~ scales + (1 + wingspan | mountain)
+lme_dragons: intelligence ~ wingspan * scales + (1 + wingspan | mountain)
+                     npar    AIC    BIC  logLik deviance  Chisq Df Pr(&gt;Chisq)
+lme_dragons_dropwing    6 1653.5 1673.2 -820.73   1641.5                     
+lme_dragons             8 1647.8 1674.2 -815.92   1631.8 9.6251  2   0.008127
+                       
+lme_dragons_dropwing   
+lme_dragons          **
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># testing the main effect of wingspan</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>lme_dragons_dropscale <span class="ot">&lt;-</span> <span class="fu">lmer</span>(intelligence <span class="sc">~</span> wingspan <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> wingspan<span class="sc">|</span>mountain), </span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>                              <span class="at">data=</span>dragons)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv, :
+unable to evaluate scaled gradient</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv, :
+Model failed to converge: degenerate Hessian with 1 negative eigenvalues</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Model failed to converge with 1 negative eigenvalue: -2.6e+00</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lme_dragons, lme_dragons_dropscale)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>refitting model(s) with ML (instead of REML)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Data: dragons
+Models:
+lme_dragons_dropscale: intelligence ~ wingspan + (1 + wingspan | mountain)
+lme_dragons: intelligence ~ wingspan * scales + (1 + wingspan | mountain)
+                      npar    AIC    BIC  logLik deviance  Chisq Df Pr(&gt;Chisq)
+lme_dragons_dropscale    6 1673.6 1693.3 -830.78   1661.6                     
+lme_dragons              8 1647.8 1674.2 -815.92   1631.8 29.724  2  3.512e-07
+                         
+lme_dragons_dropscale    
+lme_dragons           ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>Taken together, these LRTs suggest that although the interaction of <code>wingspan:scales</code> is not a particularly useful or significant predictor, the two main effects are.</p>
+<p>Comfortingly, this aligns with what we see in an analysis of variance table using a Satterthwaite degrees of freedom approximation, which shows overall that there seem to be main effects though no significant interaction. The p-values are not the same - we wouldn’t expect them to be, they’re calculated very differently - but it’s a relief that the overall effect is robust across methods:</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-15-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-15-1" role="tab" aria-controls="tabset-15-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-15-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-15-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lme_dragons)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Type III Analysis of Variance Table with Satterthwaite's method
+                 Sum Sq Mean Sq NumDF   DenDF F value  Pr(&gt;F)   
+wingspan        3059.70 3059.70     1   3.992 16.8632 0.01484 * 
+scales          1923.44 1923.44     1 188.765 10.6009 0.00134 **
+wingspan:scales  242.84  242.84     1 188.380  1.3384 0.24878   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>And, indeed, we would draw the same overall conclusion using t-to-z approximations as well (using the t-values, extracted from the output of the <code>summary</code> function). Excellent news.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-16-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-16-1" role="tab" aria-controls="tabset-16-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-16-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-16-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># interaction term</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span><span class="sc">*</span><span class="fu">pnorm</span>(<span class="at">q =</span> <span class="sc">-</span><span class="fl">1.157</span>, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.752728</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># scales main effect</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span><span class="sc">*</span><span class="fu">pnorm</span>(<span class="at">q =</span> <span class="fl">3.256</span>, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.001129938</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co"># wingspan main effect</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span><span class="sc">*</span><span class="fu">pnorm</span>(<span class="at">q =</span> <span class="fl">4.244</span>, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2.195704e-05</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>On the basis of these results, you could choose to refine your model slightly, eliminating the unhelpful <code>wingspan:scales</code> interaction. As discussed above, you could also choose to drop the random intercepts from the model, but that is a little more contentious. I’ll keep it for now, making <code>lme_dragons_dropx</code> the working minimal model.</p>
+<p>We can visualise that like so:</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-17-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-17-1" role="tab" aria-controls="tabset-17-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-17-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-17-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(dragons, <span class="fu">aes</span>(<span class="at">x =</span> wingspan, <span class="at">y =</span> intelligence, <span class="at">colour =</span> scales)) <span class="sc">+</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="fu">vars</span>(mountain)) <span class="sc">+</span></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> <span class="fu">augment</span>(lme_dragons_dropx), <span class="fu">aes</span>(<span class="at">y =</span> .fitted))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="significance-testing_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="summary" class="level2" data-number="6.6">
+<h2 data-number="6.6" class="anchored" data-anchor-id="summary"><span class="header-section-number">6.6</span> Summary</h2>
+<p>There are multiple ways to assess the significance of effects in a mixed effects model, which can aid you in determining which predictors are required in your analysis. This section introduces you to a few of them.</p>
+<p>The most versatile of these methods - and one which is worth your time, even if the learning curve is slightly steeper - is likelihood ratio tests (LRTs). LRTs can be used for assessing the significance of random effects as well as fixed effects, and of the full model versus the null.</p>
+<p>If you’re interested in doing further reading on this topic, then <a href="https://link.springer.com/article/10.3758/s13428-016-0809-y">this article</a> has a nice comparison of the methods discussed above, including how they perform in terms of type I (false positive) error rates.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Key Points
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Calculating p-values for mixed effects models is tricky, as there is no precise number of degrees of freedom</li>
+<li>To calculate p-values for random and/or fixed effects, likelihood ratio tests can be used</li>
+<li>Approximations of degrees of freedom (Satterthwaite and/or Kenward-Roger) or the t-as-z approximation can also be used to estimate p-values for fixed effects in mixed models</li>
+</ul>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../materials/fitting-mixed-models.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Fitting mixed models</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../materials/checking-assumptions.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Checking assumptions</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">Licensed <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> <img src="https://creativecommons.org/images/deed/cc_icon_black_x2.png" class="img-fluid" width="25"> Bioinformatics Training Facility</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+</body></html>
