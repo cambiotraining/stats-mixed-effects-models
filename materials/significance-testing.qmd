@@ -17,7 +17,7 @@ library(broom.mixed)
 source(file = "setup_files/setup.R")
 ```
 
-Unlike standard linear models, p-values are not calculated automatically for a mixed effects model, as you may have noticed in the previous section of the materials. There is a little extra work and thought that goes into testing significance for these models.
+Unlike standard linear models, p-values are not calculated automatically for a mixed effects model in `lme4`, as you may have noticed in the previous section of the materials. There is a little extra work and thought that goes into testing significance for these models.
 
 The reason for this is the inclusion of random effects, and the way that random effects are estimated. When using partial pooling to estimate the random effects, there is no way to precisely determine the number of **degrees of freedom**. 
 
@@ -39,27 +39,96 @@ However, when we fit a mixed effects model, we still want to be able to discuss 
 
 So, how do we get around the degrees of freedom problem?
 
-There are several methods for doing this, and different methods for fixed vs random effects, to complicate matters further. But we'll work through some of the most popular together, including:
+There are several methods for doing this, and different methods for fixed vs random effects. But we'll work through some of the most popular together, including:
 
 - Likelihood ratio tests
 - Approximations of degrees of freedom
 - t-as-z approximations
 
-Note that these three methods have been ordered by how much time we'll devote to them, and that this is not an exhaustive list of methods. But it's a really good starting point.
+## Method 1: Approximation of the degrees of freedom
 
-## Method 1: Likelihood ratio tests (LRTs)
+We'll start by exploring the most intuitive of the three methods.
 
-The advantage of likelihood ratio tests (LRTs) for mixed effects models is that they allow us to test a hypothesis, without requiring us to know the degrees of freedom of any particular model. An LRT is used to compare goodness-of-fit between models, by looking at the ratio of their respective likelihoods (hence the name). 
+Put simply, this approach involves making an educated guess about the degrees of freedom with some formulae, and then deriving a p-value as we usually would. This lets us obtain p-values for any t- and F-values that are calculated, with just the one extra step compared to what we're used with linear models.
 
-How does the maths of this work? 
+::: {.callout-important}
+#### A major caveat
 
-Mixed effects models are fitted by maximising the likelihood, which is defined as the joint probability of the sample given a particular set of parameters. Each model will therefore have its own value of likelihood. When we want to compare two models, we can calculate the ratio of their individual likelihoods, and then determine whether this ratio is significantly different from 1. 
+Despite being very simple and intuitive, there is a downside: this method does not provide p-values for random effects, only for fixed effects.
+:::
+
+For this approach, we will use the companion package to `lme4`, a package called `lmerTest`. It provides an "updated" version of the `lmer()` function, one that can approximate the number of degrees of freedom, and thus provide estimated p-values.
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+library(lmerTest)
+```
+:::
+
+Now, whenever you use the `lmer()` function, R will automatically use the version from the `lmerTest` package. (You can prevent it from doing so by typing `lme4::lmer()` instead.)
+
+The `lmerTest` package uses the Satterthwaite approximation by default. This particular approximation is appropriate for mixed models that are fitted using either MLE or ReML, making it pretty flexible.
+
+Using this new package, let's look again at our random slopes & intercepts model for the `sleepstudy` dataset:
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+# refit the random intercepts & random slopes model
+# using lmerTest instead of lme4
+lme_sleep2 <- lmer(Reaction ~ Days + (1 + Days|Subject),
+                   data = sleepstudy)
+```
+:::
+
+The new version of the `lmer` function fits a very similar model object to before, except now it contains the outputs of a number of calculations that are required for the Satterthwaite approximation already built in.
+
+This means that we can now use the `anova` function from the `lmerTest` package to produce an analysis of variance table. This gives us an estimate for the F-statistic and associated p-value for our fixed effect of `Days`:
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+anova(lme_sleep2)
+```
+:::
+
+### Using the Kenward-Roger approximation
+
+Although the Satterthwaite approximation is the `lmerTest` default, another option called the Kenward-Roger approximation also exists. It's less popular than Satterthwaite because it's a bit less flexible (it can only be applied to models fitted with ReML). 
+
+If you wanted to switch to the Kenward-Roger approximation, you can do it easily by specifying the `ddf` argument:
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+anova(lme_sleep2, ddf="Kenward-Roger")
+```
+:::
+
+In reality, though, chances are that you'll just stick with the Satterthwaite default if you plan to use approximations for your own analyses. Statisticians have debated the relative merits of Satterthwaite vs K-R, but the differences only really tend to emerge under specific conditions. Here, it's given us the same result.
+
+## Method 2: Likelihood ratio tests (LRTs)
+
+When introducing degrees of freedom approximations above, I mentioned a major caveat to them: they only work for testing fixed effects. So, now we're going to look at an alternative method, which we can use for testing both fixed *and* random effects.
+
+This is a more flexible and general method for assessing significance, called a likelihood ratio test (LRT). An LRT is used to compare goodness-of-fit between two models, and crucially, doesn't require us to know the degrees of freedom of those model(s).
+
+::: {.callout-note collapse="true"}
+#### What makes this test a "likelihood ratio"? 
+
+Remember that mixed effects models are fitted by maximising their likelihood, which is defined as the joint probability of the sample given a particular set of parameters (i.e., how likely is it that this particular set of data points would occur, given a model with this equation?).
+
+Each distinct mixed model that is fitted to a given dataset therefore has its own value of likelihood. When we want to compare two models, we can calculate the ratio of their individual likelihoods. This ratio can be thought of as a statistic of its own (akin to the t- or F-statistic), and approximately follows a chi-square distribution. 
+
+To determine whether this ratio is significantly different from 1, we calculate the degrees of freedom for the analysis - which is equal to the difference in the number of parameters in the model - to find the corresponding chi-square distribution, from which we can then calculate a p-value.
+:::
 
 Crucially, we are only able to use this sort of test when one of the two models that we are comparing is a "simpler" version of the other, i.e., one model has a subset of the parameters of the other model. 
 
 So while we could perform an LRT just fine between these two models: `Y ~ A + B + C` and `Y ~ A + B + C + D`, or between any model and the null (`Y ~ 1`), we would not be able to use this test to compare `Y ~ A + B + C` and `Y ~ A + B + D`.
 
-We can use LRTs to assess the significance of pretty much any individual effect in our mixed effects model, by comparing versions of the model with versus without that predictor. This holds true for both random and fixed effects.
+We can use LRTs to assess the significance of pretty much any individual effect (random or fixed) in our mixed effects model, by comparing versions of the model with versus without that predictor. We can also use LRTs to assess the fit of the model as a whole, by comparing it to the null model.
 
 ### Running LRTs
 
@@ -67,6 +136,8 @@ Since LRTs involve making a comparison between two models, we must first decide 
 
 Let's return to our `sleepstudy` dataset, and fit two models - one with random intercepts only, and one with random intercepts and random slopes.
 
+::: {.panel-tabset group="language"}
+## R
 ```{r}
 # load lme4, and the dataset from the package
 library(lme4)
@@ -80,20 +151,26 @@ lme_sleep1 <- lmer(Reaction ~ Days + (1|Subject),
 lme_sleep2 <- lmer(Reaction ~ Days + (1 + Days|Subject),
                    data = sleepstudy)
 ```
+:::
+
 Now, we will use the old faithful `anova` function. Rather than putting just one model in, however, we will include both the models that we want to compare, listing them one after another.
 
-::: {.callout-warning}
+::: {.callout-note}
 Note the warning/information message R provides when we use the `anova` function this way: "refitting model(s) with ML (instead of REML)".
 
 R, or more specifically the `anova` function, has done something helpful for us here. For reasons that we won't go into too much (though, feel free to ask if you're curious!), we cannot use LRTs to compare models that have been fitted with the ReML method, even though this is the standard method for the `lme4` package. So we must refit the model with ML.
 
-(Incidentally, we could have chosen to fit the models manually with ML if we wanted to. The `lmer` function takes an optional `REML` argument that we can set to FALSE - it's set to TRUE by default.)
+(Incidentally, we could have chosen to fit the models manually with ML, if we'd wanted to. The `lmer` function takes an optional `REML` argument that we can set to FALSE - it's set to TRUE by default. But letting the `anova` function do it for us is much easier!)
 :::
 
+::: {.panel-tabset group="language"}
+## R
 ```{r}
 anova(lme_sleep2, lme_sleep1)
 ```
-This table gives us a chi-square statistic and an associated p-value. (We use the chi-square statistic for all LRTs, because likelihood ratios roughly approximate the chi-square distribution.)
+:::
+
+This table gives us the chi-square statistic (i.e., the likelihood ratio) and an associated p-value.
 
 Here, we have a large chi-square statistic and a small p-value. This tells us that dropping the random slopes term from our model *does* have a significant effect - in other words, the random slopes term is meaningful and useful when predicting reaction times.
 
@@ -104,84 +181,71 @@ lme_random <- lmer(Reaction ~ 1 + (1 + Days|Subject), data = sleepstudy)
 
 anova(lme_sleep2, lme_random)
 ```
+
 Once again, there is a significant difference between the two models, as seen by our small p-value. This tells us that the fixed effect of days is a significant predictor of reaction time.
-
-## Method 2: Approximation of the degrees of freedom
-
-Put simply, this approach involves making an educated guess about the degrees of freedom with some formulae, and then deriving a p-value as we usually would. This lets us obtain p-values for the t and F values that are calculated for our fixed effects - unfortunately, this method does **not** provide p-values for random effects.
-
-For this approach, we will use the companion package to `lme4`, a package called `lmerTest`. It provides an "updated" version of the `lmer()` function, one that can approximate the number of degrees of freedom, and thus provide estimated p-values.
-
-```{r}
-library(lmerTest)
-```
-
-Now, whenever you use the `lmer()` function, R will automatically use the version from the `lmerTest` package. (You can prevent it from doing so by typing `lme4::lmer()` instead.)
-
-The `lmerTest` package uses the Satterthwaite approximation by default. This particular approximation is appropriate for mixed models that are fitted using either MLE or ReML, making it pretty flexible.
-
-Using this new package, let's look again at our random slopes & intercepts model for the `sleepstudy` dataset:
-
-```{r}
-# refit the random intercepts & random slopes model
-# using lmerTest instead of lme4
-lme_sleep2 <- lmer(Reaction ~ Days + (1 + Days|Subject),
-                   data = sleepstudy)
-```
-The new version of the `lmer` function fits a very similar model object to before, except now it contains the outputs of a number of calculations that are required for the Satterthwaite approximation already built in.
-
-This means that we can now use the `anova` function from the `lmerTest` package to produce an analysis of variance table. This gives us an estimate for the F-statistic and associated p-value for our fixed effect of `Days`:
-
-```{r}
-anova(lme_sleep2)
-```
-### Using the Kenward-Roger approximation
-
-Although the Satterthwaite approximation is the `lmerTest` default, another option called the Kenward-Roger approximation also exists. It's less popular than Satterthwaite because it's a bit less flexible (it can only be applied to models fitted with ReML). 
-
-If you wanted to switch to the Kenward-Roger approximation, you can do it easily by specifying the `ddf` argument:
-
-```{r}
-anova(lme_sleep2, ddf="Kenward-Roger")
-```
-In reality, though, chances are that you'll just stick with the Satterthwaite default if you plan to use approximations for your own analyses. Statisticians have debated the relative merits of Satterthwaite vs K-R, but the differences only really tend to emerge under specific conditions. Here, it's given us the same result.
 
 ## Method 3: t-to-z approximations
 
-The third and final method that we'll touch on in this course is another form of approximation - here, we make use of the Wald t-values, which are reported as standard in the `lme4` output.
+The third and final method that we'll touch on in this course is another form of approximation - here, we make use of the Wald t-values, which are reported as standard in the `lme4` output. 
 
-Specifically, we can choose to treat these t-values as if they were z-scores instead. Z-scores are more useful than t-values here, because they are standardised - they're measured in standard deviations. (The z-score of a data point therefore tells you how many standard deviations away from the mean it is.) Since this is a standardised score, we don't need to worry about the degrees of freedom like we would for a t or F value. Instead, we can just look up the z-score in a table and read off a p-value directly (or get R to do this for us!).
+Specifically, we can choose to treat these t-values as if they were z-scores instead, if our sample size is considered large enough. And, because z-scores are standardised, we don't need any degrees of freedom information to derive a p-value - we can just read them directly out of a table (or get R to do it for us).
 
-Why is it okay to treat t-values as z-scores? The logic here is that the t distribution actually begins to approximate (i.e., match up with) the z distribution as the sample size increases. Officially, when the sample size is infinite, the two distributions are identical. So, with a sufficiently large sample size, we can "pretend" or "imagine" that the Wald t-values are actually z-distributed, giving us p-values. 
+::: {.callout.note collapse="true"}
+#### The logic of using z-scores instead
 
-Unfortunately, there are no formal guidelines to tell you whether your dataset is large enough to do this, and the t-to-z approximation is considered a bit "anti-conservative" - in other words, there's a higher chance of false positives. It will depend on the number of predictors in your model, especially when you have a mixed model with 3+ levels (i.e., groups within groups for your random effects).
+A z-score is different from a statistic such as t or F. They're standardised, because they're measured in standard deviations - i.e., a z-score of 1.3 tells you that you are 1.3 standard deviations away from the mean. 
 
-Some researchers adapt the t-to-z approximation approach a little to help with this; instead of explicitly calculating p-values, they instead use a rule of thumb that any Wald t-value greater than 2 is large enough to be considered significant. This is quite a strict threshold, so it can help to filter out some of the false positives and less convincing results.
+This is helpful for deriving a p-value without degrees of freedom, but it raises the question: why is it okay to treat t-values as z-scores? 
 
+The logic here is that the t distribution actually begins to approximate (i.e., match up with) the z distribution as the sample size increases. Officially, when the sample size is infinite, the two distributions are identical. So, with a sufficiently large sample size, we can "pretend" or "imagine" that the Wald t-values are actually z-distributed, giving us p-values. 
+:::
+
+Unfortunately, there are no formal guidelines to tell you whether your dataset is "large enough" to do this. It will depend on the number and type of predictors in your model. Plus, the t-to-z approximation is considered to be "anti-conservative" - in other words, there's a higher chance of false positives than with other methods.
+
+Some researchers adapt the t-to-z approximation approach a little to help with this; instead of explicitly calculating p-values, they instead use a rule of thumb that any Wald t-value greater than 2 is large enough to be considered significant. This is quite a strict threshold, so it can help to filter out some of the false positives or less convincing results.
+
+### Calculating p-values using z-scores
+
+Let's look again at the `summary` output for our model:
+
+::: {.panel-tabset group="language"}
+## R
 ```{r}
 summary(lme_sleep2)
 ```
+:::
+
 Calculating the p-value for a z-score can be done quickly in R using the `pnorm` function. We include the z-score (or, here, the t-value that we are treating as a z-score) as the value for our argument `q`. To make this a two-tailed test, we have to set `lower.tail` to FALSE, and multiply the answer by 2.
 
+::: {.panel-tabset group="language"}
+## R
 ```{r}
 2*pnorm(q = 6.771, lower.tail = FALSE)
 ```
+:::
+
 If we input the t-value for our `Days` fixed effect, we can see that it gives us a very small p-value. This p-value of 1.28 x 10^-11^ is quite a bit smaller than the one that our Satterthwaite degrees of freedom approximation provided (3.26 x 10^-6^) - an example of how this t-to-z approximation is more generous. However, in this case it's very clear that the `Days` effect definitely is significant, whichever way we test it, so it's perhaps not a concern.
 
-And that, in fact, leads me to a final point I'd like to make. One of the main reasons I've bothered to include all three of these methods here is because there's nothing stopping you using more than one approach when it comes to testing your own models. If you do use multiple methods, and they agree/lead you to the same conclusion, then that increases your overall confidence in that conclusion. If they disagree, then it's better that you know that your result might not be reliable, and you can do some further investigations to figure out why (e.g., perhaps it's a statistical power issue).
+#### And that, in fact, leads me to a final point I'd like to make: 
 
-## Exercise
+One of the main reasons I've bothered to include all three of these methods here is because there's nothing stopping you using more than one approach when it comes to testing your own models. If you do use multiple methods, and they agree/lead you to the same conclusion, then that increases your overall confidence in that conclusion. If they disagree, then it's better that you know that your result might not be reliable, and you can do some further investigations to figure out why (e.g., perhaps it's a statistical power issue).
+
+## Exercise 1 - Dragons revisited
 
 Let's return to the dataset from our previous example, our dragons dataset.
 
 Previously, we fit a mixed model to this dataset that included response variable `intelligence`, fixed effects of `wingspan`, `scales` and `wingspan:colour`, and two random effects: random intercepts by `mountain`, and random slopes for `wingspan` by `mountain`.
 
+::: {.panel-tabset group="language"}
+## R
 ```{r}
-dragons <- read_csv("datasets/dragons.csv")
+dragons <- read_csv("data/dragons.csv")
 
 lme_dragons <- lmer(intelligence ~ wingspan*scales + (1 + wingspan|mountain), 
                     data=dragons)
 ```
+:::
+
 Now, test the significance of this model and its parameters using the methods shown above. Think about:
 
 - whether any/all of our fixed effects are significant
@@ -193,6 +257,8 @@ Now, test the significance of this model and its parameters using the methods sh
 
 Let's start by using an LRT to test the overall significance of our model.
 
+::: {.panel-tabset group="language"}
+## R
 ```{r}
 # construct a null model
 lme_dragons_null <- lm(intelligence ~ 1, data = dragons)
@@ -200,10 +266,14 @@ lme_dragons_null <- lm(intelligence ~ 1, data = dragons)
 # compare the full and null models
 anova(lme_dragons, lme_dragons_null)
 ```
+:::
+
 It's significant. Something in our model is doing something helpful. A really good start!
 
 Next, we can use LRTs to check the significance of our individual random effects. We'll build some new models - one with random intercepts only and one with random slopes only - and compare them to the full model. Remember that for these models to be comparable, we need to keep the fixed effects the same.
 
+::: {.panel-tabset group="language"}
+## R
 ```{r}
 lme_dragons_dropslope <- lmer(intelligence ~ wingspan*scales + (1|mountain), 
                             data=dragons)
@@ -211,20 +281,32 @@ lme_dragons_dropslope <- lmer(intelligence ~ wingspan*scales + (1|mountain),
 lme_dragons_dropint <- lmer(intelligence ~ wingspan*scales + (0 + wingspan|mountain), 
                             data=dragons)
 ```
+:::
+
 Now, we can compare both of these new models to our original model, using `anova`:
 
+::: {.panel-tabset group="language"}
+## R
 ```{r}
 anova(lme_dragons, lme_dragons_dropint)
 ```
+:::
+
+::: {.panel-tabset group="language"}
+## R
 ```{r}
 anova(lme_dragons, lme_dragons_dropslope)
 ```
+:::
+
 These results would seem to suggest that while the random slopes are significant, the random intercepts are not.
 
 This opens up a bit of a debate about whether it's a good idea to drop a random effect from a model if it's not significant. You can, of course, use any model you like to describe your dataset. But if you're not pushed for statistical power, it can be worth leaving non-significant random effects in a model, so that it better reflects your experimental design. In this case, I would personally opt for leaving the random intercepts in my final model, because it's quite unusual to see random slopes on their own. But this is, of course, personal choice!
 
 Let's move on to thinking about our fixed effects. Following the same LRT procedure, we can construct some new models - one where we've dropped the `wingspan:scales` interaction, and two more where we exclude `wingspan` or `scales` entirely (plus the interaction in both cases). We'll keep the random effects the same across these models.
 
+::: {.panel-tabset group="language"}
+## R
 ```{r}
 # testing the interaction term
 lme_dragons_dropx <- lmer(intelligence ~ wingspan + scales + (1 + wingspan|mountain), 
@@ -246,14 +328,23 @@ lme_dragons_dropscale <- lmer(intelligence ~ wingspan + (1 + wingspan|mountain),
 
 anova(lme_dragons, lme_dragons_dropscale)
 ```
+:::
+
 Taken together, these LRTs suggest that although the interaction of `wingspan:scales` is not a particularly useful or significant predictor, the two main effects are.
 
 Comfortingly, this aligns with what we see in an analysis of variance table using a Satterthwaite degrees of freedom approximation, which shows overall that there seem to be main effects though no significant interaction. The p-values are not the same - we wouldn't expect them to be, they're calculated very differently - but it's a relief that the overall effect is robust across methods:
+
+::: {.panel-tabset group="language"}
+## R
 ```{r}
 anova(lme_dragons)
 ```
+:::
+
 And, indeed, we would draw the same overall conclusion using t-to-z approximations as well (using the t-values, extracted from the output of the `summary` function). Excellent news.
 
+::: {.panel-tabset group="language"}
+## R
 ```{r}
 # interaction term
 2*pnorm(q = -1.157, lower.tail = FALSE)
@@ -264,17 +355,22 @@ And, indeed, we would draw the same overall conclusion using t-to-z approximatio
 # wingspan main effect
 2*pnorm(q = 4.244, lower.tail = FALSE)
 ```
+:::
 
 On the basis of these results, you could choose to refine your model slightly, eliminating the unhelpful `wingspan:scales` interaction. As discussed above, you could also choose to drop the random intercepts from the model, but that is a little more contentious. I'll keep it for now, making `lme_dragons_dropx` the working minimal model.
 
 We can visualise that like so:
 
+::: {.panel-tabset group="language"}
+## R
 ```{r}
 ggplot(dragons, aes(x = wingspan, y = intelligence, colour = scales)) +
   facet_wrap(vars(mountain)) +
   geom_point() +
   geom_line(data = augment(lme_dragons_dropx), aes(y = .fitted))
 ```
+:::
+
 :::
 
 ## Summary

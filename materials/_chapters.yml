@@ -11,8 +11,8 @@ book:
         - materials/checking-assumptions.qmd #complete, could have an additional exercise though
     #- part: "More complex designs"
       #chapters:
-        #- materials/nested-crossed-effects.qmd
-        #- materials/additional-exercises.qmd
+        #- materials/nested-random-effects.qmd
+        #- materials/crossed-effects.qmd
     #- part: "Bonus materials"
       #chapters:
         #- materials/correlation-matrices.qmd

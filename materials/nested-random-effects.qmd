@@ -1,0 +1,43 @@
+---
+title: "Nested random effects"
+output: html_document
+---
+
+```{r}
+#| echo: false
+#| message: false
+#| results: hide
+source(file = "setup_files/setup.R")
+```
+
+Mixed effects models are also sometimes referred to as "hierarchical" or "multi-level" models. So far in these materials, we've only fitted two-level models, containing a single clustering variable or effect. Sometimes, however, there are random effects nested *inside* others.
+
+## What do we mean by nesting?
+
+We would describe factor B as being nested inside factor A, if each level/category of B only occurs within one level/group of factor A. 
+
+Classic example - children within classrooms within schools. Each child belongs to just one classroom. Each classroom is found only within one school.
+
+## Fitting a three-level model
+
+A classic example of nested random effects that would prompt a three-level model is 
+
+## Implicit vs explicit nesting
+
+Don't bother with this in the lecture slides - restricted to the course materials only
+
+Give an example of implicit nesting, where the / or : syntax would be used
+Give the same example/have them recode the dataset such that they now need to do (1|A)+(1|B) rather than (1|A/B)
+
+## Datasets
+
+Pastes dataset - internal to lme4. Has only implicit nesting, so could be a useful test case.
+
+## Summary
+
+In addition to random slopes and random intercepts, we can also categorise random effects according to whether they are nested or not. The next section will discuss the closely related concept of crossed random effects.
+
+::: callout-note
+#### Key points
+- A random effect is nested if each 
+:::
