@@ -20,18 +20,14 @@ Please be aware that this course is in development and the contents of this site
 - To evaluate model fit using significance testing and diagnostic plots
 :::
 
-
 ### Target Audience
 
 This course is aimed primarily at postgraduate students and postdoctoral researchers in the life sciences.
-
 
 ### Prerequisites
 
 You should have a working knowledge of R/RStudio, and a grasp of core statistics content, in particular the linear modelling framework.
 
-
-<!-- Training Developer note: comment the following section out if you did not assign levels to your exercises 
 ### Exercises
 
 Exercises in these materials are labelled according to their level of difficulty:
@@ -40,17 +36,24 @@ Exercises in these materials are labelled according to their level of difficulty
 | ----: | :---------- |
 | {{< fa solid star >}} {{< fa regular star >}} {{< fa regular star >}} | Exercises in level 1 are simpler and designed to get you familiar with the concepts and syntax covered in the course. |
 | {{< fa solid star >}} {{< fa solid star >}} {{< fa regular star >}} | Exercises in level 2 combine different concepts together and apply it to a given task. |
-| {{< fa solid star >}} {{< fa solid star >}} {{< fa solid star >}} | Exercises in level 3 require going beyond the concepts and syntax introduced to solve new problems. |-->
-
+| {{< fa solid star >}} {{< fa solid star >}} {{< fa solid star >}} | Exercises in level 3 require going beyond the concepts and syntax introduced to solve new problems. |
 
 ## Authors
-<!-- 
-The listing below shows an example of how you can give more details about yourself.
-These examples include icons with links to GitHub and Orcid. 
--->
 
 About the authors:
 
 - **Vicki Hodgson**
   _Affiliation_: Bioinformatics Training Facility, University of Cambridge  
   _Roles_: writing - original draft; conceptualisation; coding
+
+## References
+
+Cook, F. E. (1938). *Chocolate cake: I. Optimum baking temperature.* (Doctoral dissertation, Iowa State College).
+
+Faraway, J. J. (2016). *Extending the linear model with R: generalized linear, mixed effects and nonparametric regression models.* Chapman and Hall/CRC.
+
+Hadjuk, G. K. & Gallois E. (2022, 9 February). *Introduction to linear mixed models.* Our Coding Club. https://ourcodingclub.github.io/tutorials/mixed-models/
+
+Oehlert, G. W. (2010). *A first course in design and analysis of experiments.*
+
+Winter, B., & Grawunder, S. (2012). *The phonetic profile of Korean formal and informal speech registers.* Journal of Phonetics, 40(6), 808-815.

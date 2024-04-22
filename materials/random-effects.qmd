@@ -62,7 +62,11 @@ In contrast, when we fit a random effect, we include information about the globa
 
 There'll be more about the maths of fitting random effects later in the course, but this concept of "sharing information" across levels is key to understanding what a random effect is and to deciding whether variables should be treated as such, so it's really useful to know about it now.
 
-## Example 1
+## Exercises
+
+### Exercise 1 - Primary schools
+
+{{< level 1 >}}
 
 An education researcher is interested in the impact of socio-economic status (SES) and gender on students' primary school achievement.
 
@@ -97,7 +101,9 @@ The `classroom` variable would in fact be "nested" inside the `school` variable 
 Our other possible hidden variable is `family`. If siblings have been included in the study, they will share an identical SES score, because this has been derived from the parent(s) rather than the students themselves. Siblings are, in this context, technical replicates! One way to deal with this is to simply remove siblings from the study; or, if there are enough sibling pairs to warrant it, we could also treat `family` as a random effect.
 :::
 
-## Example 2
+### Exercise 2 - Ferns
+
+{{< level 1 >}}
 
 A plant scientist is investigating how light intensity affects the growth rate of young fern seedlings.
 
@@ -107,7 +113,7 @@ The height of each seedling is then measured repeatedly at five different time p
 
 What are our variables? What's the relationship we're interested in, and which of the variables (if any) should be treated as random effects?
 
-![Predictor variables](images_mixed-effects/example2_1.png)
+![Predictor variables](images_mixed-effects/example2_1.png){fig-alt="Graphic with three variables listed: Tray, Itensity and Timepoint"}
 
 ::: {.callout-note collapse="true"}
 #### Answer
@@ -116,7 +122,7 @@ There are four things here that vary: `tray`, `light intensity`, `timepoint` and
 
 We're interested in the relationship between growth rate and light intensity. This makes our first two predictor variables easier to decide about:
 
-![Fixed versus random effects](images_mixed-effects/example2_2.png)
+![Fixed versus random effects](images_mixed-effects/example2_2.png){fig-alt="Graphic with three variables listed: Tray, Itensity and Timepoint. Tray is now identified as a random effect, while Intensity and Timepoint are identified as fixed effects."}
 The variable `tray` is a random effect here. We are not interested in differences between these 10 particular trays that we've grouped our seedlings into, but we do need to recognise the non-independence created by these natural clusters - particularly because we've applied the "treatment" (changes in light intensity) to entire trays, rather than to individual seedlings.
 
 In contrast, `light intensity` - though a categorical variable - is a fixed effect. We are specifically interested in comparing across the three light intensity levels, so we don't want to share information between them; we want fixed estimates of the differences between the group means here.
@@ -132,13 +138,15 @@ In this case, then, `time` would probably be best treated as a fixed rather than
 However, if we were not measuring a response variable that changes over time (like growth), that might change. If, for instance, we were investigating the relationship between light intensity and chlorophyll production in adult plants, then measuring across different time points would be a case of technical replication instead, and `time` would be best treated as a random effect. **The research question is key in making this decision.**
 :::
 
-## Example 3
+### Exercise 3 - Wolves
+
+{{< level 1 >}}
 
 An ecologist is conducting a study to demonstrate how the presence of wolves in US national parks predicts the likelihood of flooding. For six different national parks across the country that contain rivers, they record the estimated wolf population, and the average number of centimetres by which the major river in the park overflows its banks, for the last 10 years - for a total of 60 observations.
 
 What's the relationship of interest? Is our total *n* really 60?
 
-![Predictor variables](images_mixed-effects/example3_1.png)
+![Predictor variables](images_mixed-effects/example3_1.png){fig-alt="Graphic with three variables listed: Wolf population, National park and Year."}
 
 ::: {.callout-note collapse="true"}
 #### Answer
@@ -149,7 +157,7 @@ We have four things that vary: `wolf population`, `flood depth`, `national park`
 
 With `flood depth` as our response variable, we already know how to treat that. And by now, you've hopefully got the pattern that our continuous effect of interest `wolf population` will always have to be a fixed effect. 
 
-![Fixed versus random effects](images_mixed-effects/example3_2.png)
+![Fixed versus random effects](images_mixed-effects/example3_2.png){fig-alt="Graphic with three variables listed: Wolf population, National park and Year. Wolf population is now identified as a fixed effect, while National park and Year are identified as random effects."}
 But there's also `year` and `national park` to contend with, and here, we likely want to treat both as random effects.
 
 We have measured across several national parks, and over a 10 year period, in order to give us a large enough dataset for sufficient statistical power - these are technical replicates. But from a theoretical standpoint, the exact years and the exact parks that we've measured from, probably aren't that relevant. It's fine if we share information across these different levels.
@@ -167,3 +175,4 @@ Of course, you might know more about ecology than me, and have a good reason to 
 - Random effects are estimated by sharing information across levels/groups, which are typically chosen "at random" from a larger set of exchangeable levels
 - Whether a variable should be treated as a random effect depends both on the nature of the variable, and also the research question
 :::
+

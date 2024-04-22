@@ -12,32 +12,669 @@ source(file = "setup_files/setup.R")
 
 Mixed effects models are also sometimes referred to as "hierarchical" or "multi-level" models. So far in these materials, we've only fitted two-level models, containing a single clustering variable or effect. Sometimes, however, there are random effects nested *inside* others.
 
-## What do we mean by nesting?
+## What is a nested random effect?
 
-We would describe factor B as being nested inside factor A, if each level/category of B only occurs within one level/group of factor A. 
+Once we are at the stage of having multiple variables in our sample that create clusters or groups, it becomes relevant to consider the relationship that those clustering variables have to one another, to ensure that we're fitting a model that properly represents our experimental design.
 
-Classic example - children within classrooms within schools. Each child belongs to just one classroom. Each classroom is found only within one school.
+We describe factor B as being nested inside factor A, if each group/category of B only occurs within one group/category of factor A.
+
+For instance, data on academic performance may be structured as children grouped within classrooms, with classrooms grouped within schools. A histology experiment might measure individual cells grouped within slices, with slices grouped within larger samples. Air pollution data might be measured at observation stations grouped within a particular city, with multiple cities per country.
 
 ## Fitting a three-level model
 
-A classic example of nested random effects that would prompt a three-level model is 
+Another classic example of nested random effects that would prompt a three-level model can be found in a clinical setting: within each hospital, there are multiple doctors, each of whom treats multiple patients. (Here, we will assume that each doctor only works at a single hospital, and that each patient is only treated by a single doctor.)
+
+Here's an image of how that experimental design looks. Level 1 is the patients, level 2 is the doctors, and level 3 is the hospitals. 
+
+This is, of course, a simplified version - we would hope that there are more than two hospitals, four doctors and eight patients in the full sample!
+
+![Experimental design](images_mixed-effects/nested-patients1.png){width=70%}
+
+We have a single fixed predictor of interest `treatment` (for which there are two possible treatments, A or B), and some continuous response variable `outcome`.
+
+What model would we fit to these data? Well, it gets a touch more complex now that we have multiple levels in this dataset.
+
+### A three-level random intercepts model
+
+Let's put random slopes to one side, since they take a bit more thought, and think about how we would fit just some random intercepts for now.
+
+It would be appropriate to fit two sets of random intercepts in this model, one for each set of clusters we have. In this case, that means a set of intercepts for the doctors, and a set of intercepts for the hospital.
+
+::: {.panel-tabset group="language"}
+## R
+```{r, message=FALSE}
+health <- read_csv("data/health.csv")
+```
+:::
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+lme_health_intercepts <- lmer(outcome ~ treatment + (1|doctor) + (1|hospital),
+                   data = health)
+
+summary(lme_health_intercepts)
+```
+:::
+
+This produces a model with two random effects, namely, two sets of random intercepts.
+
+### Where to include random slopes?
+
+Deciding what level(s) we want to fit random slopes at, requires us to think about what level of our hierarchy we've applied our `Treatment` variable at. We'll get to that in a moment.
+
+#### Predictor varies at level 1
+
+Let's start by imagining the following scenario: the `Treatment` variable is varying at our lowest level. Each patient receives only one type of treatment (A or B), but both treatment types are represented "within" each doctor and within each hospital:
+
+![Scenario 1: predictor varies at level 1 (between patients, within doctors)](images_mixed-effects/nested-patients2.png){width=70%}
+
+As a result, it would be inappropriate to ask `lme4` to fit random slopes for the `treatment` variable at the patient level. Instead, the "full" model (i.e., a model containing all of the possible fixed and random effects) would be the following:
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+lme_health_slopes <- lmer(outcome ~ treatment + (1 + treatment|doctor) + 
+                      (1 + treatment|hospital), data = health)
+
+summary(lme_health_slopes)
+```
+:::
+
+This produces a model with four sets of random effects: two sets of random intercepts, and two sets of random slopes.
+
+#### Predictor varies at level 2
+
+Let's now imagine a (perhaps more realistic) scenario. Each doctor is in fact a specialist in a certain type of treatment, but cannot deliver both. For this, we will need to read in the second version of our dataset.
+
+::: {.panel-tabset group="language"}
+## R
+```{r, message=FALSE}
+health2 <- read_csv("data/health2.csv")
+```
+:::
+
+If you look closely at the dataset, you can see that `treatment` does not vary within `doctor`; instead, it only varies within `hospital`. 
+
+![Scenario 2: predictor varies at level 2 (between doctors, within hospitals)](images_mixed-effects/nested-patients3.png){width=70%}
+
+This means we cannot fit random slopes for treatment at the second level any more. We have to drop our random slopes for `treatment` by `doctor`, like this:
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+lme_health_slopes2 <- lmer(outcome ~ treatment + (1|doctor) + 
+                      (1 + treatment|hospital), data = health2)
+
+summary(lme_health_slopes2)
+```
+:::
+
+This gives us three sets of random effects, as opposed to four.
+
+#### Predictor varies at level 3
+
+Finally, let's imagine a scenario where each hospital is only equipped to offer one type of treatment (hopefully, not a realistic scenario!). Here, all doctors and patients within each hospital use exactly the same method. 
+
+![Scenario 3: predictor varies at level 3 (between hospitals)](images_mixed-effects/nested-patients4.png){width=70%}
+
+At this stage, we can no longer include random slopes for the treatment predictor anywhere in our model. Each `hospital`, `doctor` and `patient` only experiences one of the two treatments, not both, so we have no variation between the treatments to estimate at any of these levels.
+
+So, here, we would go back to our random intercepts only model.
 
 ## Implicit vs explicit nesting
 
-Don't bother with this in the lecture slides - restricted to the course materials only
+The different `health` datasets that have been explored above all have an important thing in common: the variables have been **implicitly nested**. Each new hospital, doctor and patient is given a unique identifier, to make it clear that doctors do not reoccur between hospitals, and patients do not reoccur between doctors. 
 
-Give an example of implicit nesting, where the / or : syntax would be used
-Give the same example/have them recode the dataset such that they now need to do (1|A)+(1|B) rather than (1|A/B)
+In other words, all the information about the nesting is captured implicitly in the way that the data are coded.
 
-## Datasets
+However, you might sometimes be working with a dataset that has not been coded this way. So how do you deal with those situations? You have a few options:
 
-Pastes dataset - internal to lme4. Has only implicit nesting, so could be a useful test case.
+- Recode your dataset so it is implicitly nested
+- Use explicit nesting in your `lme4` model formula
+- Use the `A/B` syntax in your `lme4` model formula
+
+### The Pastes dataset
+
+We'll use another internal `lme4` dataset, the `Pastes` dataset, to show you what these three options look like in practice.
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+data("Pastes")
+
+head(Pastes)
+```
+:::
+
+This dataset is about measuring the strength of a chemical paste product, which is delivered in batches, each batch consisting of several casks. From ten random deliveries of the product, three casks were chosen at random (for a total of 30 casks). A sample was taken from each cask; from each sample, there were two assays, for a total of 60 assays.
+
+There are four variables: 
+
+- `strength`, paste strength, a continuous response variable; measured for each assay
+- `batch`, delivery batch from which the sample was chosen (10 groups, A to J)
+- `cask`, cask within the deliver batch from which the sample was chosen (3 groups, a to c)
+- `sample`, batch & cask combination (30 groups, A:a to J:c)
+
+The experimental design, when drawn out, looks like this:
+
+![Pastes dataset design](images_mixed-effects/pastes_design.png){width=70%}
+
+At first glance, this might look as if it's a four-level model: assays within samples within casks within deliveries. However, that's a bit of a overcomplication. There is only one `sample` collected per `cask`, meaning that we can really just think about assays being nested within casks directly.
+
+There is no fixed predictor in this dataset, only a response variable. This means we won't include any fixed effects in the model - instead, we simply write `1` for the fixed portion of our model. We also won't have any random slopes, only random intercepts. 
+
+If we follow the same procedure we did above for the `health` example, we might try something like this:
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+lme_paste <- lmer(strength ~ 1 + (1|batch) + (1|cask), data = Pastes)
+
+summary(lme_paste)
+```
+:::
+
+Something is wrong with this model. To spot it, we have to look carefully at the bottom of the random effects section, where it says `Number of obs` (short for observations). 
+
+`lme4` has correctly identified that there are 10 delivery batches, and has fitted a set of 10 random intercepts for those batches - all good so far. However, R believes that we only have 3 casks, because the `cask` variable is implicitly nested, and so has only fitted a set of 3 random intercepts for that variable. 
+
+But this isn't what we want. There is no link between cask A in batch A, and cask A in batch D - they have no reason to be more similar to each other than they are to other casks. We actually have 30 unique casks, and would like for each of them to have its own random intercept.
+
+### Recoding for implicit nesting
+
+As shown above, the formula `strength ~ 1 + (1|batch) + (1|cask)` does not produce the model we want, because we don't have implicit coding in the `cask` variable.
+
+So, let's create a new variable that gives unique values to each of the casks in our dataset. We'll do this using the `mutate` function and the `:` syntax, which you might recognise from generating interaction terms in standard linear models.
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+Pastes <- Pastes %>% mutate(unique_cask = batch:cask)
+
+head(Pastes)
+```
+:::
+
+This generates 30 unique IDs, one for each of our unique casks. (We then have two observations of `strength` for each `unique_cask`.)
+
+Now, we can go ahead and fit our desired model:
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+lme_paste_implicit <- lmer(strength ~ 1 + (1|batch) + (1|unique_cask),
+                  data = Pastes)
+
+summary(lme_paste_implicit)
+```
+:::
+
+No error message this time, and it has correctly identified that there are 30 unique casks, from 10 different batches. We've solved the problem!
+
+Incidentally, and which you may have already noticed, the recoding that we did above also perfectly replicates the existing `sample` variable. This means we would get an identical result if we fitted the model `strength ~ 1 + (1|batch) + (1|sample)` instead. 
+
+### Fitting a model with explicit nesting
+
+If we're in a situation like the above where we don't have nice, neat implicitly coded variables, but we don't really want to spend loads of time recoding a bunch of variables, we can instead fit our model using explicit nesting in `lme4`.
+
+That essentially means combining the recoding and model fitting steps, so that you don't have to save a new variable.
+
+For the `Pastes` dataset, it would look like this:
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+lme_paste_explicit <- lmer(strength ~ 1 + (1|batch) + (1|batch:cask), data = Pastes)
+
+summary(lme_paste_explicit)
+```
+:::
+
+Notice that the output for this model and for the one right above are the same - it's because they are exactly equivalent to each other! We used `batch:cask` to create `unique_cask` earlier, so we've just directly inserted that code into our formula.
+
+### An alternative approach: the A/B syntax
+
+There is another way to deal with nested random effects that haven't been implicitly coded into the dataset. It's not necessarily the way that we would recommend - recoding your variables and/or using explicit nesting has far less potential to trip you up and go wrong - but we'll introduce it briefly here, since it's something you're likely to see if you start working with mixed models a lot.
+
+We could fit the same model to the `Pastes` dataset, and achieve a set of 30 intercepts for `cask` and 10 for `batch`, without making use of the `sample` variable or using the `A:B` notation.
+
+It works like this: when random effect B is nested inside random effect A, you can simply write `A/B` on the right hand side of the `|`.
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+lme_paste_shorthand <- lmer(strength ~ 1 + (1|batch/cask), data = Pastes)
+
+summary(lme_paste_shorthand)
+```
+:::
+
+This gives you an identical model output to both of the other two models we've tried. That's because `(1|batch/cask)` is actually shorthand for `(1|batch) + (1|batch:cask)`, and in this dataset as we've seen above, `batch:cask` is the same as `sample` and `unique_cask`. In other words, we've fitted exactly the same model each time.
+
+### Which option is best?
+
+::: {.callout-note appearance="minimal"}
+The `A/B` syntax is popular, and you will see it used, because it's quick to write. But there are a couple of reasons that we would recommend you steer away from it:
+
+- **It has more potential to go wrong.** `A/B` is order-dependent, meaning that `A/B` $\neq$ `B/A`, and if you get that wrong, your model won't work as intended. In contrast, explicit coding is order-invariant (`A:B + A` = `A + B:A`). Likewise, if you've implicitly coded your dataset, you can write your random effects in any order.
+
+- **It's harder to interpret.** Using implicit or explicit nesting gives you a separate `(1 + x|y)` structure in the formula for each clustering variable, which is more transparent when figuring out how many random effects you've fitted. Separate structures can also be more flexible, as you'll see in at least one example later in the course.
+:::
+
+Overall: implicit coding of your dataset is best, and it's best to do this implicit coding during data collection itself. It prevents mistakes, because the experimental design is clear from the data structure. It's also the easiest and most flexible in terms of coding in `lme4`.
+
+In the absence of an implicitly coded dataset, we strongly recommend sticking with explicit coding rather than the shorthand syntax - yes, it requires more typing, but it's somewhat safer.
+
+And, no matter which method you choose, always check the model output to see that the number of groups per clustering variables matches what you expect to see.
+
+## Exercises
+
+### Exercise 1 - Cake
+
+{{< level 2 >}}
+
+For this exercise, we'll use the most delicious of the internal `lme4` datasets: `cake`.
+
+This is a real dataset, taken from a thesis by Cook ([1983](https://www.sumsar.net/blog/source-of-the-cake-dataset/cook_1938_chocolate_cake.pdf)), and is all about measuring cake quality of chocolate cakes baked using different recipes at particular temperatures.
+
+Cook's experiment worked as follows: for each recipe, she prepared 15 batches of cake mixture. Each batch was divided into 6 cakes, and each of those cakes were baked at one of the 6 temperatures.
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+data("cake")
+```
+:::
+
+There are five variables in this dataset:
+
+- `recipe`, the exact recipe used for the cake (3 categories)
+- `replicate`, the batter batch number for each recipe (15 replicates per recipe)
+- `temperature`, a factor indicating which of 6 temperatures the cake was baked at
+- `temp`, the numeric value of the baking temperature
+- `angle`, the angle at which the cake broke (used as a measure of cake "tenderness")
+
+For this exercise:
+
+1. Sketch a graphic/diagram that captures the experimental design
+2. Figure out what level of the dataset your variables of interest are varying at
+3. Consider how you might recode the dataset to reflect implicit nesting
+4. Fit and test at least one appropriate model
+
+::: {.callout-note collapse="true"}
+#### Worked answer
+
+#### Consider the experimental design
+
+The first thing to do is to draw out a diagram that captures the experimental design. That might look something like this:
+
+![Experimental design for Cook's cakes](images_mixed-effects/cake_design.png){width=70%}
+
+We've got a 3-level dataset here: individual cakes within batches (replicates) within recipes. There are two fixed effects of interest - `recipe` and `temperature`, both categorical.
+
+The next thing to think about is whether the coding within the dataset accurately reflects what's going on.
+
+There are 3 recipes, and 15 replicates of each recipe are mixed, for a total of 45 unique batches or mixtures. In the dataset as we've got it, the numbering has been repeated, so the nesting is not implicitly coded; but of course, replicate 1 for recipe A doesn't have anything more in common with replicate 1 for recipe C.
+
+#### Recode the dataset
+
+So, let's code up a new variable that captures unique replicates, and we'll call it `batch`:
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+cake <- cake %>%
+  mutate(batch = recipe:replicate)
+```
+:::
+
+As you should be able to see in your global environment, the new `batch` variable is a factor with 45 levels. 
+
+Each batch is then split into individual cakes, which undergo one of the 6 `temperature` treatments, for a total of 270 measurements.
+
+#### Fit a model
+
+Now, we can try fitting a model. We know that we want `recipe` and `temperature` as fixed effects, and probably also their interaction, at least to start with. We know we want to treat `batch` as a random effect (`replicate` nested within `recipe`), so we'll include random intercepts.
+
+We don't, however, want to treat `recipe` as a random effect itself. It only has three levels, so it wouldn't work well even if we wanted to. Plus, we're specifically interested in those three levels and the differences between them.
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+lme_cake <- lmer(angle ~ recipe*temperature + (1|batch), data = cake)
+
+summary(lme_cake)
+```
+:::
+
+#### Alternative models
+
+If you want to do a bit of significance testing, you can try a few other versions of the model with different structures:
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+lme_cake2 <- lmer(angle ~ recipe + temperature + (1|batch), data = cake)
+lme_cake3 <- lmer(angle ~ recipe + (1|batch), data = cake)
+lme_cake4 <- lmer(angle ~ temperature + (1|batch), data = cake)
+lm_cake <- lm(angle ~ recipe*temperature, data = cake)
+
+anova(lme_cake, lm_cake) # random effects dropped
+anova(lme_cake, lme_cake2) # recipe:temperature dropped
+anova(lme_cake, lme_cake3) # temperature & recipe:temperature dropped
+anova(lme_cake, lme_cake4) # recipe & recipe:temperature dropped
+```
+:::
+
+We see that when we drop the random intercepts for `batch`, and when we drop the `temperature` predictor, our chi-square values are significant. This indicates that these predictors are important. But we can drop `recipe` and `recipe:temperature` without a particularly big change in deviance.
+
+(This is borne out somewhat if you've used the `lmerTest` package to perform degrees of freedom approximation and extract p-values as part of the `lme_cake` model summary.)
+
+So, our final model is probably `lme_cake4 = angle ~ temperature + (1|batch)`. 
+
+#### Check assumptions
+
+For completeness, we'll check the assumptions of `lme_cake4` and visualise it for the sake of aiding our interpretation.
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+check_model(lme_cake4, 
+            check = c("linearity", "homogeneity", "qq", "outliers"))
+
+check_model(lme_cake4, 
+            check = c("reqq", "pp_check"))
+```
+:::
+
+Most of the assumptions look okay, with the exception of the normal Q-Q plot for the random intercepts. The set of intercepts doesn't really look like it's nicely normally distributed here. Maybe a more complicated mixed effects model (something beyond the linear type we're going with here) would help. Or, maybe this just means we should be a little less decisive in our overall conclusions.
+
+#### Visualise the model
+
+Last but not least, we can visualise the model:
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+ggplot(augment(lme_cake4), aes(x = temperature, y = angle)) +
+  geom_point(alpha = 0.7) +
+  geom_line(aes(y = .fitted, group = batch), alpha = 0.5)
+```
+:::
+
+Overall, `angle` increases with `temperature`. (From what I understand of reading the thesis, this is a good thing from the perspective of the cake quality, as it suggests the cake is more tender. Scientific *and* delicious.)
+
+We can see visually that the `recipe` and `recipe:temperature` terms don't have much explanatory power by visualising the full model (commenting out the `facet_wrap` may also help you to see this):
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+ggplot(augment(lme_cake), aes(x = temperature, y = angle, colour = recipe)) +
+  facet_wrap(~ recipe) +
+  geom_point(alpha = 0.7) +
+  geom_line(aes(y = .fitted, group = batch))
+```
+:::
+
+
+
+:::
+
+::: {.callout-tip appearance="minimal"}
+#### Follow-up questions
+
+{{< level 2 >}}
+
+If you want to think a bit harder about this dataset, consider these additional questions. Feel free to chat about them with a neighbour or with a trainer.
+
+- Why doesn't it work if you try to fit random slopes for `temperature` on `batch`? Have a look at the warning message that R gives you in this situation.
+- What happens if you use the numerical `temp` variable instead of the categorical `temperature`? Does it change your conclusions? Why might you prefer to use the numerical/continuous version?
+- Could `temperature` be treated as a random effect, under certain interpretations of the original research question? Is it possible or sensible to do that with the current dataset?
+:::
+
+For more information on the very best way to bake a chocolate cake (and a lovely demonstration at the end about the dangers of extrapolating from a linear model), [this blog post](https://www.sumsar.net/blog/source-of-the-cake-dataset/) is a nice source. It's written by a data scientist who was so curious about the quirky `cake` dataset that he contacted Iowa State University, who helped him unearth Cook's original thesis.
+
+### Exercise 2 - Parallel fibres
+
+{{< level 2 >}}
+
+For this exercise, we'll be using a neurohistology dataset that focuses on a particular type of neuron found in the cerebellum, known as a parallel fibre. Parallel fibres are found in the uppermost layer of cerebellar cortex, and are known for being long; this experiment was designed to test whether the depth at which the fibre was found, had a bearing on its length.
+
+::: {.panel-tabset group="language"}
+## R
+```{r, message=FALSE}
+parallel <- read_csv("data/parallel_real.csv")
+```
+:::
+
+To measure the length of the fibres (which are <10mm long - big for a neuron!), slices were taken from the cerebella of six cats, at different depths. The depth of each slice was recorded. These slices were then stained, so that individual parallel fibres could be identified and measured.
+
+![An example of a stained slice from cerebellar cortex](images_mixed-effects/cerebellum_histology.jpg){width=40%}
+
+The dataset contains five variables:
+
+- `length` of the fibre (in micrometres)
+- `depth` of the slice (in micrometres)
+- `fibre`, individual IDs for all of the fibres
+- `slice` ID number (maximum 10 slices per cat)
+- `cat` ID number (1 through 6)
+
+For this exercise:
+
+1. Sketch a graphic/diagram that captures the experimental design
+2. Determine whether the dataset requires recoding or explicit nesting
+3. Fit and test at least one appropriate model
+
+::: {.callout-note collapse="true"}
+#### Worked answer
+
+#### Visualise the design
+
+This is a nested design with three levels: `fibre` within `slice` within `cat`. But the fixed predictor `depth` varies at level 2, between slices (not between fibres).
+
+![Experimental design](images_mixed-effects/neurohist_design.png){width=70%}
+
+#### Recoding
+
+If we look at the structure of the dataset, we can see that the numbering for the `slice` variable starts again for each `cat` at 1, which is not what we want.
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+parallel %>% slice(1:8, 46)
+```
+:::
+
+So, we need to recode a new variable, or be prepared to use explicit nesting in our model formula. Note that for this recoding to work, we also need to ask R to treat `slice` and `cat` as factors rather than numeric variables.
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+parallel <- parallel %>%
+  mutate(cat = as.factor(cat)) %>%
+  mutate(slice = as.factor(slice)) %>%
+  mutate(unique_slice = slice:cat)
+```
+:::
+
+#### Fit a model
+
+The full model that we could fit to these data contains three random effects: random intercepts for `unique_slice` (or `slice:cat` if you're explicitly coding), random intercepts for `cat`, and random slopes for `depth` on `cat`.
+
+(Since `depth` doesn't vary within `slice`, i.e., each `slice` has only one `depth`, we can't fit random slopes at level 2.)
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+lme_parallel <- lmer(length ~ depth + (1|slice:cat) + (1 + depth|cat), data=parallel)
+```
+:::
+
+You may notice that you get an error - the model fails to converge. There are a couple of fixes we could try here, including asking `lme4` to use different estimators; but the approach we'll go with here is  making the model simpler, since many errors at this stage usually just tell us that we're being too ambitious.
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+lme_parallel_int <- lmer(length ~ depth + (1|slice:cat) + (1|cat), data=parallel)
+```
+:::
+
+#### Check the assumptions
+
+Next, we check the assumptions of our intercepts-only nested model:
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+check_model(lme_parallel_int, 
+            check = c("linearity", "homogeneity", "qq", "outliers"))
+
+check_model(lme_parallel_int, 
+            check = c("reqq", "pp_check"))
+```
+:::
+
+Not bad at all. There are no obvious errors cropping up in these plots.
+
+#### Visualise the model
+
+Last but not least, we should have a look at our model predictions visually.
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+ggplot(augment(lme_parallel_int), aes(x = depth, y = length, colour = cat)) +
+  geom_point(alpha = 0.6) +
+  geom_line(aes(y = .fitted, group = cat))
+```
+:::
+
+Despite the fact that `depth` is a continuous variable, this plot still has jagged, rather than straight, lines of best fit. This is because the plot is also taking into account the multiple sets of random intercepts for `slice` that are contained within each `cat` cluster.
+
+We can, however, extract just the set of intercepts by `cat`, and with a bit more fuss, use this to add lines to the plot:
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+# use the coef function to extract the coefficients
+cat_coefs <- coef(lme_parallel_int)$cat
+
+# use geom_abline to add individual lines for each cat
+ggplot(augment(lme_parallel_int), aes(x = depth, y = length, colour = cat)) +
+  geom_point(alpha = 0.6) +
+  geom_abline(intercept = cat_coefs[1,1], slope = cat_coefs[1,2]) +
+  geom_abline(intercept = cat_coefs[2,1], slope = cat_coefs[2,2]) +
+  geom_abline(intercept = cat_coefs[3,1], slope = cat_coefs[3,2]) +
+  geom_abline(intercept = cat_coefs[4,1], slope = cat_coefs[4,2]) +
+  geom_abline(intercept = cat_coefs[5,1], slope = cat_coefs[5,2]) +
+  geom_abline(intercept = cat_coefs[6,1], slope = cat_coefs[6,2])
+```
+:::
+
+:::
+
+::: {.callout-tip appearance="minimal"}
+#### Optional follow-up question: notation
+
+{{< level 3 >}}
+
+Think back to the brief introduction to linear mixed effects models notation given in section 5.5.1 of the course materials.
+
+What would the equation of a three level model fitted to the `parallel` dataset look like?
+
+Hint: you'll need more subscript letters than you did for a two-level model!
+
+::: {.callout-note collapse="true"}
+#### Three-level intercepts-only
+
+E.g., `length ~ depth + (1|slice:cat) + (1|cat)`
+
+Level 1:
+
+$$
+y_{ijk} = \beta_{0jk} + \beta_{1}x_{1ijk} + \epsilon_{ijk}
+$$
+
+Level 2: 
+
+$$
+\beta_{0jk} = \delta_{00k} + U_{0jk}
+$$
+
+Level 3: 
+
+$$
+\delta_{00k} = \gamma_{000} + V_{00k}
+$$
+
+where,
+
+$$
+\left( \begin{array}{c} U_{0jk} \end{array} \right) ∼ N \left( \begin{array}{c} 0 \end{array}   , \begin{array}{cc} \tau^2_{00} \end{array} \right)
+$$
+
+and,
+
+$$
+\left( \begin{array}{c} V_{00k} \end{array} \right) ∼ N \left( \begin{array}{c} 0 \end{array}   , \begin{array}{cc} \tau^2_{00} \end{array} \right)
+$$
+
+:::
+
+::: {.callout-note collapse="true"}
+#### Three-level intercepts & slopes
+
+E.g., `length ~ depth + (1|slice:cat) + (1 + depth|cat)`
+
+Level 1:
+
+$$
+y_{ijk} = \beta_{0jk} + \beta_{1k}x_{1ijk} + \epsilon_{ijk}
+$$
+
+Level 2: 
+
+$$
+\beta_{0jk} = \beta_{00k} + U_{0jk}
+$$
+
+Level 3: 
+
+$$
+\beta_{00k} = \gamma_{000} + V_{00k}
+$$
+$$
+\beta_{1k} = \gamma_{100} + V_{10k}
+$$
+
+Where,
+
+$$
+\left( \begin{array}{c} U_{0jk} \end{array} \right) ∼ N \left( \begin{array}{c} 0 \end{array}   , \begin{array}{cc} \tau^2_{00} \end{array} \right)
+$$
+
+and,
+
+$$
+\left( \begin{array}{c} V_{00k} \\ V_{10k} \end{array} \right) ∼ N \left( \begin{array}{c} 0 \\ 0 \end{array}   , \begin{array}{cc} \tau^2_{00} & \rho_{01} \\ \rho_{01} &  \tau^2_{10} \end{array} \right)
+$$
+
+:::
+
+:::
+
 
 ## Summary
 
-In addition to random slopes and random intercepts, we can also categorise random effects according to whether they are nested or not. The next section will discuss the closely related concept of crossed random effects.
+Sometimes, a dataset contains multiple clustering variables. When one of those clustering variables is nested inside the other, we can model this effectively by estimating random effects at multiple levels. 
 
-::: callout-note
+Adding additional levels can create some complications, e.g., determining which level of the dataset your predictor variables are varying at. But it can also allow us to deal with real-life hierarchical data structures, which are common in research.
+
+::: {.callout-tip}
 #### Key points
-- A random effect is nested if each 
+- Random effect B is nested inside random effect A, if each category of B occurs uniquely within only one category of A
+- It's important to figure out what level of the hierarchy or model a predictor variable is varying at, to determine where random slopes are appropriate
+- Nested random effects can be implicitly or explicitly coded in a dataframe, which determines how the model should be specified in `lme4`
 :::
+

@@ -4,15 +4,15 @@ book:
       chapters:
         - materials/independence-psuedoreplication.qmd #complete
         - materials/random-effects.qmd #complete
-        - materials/fitting-mixed-models.qmd #complete
+        - materials/fitting-mixed-models.qmd #add additional exercise before dragons (easier)
     - part: "Interpreting mixed models"
       chapters:
-        - materials/significance-testing.qmd #complete
-        - materials/checking-assumptions.qmd #complete, could have an additional exercise though
-    #- part: "More complex designs"
-      #chapters:
-        #- materials/nested-random-effects.qmd
-        #- materials/crossed-effects.qmd
+        - materials/significance-testing.qmd #extra exercise based on previous section?
+        - materials/checking-assumptions.qmd #complete; alt text
+    - part: "More complex designs"
+      chapters:
+        - materials/nested-random-effects.qmd #add exercise(s)
+        - materials/crossed-random-effects.qmd
     #- part: "Bonus materials"
       #chapters:
         #- materials/correlation-matrices.qmd

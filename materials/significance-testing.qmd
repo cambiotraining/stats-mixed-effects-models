@@ -190,7 +190,7 @@ The third and final method that we'll touch on in this course is another form of
 
 Specifically, we can choose to treat these t-values as if they were z-scores instead, if our sample size is considered large enough. And, because z-scores are standardised, we don't need any degrees of freedom information to derive a p-value - we can just read them directly out of a table (or get R to do it for us).
 
-::: {.callout.note collapse="true"}
+::: {.callout-note collapse="true"}
 #### The logic of using z-scores instead
 
 A z-score is different from a statistic such as t or F. They're standardised, because they're measured in standard deviations - i.e., a z-score of 1.3 tells you that you are 1.3 standard deviations away from the mean. 
@@ -230,7 +230,11 @@ If we input the t-value for our `Days` fixed effect, we can see that it gives us
 
 One of the main reasons I've bothered to include all three of these methods here is because there's nothing stopping you using more than one approach when it comes to testing your own models. If you do use multiple methods, and they agree/lead you to the same conclusion, then that increases your overall confidence in that conclusion. If they disagree, then it's better that you know that your result might not be reliable, and you can do some further investigations to figure out why (e.g., perhaps it's a statistical power issue).
 
-## Exercise 1 - Dragons revisited
+## Exercises
+
+### Exercise 1 - Dragons revisited
+
+{{< level 2 >}}
 
 Let's return to the dataset from our previous example, our dragons dataset.
 
@@ -373,6 +377,25 @@ ggplot(dragons, aes(x = wingspan, y = intelligence, colour = scales)) +
 
 :::
 
+### Exercise 2 - Irrigation revisited
+
+{{< level 2 >}}
+
+Once again, we'll return to a dataset from the previous section of the course, and the model we fitted to it.
+
+::: {.panel-tabset group="language"}
+## R
+```{r, message=FALSE}
+irrigation <- read_csv("data/irrigation.csv")
+
+lme_yield <- lmer(yield ~ irrigation*variety + (1|field), data = irrigation)
+```
+:::
+
+Using the same code as you've practised above, perform model comparison to draw conclusions about which factors should be considered when maximising crop yield.
+
+To give you a bit of a challenge, there's no worked answer for this exercise, but feel free to call over a trainer or chat to a neighbour if you want to compare results!
+
 ## Summary
 
 There are multiple ways to assess the significance of effects in a mixed effects model, which can aid you in determining which predictors are required in your analysis. This section introduces you to a few of them. 
@@ -388,3 +411,4 @@ If you're interested in doing further reading on this topic, then [this article]
 - To calculate p-values for random and/or fixed effects, likelihood ratio tests can be used
 - Approximations of degrees of freedom (Satterthwaite and/or Kenward-Roger) or the t-as-z approximation can also be used to estimate p-values for fixed effects in mixed models
 :::
+

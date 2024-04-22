@@ -13,3 +13,7 @@ website:
           contents:
             - materials/significance-testing.qmd
             - materials/checking-assumptions.qmd
+        - section: "More complex designs"
+          contents:
+            - materials/nested-random-effects.qmd
+            - materials/crossed-random-effects.qmd

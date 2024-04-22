@@ -1,0 +1,53 @@
+---
+title: "Significance testing"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(lme4)
+library(broom.mixed)
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| results: hide
+source(file = "setup_files/setup.R")
+```
+
+Because we fit using ReML, AIC can't even properly be calculated (no clear DF)
+But there is a related option
+
+## cAIC
+
+## Step using LRTs
+
+
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+library(lmerTest)
+```
+:::
+
+
+
+### Exercise 2 - Irrigation revisited
+
+{{< level 2 >}}
+
+
+
+## Summary
+
+
+
+::: {.callout-tip}
+#### Key Points
+
+
+:::
+

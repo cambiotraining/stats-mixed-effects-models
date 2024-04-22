@@ -17,7 +17,7 @@ The data used in these materials are provided as a zip file.
 Download and unzip the folder to your Desktop or project folder to follow along with the materials.
 
 <!-- Note for Training Developers: add the link to 'href' -->
-<a href="https://github.com/cambiotraining/stats-mixed-effects-models/materials/data/data.zip">
+<a href="https://github.com/cambiotraining/stats-mixed-effects-models/blob/main/materials/data/data.zip">
   <button class="btn"><i class="fa fa-download"></i> Download</button>
 </a>
 

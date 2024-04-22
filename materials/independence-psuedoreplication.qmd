@@ -146,3 +146,4 @@ Mixed effects models allow us to take the variance in our technical replicates i
 - Conflating technical replicates with biological replicates is called pseudoreplication, which causes an inflated risk of a false positive (type I) error, and violates the independence assumption of standard linear models
 - Mixed effects models allow us to preserve statistical power and analyse repeated measures designs, while accounting for the lack of independence in our dataset
 :::
+
