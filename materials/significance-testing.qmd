@@ -242,7 +242,7 @@ Previously, we fit a mixed model to this dataset that included response variable
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r, message=FALSE}
 dragons <- read_csv("data/dragons.csv")
 
 lme_dragons <- lmer(intelligence ~ wingspan*scales + (1 + wingspan|mountain), 
@@ -392,9 +392,9 @@ lme_yield <- lmer(yield ~ irrigation*variety + (1|field), data = irrigation)
 ```
 :::
 
-Using the same code as you've practised above, perform model comparison to draw conclusions about which factors should be considered when maximising crop yield.
+Perform model comparison to draw conclusions about which factors should be considered when maximising crop yield.
 
-To give you a bit of a challenge, there's no worked answer for this exercise, but feel free to call over a trainer or chat to a neighbour if you want to compare results!
+There's no worked answer for this exercise, but you can use the code from the `sleepstudy` and `dragons` examples to scaffold your work. Feel free to call over a trainer or chat to a neighbour if you want to compare results!
 
 ## Summary
 

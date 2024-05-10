@@ -507,16 +507,20 @@ The full model that we could fit to these data contains three random effects: ra
 ::: {.panel-tabset group="language"}
 ## R
 ```{r}
-lme_parallel <- lmer(length ~ depth + (1|slice:cat) + (1 + depth|cat), data=parallel)
+lme_parallel <- lmer(length ~ depth + (1|slice:cat) + (1 + depth|cat), 
+                     data = parallel)
 ```
 :::
 
-You may notice that you get an error - the model fails to converge. There are a couple of fixes we could try here, including asking `lme4` to use different estimators; but the approach we'll go with here is  making the model simpler, since many errors at this stage usually just tell us that we're being too ambitious.
+You may notice that you get an error - the model fails to converge. There are a couple of fixes we could try that involve tweaking the settings in the estimation procedure (e.g., increasing the maximum number of iterations allowed).
+
+However, most errors like this just mean that we're being too ambitious. So, the approach we'll take here is to make the model simpler. 
 
 ::: {.panel-tabset group="language"}
 ## R
 ```{r}
-lme_parallel_int <- lmer(length ~ depth + (1|slice:cat) + (1|cat), data=parallel)
+lme_parallel_int <- lmer(length ~ depth + (1|slice:cat) + (1|cat), 
+                         data = parallel)
 ```
 :::
 
@@ -552,7 +556,7 @@ ggplot(augment(lme_parallel_int), aes(x = depth, y = length, colour = cat)) +
 
 Despite the fact that `depth` is a continuous variable, this plot still has jagged, rather than straight, lines of best fit. This is because the plot is also taking into account the multiple sets of random intercepts for `slice` that are contained within each `cat` cluster.
 
-We can, however, extract just the set of intercepts by `cat`, and with a bit more fuss, use this to add lines to the plot:
+We can, however, extract just the set of intercepts by `cat`, and with a bit more fuss, use this to add lines to the plot with `geom_abline`:
 
 ::: {.panel-tabset group="language"}
 ## R
@@ -572,6 +576,21 @@ ggplot(augment(lme_parallel_int), aes(x = depth, y = length, colour = cat)) +
 ```
 :::
 
+#### Is this a good model?
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+ggplot(parallel, aes(x = depth, y = length, colour = slice)) +
+  facet_wrap(~cat) +
+  geom_point(alpha = 0.6)
+```
+:::
+
+If we plot the data faceted by `cat`, it suggests that the relationship between `depth` and `length` varies between `cat`. But we were forced to drop the random slopes for `depth|cat` due to lack of model convergence.
+
+Our diagnostic plots look pretty good for our simpler, intercepts-only model, but the raw data indicate we might be missing something. Do you still trust the model? If no, what might a researcher do to improve this analysis?
+
 :::
 
 ::: {.callout-tip appearance="minimal"}
@@ -586,7 +605,7 @@ What would the equation of a three level model fitted to the `parallel` dataset 
 Hint: you'll need more subscript letters than you did for a two-level model!
 
 ::: {.callout-note collapse="true"}
-#### Three-level intercepts-only
+#### Answer: three-level intercepts-only
 
 E.g., `length ~ depth + (1|slice:cat) + (1|cat)`
 
@@ -623,7 +642,7 @@ $$
 :::
 
 ::: {.callout-note collapse="true"}
-#### Three-level intercepts & slopes
+#### Answer: three-level intercepts & slopes
 
 E.g., `length ~ depth + (1|slice:cat) + (1 + depth|cat)`
 

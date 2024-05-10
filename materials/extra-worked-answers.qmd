@@ -1,0 +1,144 @@
+---
+title: "Additional worked answers"
+output: html_document
+---
+
+```{r}
+#| echo: false
+#| message: false
+#| results: hide
+source(file = "setup_files/setup.R")
+```
+
+This page contains worked answers to examples that are not given in the course materials. It is primarily designed as a reference for trainers.
+
+## Libraries and functions
+
+```{r}
+#| eval: false
+# load the required packages for fitting & visualising
+library(tidyverse)
+library(lme4)
+library(broom)
+library(broom.mixed)
+library(patchwork)
+```
+
+## Chapter 5 - Fitting mixed models
+
+### Exercise 2 - Solutions
+
+{{< level 2 >}}
+
+A lab technician wants to test the purity of their stock of several common solutes. They take multiple samples of each solute, and dissolve them into six common solvents four times each (for a total of 72 solutions).
+
+The technician wants to know the average dissolving time of each solute across replicates, which they can compare against known figures to check the quality of each solute. For each solution, they also record the solvent used and the temperature in the lab at the time of the experiment, both of which they want to factor out in their analysis.
+
+Read in the `solutions.csv` dataset. Explore the data and experimental design (including by visualising), and then fit at least one appropriate mixed effects model.
+
+::: {.callout-note appearance="minimal"}
+#### Worked answer
+
+```{r}
+solutions <- read_csv("data/solutions.csv")
+```
+
+An appropriate visualisation would be along the lines of the following:
+
+```{r}
+ggplot(solutions, aes(x=solvent, y=dissolve, colour=solute)) +
+  geom_point()
+```
+
+The sensible model to fit these data is the following:
+
+```{r}
+lme_sol_intercepts <- lmer(dissolve ~ solute + (1|solvent), data = solutions)
+summary(lme_sol_intercepts)
+```
+
+Our response variable is `dissolve`, the fixed predictor `solute` (since we want to know about differences between solutes), and we cluster by `solvent` since we'd like to generalise across all solvents.
+
+This model can be visualised by adding to the plot above:
+
+```{r}
+ggplot(augment(lme_sol_intercepts), aes(x=solvent, y=dissolve, colour=solute)) +
+  geom_point() +
+  geom_line(aes(y=.fitted, group=solute))
+```
+
+If students attempt to fit a more complex model, with random slopes and intercepts, they'll receive an error informing them of singular fit. This is because the dataset isn't large enough to support this more complex random effects structure.
+
+```{r}
+lme_sol_slopes <- lmer(dissolve ~ solute + (1+solute|solvent), data = solutions)
+```
+
+:::
+
+### Exercise 3 - Dragons
+
+{{< level 2 >}}
+
+*The inspiration for this example dataset is taken from an [online tutorial](https://ourcodingclub.github.io/tutorials/mixed-models/) by Gabriela K Hadjuk.*
+
+Read in the `dragons.csv` file, explore these data, then fit, summarise and visualise at least one mixed effects model.
+
+This is a slightly more complicated dataset, with five different variables:
+
+- `dragon`, which is simply an ID number for each dragon measured; here, each dragon is unique
+- `wingspan`, a measure of the size of the dragon
+- `scales`, a categorical (binary) variable for what colour scales the dragon has
+- `mountain`, a categorical variable representing which mountain range the dragon was found on
+- `intelligence`, our continuous response variable
+
+We're interested in the relationships between `wingspan`, the colour of `scales` and `intelligence`, but we want to factor in the fact that we have measured these variables across 5 different mountain ranges.
+
+With more variables, there are more possible models that could be fitted. Think about: what different structures might the fixed and random effects take? How does that change our visualisation?
+
+Try to work through this yourself, before expanding the answer below.
+
+#### Bonus questions
+
+{{< level 3 >}}
+
+For those who want to push their understanding a bit further, here's a few additional things to think about. We won't give the answers here, but if you're interested, call a trainer over to chat about them more.
+
+- How could you adapt the code above to visualise a mixed effects model that did not include `scales` as a fixed predictor?
+- How much shrinkage do you observe for the lines of best fit in the `dragons` dataset? Is this more or less than in the `sleepstudy` dataset? Why might this be?
+- What syntax would you use in `lme4` to fit a model with the following equation to the dragons dataset?
+
+::: {.callout-note collapse="true"}
+#### Model equation
+
+Level 1:
+
+$$
+y_{ij} = \beta_{0j} + \beta_{1j}x_{1ij} + \beta_{2j}x_{2ij} + \beta_3x_{1ij}x_{2ij} + \epsilon_{ij}
+$$
+
+Level 2:
+
+$$
+\beta_{0j} = \gamma_{00} + U_{0j}
+$$
+$$
+\beta_{1j} = \gamma_{10} + U_{1j}
+$$
+$$
+\beta_{2j} = \gamma_{20} + U_{2j}
+$$
+
+and,
+
+$$
+\left( \begin{array}{c} U_{0j} \\ U_{1j} \\ U_{2j} \end{array} \right) ∼ N \left( \begin{array}{c} 0 \\ 0 \\ 0 \end{array}   , \begin{array}{cc} \tau^2_{00} & \rho_{01} & \rho_{02} \\ \rho_{01} &  \tau^2_{10} & \rho_{12} \\ \rho_{02} & \rho_{12} & \tau^2_{20} \end{array} \right)
+$$
+
+Where $y$ is `intelligence`, $x_1$ is `wingspan`, $x_2$ is `scales`, $j$ represents mountain ranges and $i$ represents individual dragons within those mountain ranges.
+
+:::
+
+::: {.callout-note appearance="minimal"}
+#### Worked answer (bonus questions)
+:::
+
