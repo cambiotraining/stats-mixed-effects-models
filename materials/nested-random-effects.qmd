@@ -444,7 +444,7 @@ For this exercise, we'll be using a neurohistology dataset that focuses on a par
 ::: {.panel-tabset group="language"}
 ## R
 ```{r, message=FALSE}
-parallel <- read_csv("data/parallel_real.csv")
+parallel <- read_csv("data/parallel.csv")
 ```
 :::
 
