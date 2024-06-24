@@ -17,6 +17,21 @@ library(broom.mixed)
 source(file = "setup_files/setup.R")
 ```
 
+## Libraries and functions
+
+::: {.callout-note collapse="true"}
+## Click to expand
+
+We'll be using the `lmerTest` package for performing certain types of significance tests.
+
+```{r}
+#| eval: false
+library(lmerTest)
+```
+:::
+
+## The problem 
+
 Unlike standard linear models, p-values are not calculated automatically for a mixed effects model in `lme4`, as you may have noticed in the previous section of the materials. There is a little extra work and thought that goes into testing significance for these models.
 
 The reason for this is the inclusion of random effects, and the way that random effects are estimated. When using partial pooling to estimate the random effects, there is no way to precisely determine the number of **degrees of freedom**. 
@@ -59,14 +74,7 @@ Despite being very simple and intuitive, there is a downside: this method does n
 
 For this approach, we will use the companion package to `lme4`, a package called `lmerTest`. It provides an "updated" version of the `lmer()` function, one that can approximate the number of degrees of freedom, and thus provide estimated p-values.
 
-::: {.panel-tabset group="language"}
-## R
-```{r}
-library(lmerTest)
-```
-:::
-
-Now, whenever you use the `lmer()` function, R will automatically use the version from the `lmerTest` package. (You can prevent it from doing so by typing `lme4::lmer()` instead.)
+If you have `lmerTest` loaded, then whenever you use the `lmer()` function, R will automatically use the version from the `lmerTest` package. (You can prevent it from doing so by typing `lme4::lmer()` instead.)
 
 The `lmerTest` package uses the Satterthwaite approximation by default. This particular approximation is appropriate for mixed models that are fitted using either MLE or ReML, making it pretty flexible.
 
@@ -75,8 +83,6 @@ Using this new package, let's look again at our random slopes & intercepts model
 ::: {.panel-tabset group="language"}
 ## R
 ```{r}
-# refit the random intercepts & random slopes model
-# using lmerTest instead of lme4
 lme_sleep2 <- lmer(Reaction ~ Days + (1 + Days|Subject),
                    data = sleepstudy)
 ```
@@ -139,15 +145,11 @@ Let's return to our `sleepstudy` dataset, and fit two models - one with random i
 ::: {.panel-tabset group="language"}
 ## R
 ```{r}
-# load lme4, and the dataset from the package
-library(lme4)
 data("sleepstudy")
 
-# fit the random intercepts model
 lme_sleep1 <- lmer(Reaction ~ Days + (1|Subject),
                    data = sleepstudy)
 
-# fit the random intercepts & slopes model
 lme_sleep2 <- lmer(Reaction ~ Days + (1 + Days|Subject),
                    data = sleepstudy)
 ```
@@ -259,15 +261,13 @@ Now, test the significance of this model and its parameters using the methods sh
 ::: {.callout-note collapse="true"}
 #### Worked answer
 
-Let's start by using an LRT to test the overall significance of our model.
+Let's start by using an LRT to test the overall significance of our model. We'll construct a null model, and then use `anova` to compare it to our model.
 
 ::: {.panel-tabset group="language"}
 ## R
 ```{r}
-# construct a null model
 lme_dragons_null <- lm(intelligence ~ 1, data = dragons)
 
-# compare the full and null models
 anova(lme_dragons, lme_dragons_null)
 ```
 :::
@@ -311,13 +311,18 @@ Let's move on to thinking about our fixed effects. Following the same LRT proced
 
 ::: {.panel-tabset group="language"}
 ## R
+
+First, we'll test the interaction term.
+
 ```{r}
-# testing the interaction term
 lme_dragons_dropx <- lmer(intelligence ~ wingspan + scales + (1 + wingspan|mountain), 
                           data=dragons)
 
 anova(lme_dragons, lme_dragons_dropx)
 ```
+
+Then, the main effect of scales: 
+
 ```{r}
 # testing the main effect of scales
 lme_dragons_dropwing <- lmer(intelligence ~ scales + (1 + wingspan|mountain), 
@@ -325,8 +330,10 @@ lme_dragons_dropwing <- lmer(intelligence ~ scales + (1 + wingspan|mountain),
 
 anova(lme_dragons, lme_dragons_dropwing)
 ```
+
+And finally, the main effect of wingspan.
+
 ```{r}
-# testing the main effect of wingspan
 lme_dragons_dropscale <- lmer(intelligence ~ wingspan + (1 + wingspan|mountain), 
                               data=dragons)
 
@@ -350,14 +357,11 @@ And, indeed, we would draw the same overall conclusion using t-to-z approximatio
 ::: {.panel-tabset group="language"}
 ## R
 ```{r}
-# interaction term
-2*pnorm(q = -1.157, lower.tail = FALSE)
+2*pnorm(q = -1.157, lower.tail = FALSE) # interaction term
 
-# scales main effect
-2*pnorm(q = 3.256, lower.tail = FALSE)
+2*pnorm(q = 3.256, lower.tail = FALSE) # scales main effect
 
-# wingspan main effect
-2*pnorm(q = 4.244, lower.tail = FALSE)
+2*pnorm(q = 4.244, lower.tail = FALSE) # wingspan main effect
 ```
 :::
 

@@ -48,6 +48,8 @@ About the authors:
 
 ## References
 
+Choe, J. (2020). *The Correlation Parameter in the Random Effects of Mixed Effects Models.* https://rpubs.com/yjunechoe/correlationsLMEM 
+
 Cook, F. E. (1938). *Chocolate cake: I. Optimum baking temperature.* (Doctoral dissertation, Iowa State College).
 
 Faraway, J. J. (2016). *Extending the linear model with R: generalized linear, mixed effects and nonparametric regression models.* Chapman and Hall/CRC.
