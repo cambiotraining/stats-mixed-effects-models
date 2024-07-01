@@ -41,7 +41,7 @@ The code below explains how to simulate a dataset containing:
 
 ## Imagine: dragons
 
-We're going to simulate a dataset with the following structure.
+We're going to simulate a dataset with the following structure. Random effects are shown in purple, and fixed effects in orange.
 
 ![Design for `dragons` dataset](images_mixed-effects/full_dragons_design.png)
 
@@ -58,7 +58,7 @@ There are two fixed effects:
 - `wingspan`, which varies with each individual dragon at level 1
 - `scales` colour, which varies between caves at level 2 (i.e., all dragons in a cave are the same colour)
 
-::: {.callout-note}
+::: {.callout-note collapse="true"}
 #### Other possible random slopes
 
 Under this experimental design, there are a lot of possible random slopes, but we're not going to simulate all of them and they're not shown on the diagram above.
@@ -67,7 +67,7 @@ It would be possible, for instance, to have random slopes of `wingspan|cave`, si
 
 It would also be possible to fit random slopes for `scales|researcher` and `wingspan|researcher`, but neither of these are biologically very plausible. We don't really expect the `intelligence ~ wingspan + scales` relationship to vary between researchers. We'll just simulate random intercepts here, which you can think of as baseline differences in the way that the researchers assess `intelligence`.
 
-We could even be simulating random effects of `wingspan:scales|mountain` and `wingspan:scales|researcher`, but this tutorial is going to be long enough as it is!
+We could even be simulating random effects of `wingspan:scales|mountain` and `wingspan:scales|researcher` - but these are probably a step too far.
 :::
 
 ### Global parameters
@@ -174,18 +174,18 @@ Now, we can simulate from a multivariate normal distribution, using the matrix w
 ::: {.panel-tabset group="language"}
 ## R
 ```{r}
-mountain_randomeffs <- mvrnorm(n=nk, mu=c(rep(0, times=3)), Sigma=sigma)
+mountain_randomeffs <- mvrnorm(n = nk, mu = c(rep(0, times = 3)), Sigma = sigma)
 ```
 :::
 
-Our intercepts for `cave` and `researcher` can be estimated more simply, since there's no variance-covariance matrix to worry about:
+Our intercepts for `cave` and `researcher` can be estimated more simply, since there's no variance-covariance matrix to worry about (i.e., there's only one random effect for each of these clustering variables).
 
 ::: {.panel-tabset group="language"}
 ## R
 ```{r}
-cave_randomeffs <- rnorm(n=nj*nk, mean=0, sd=tau3)
+cave_randomeffs <- rnorm(n = nj*nk, mean = 0, sd = tau3)
 
-researcher_randomeffs <- rnorm(n=nr, mean=0, sd=tau4)
+researcher_randomeffs <- rnorm(n = nr, mean = 0, sd = tau4)
 ```
 :::
 
@@ -195,14 +195,14 @@ The next thing to do is to generate the values for our predictor and clustering 
 
 #### Random predictor variables
 
-Here, we create unique IDs for each `mountain` range. Then, a set of unique IDs for each `cave`. (Importantly, these cave IDs do not repeat between mountain ranges - in other words, our dataset will be explicitly nested)
+Here, we create unique IDs for each `mountain` range and each `cave`. (Importantly, these cave IDs do not repeat between mountain ranges - in other words, our dataset will be explicitly nested.)
 
 ::: {.panel-tabset group="language"}
 ## R
 ```{r}
-mountain <- rep(LETTERS[1:nk],each=ni*nj)
+mountain <- rep(LETTERS[1:nk],each = ni*nj)
 
-cave <- as.factor(rep(1:(nj*nk), each=ni))
+cave <- as.factor(rep(1:(nj*nk), each = ni))
 ```
 :::
 
@@ -221,7 +221,7 @@ And finally, we create unique IDs for each `researcher`. We're just going to var
 ## R
 ```{r}
 researcher <- sample(rep(c("AP", "RS", "LO", "CN", "YW", "KH"), 
-                         length.out=ni*nj*nk))
+                         length.out = ni*nj*nk))
 ```
 :::
 
@@ -243,28 +243,33 @@ According to our design, `scales` varies at the level of `cave`, level 2. We cod
 ::: {.panel-tabset group="language"}
 ## R
 ```{r}
-scales <- rep(c(rep("chromatic", times=ni), rep("metallic", times=ni)), 
-              length.out=ni*nj*nk)
+scales <- rep(c(rep("chromatic", times = ni), rep("metallic", times = ni)), 
+              length.out = ni*nj*nk)
 ```
 :::
 
-If, however, you wanted `scales` to instead vary only between `mountain` ranges - i.e., each mountain range only contains one scale colour - you can adapt that adjust the `times` argument like this:
+::: {.callout-note collapse="true"}
+#### Coding `scales` at different levels
+
+If you wanted `scales` to instead vary only between `mountain` ranges - i.e., each mountain range only contains one scale colour - you can code that by adjusting the `times` argument in the `rep` function:
 
 ::: {.panel-tabset group="language"}
 ## R
 ```{r}
-scales_lvl3 <- rep(c(rep("chromatic", times=ni*nj), rep("metallic", times=ni*nj)), 
-                   length.out=ni*nj*nk)
+scales_lvl3 <- rep(c(rep("chromatic", times = ni*nj), 
+                     rep("metallic", times = ni*nj)), 
+                   length.out = ni*nj*nk)
 ```
 :::
 
-Or, if you wanted `scales` to vary down at the individual level, you can drop the `times` argument entirely and use very similar code to what we used for the `researcher` variable above:
+Or, if you wanted `scales` to vary down at the individual level, you can drop the `times` argument entirely, using similar code to what was used to generate the `researcher` variable above:
 
 ::: {.panel-tabset group="language"}
 ## R
 ```{r}
-scales_lvl1 <- sample(rep(c("chromatic", "metallic"), length.out=ni*nj*nk))
+scales_lvl1 <- sample(rep(c("chromatic", "metallic"), length.out = ni*nj*nk))
 ```
+:::
 :::
 
 #### Checking the structure
@@ -318,7 +323,7 @@ view(model.matrix(~ 0 + mountain + wingspan:mountain + scales:mountain) %*% as.v
 
 The second step is to sample our our **actual** values of our `intelligence` variable.
 
-For each value of `intelligence`, we sample from a normal distribution where the mean is the `average_response` that we generated above, and where the standard deviation is the individual `sdi` that we set above. 
+For each value of `intelligence`, we sample from a normal distribution where the mean is the `average_response` that we generated just above, and where the standard deviation is the individual `sdi` that we set along with the other global parameters. 
 
 ::: {.panel-tabset group="language"}
 ## R
@@ -348,7 +353,7 @@ Having simulated based on a model, it's useful to check that the model does in f
 ```{r}
 lme_test <- lmer(intelligence ~ wingspan + scales + 
                    (1 + wingspan + scales|mountain) + 
-                   (1 + wingspan|cave) +
+                   (1|cave) +
                    (1|researcher),
                  data = dragons)
 ```

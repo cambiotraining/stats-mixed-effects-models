@@ -29,7 +29,7 @@ We want to know whether the number of weeks spent training predicts how long peo
 ```{r message=FALSE}
 planking <- read_csv("data/planking.csv")
 
-lme_plank <- lmer(plank_time ~ week + (1 + week|subject), data=planking)
+lme_plank <- lmer(plank_time ~ week + (1 + week|subject), data = planking)
 ```
 :::
 
@@ -38,7 +38,9 @@ We've fitted random intercepts and slopes for each subject, which we expect to e
 - We're allowing for people to have a different starting ability on the plank exercise. We expect most people to start somewhere around an average baseline time, with a small number of people being naturally very good at baseline, and a small number being quite bad.
 - We're allowing for people to progress at different rates as they continue to train across the weeks. We expect most people to improve at or near some average rate, with a small number of people improving very quickly, and a small number maybe not improving much at all.
 
-Both of these sound very reasonable and biological plausible, right?
+Both of these sound very reasonable and biologically plausible, right?
+
+Let's think about what this means in terms of distributions.
 
 What we've just described is two sets of numbers, or random coefficients, each drawn from an independent normal distribution. Since we're actually estimating the deviation from the mean when we estimate our random coefficients, the mean of the distribution is 0, with some standard deviation to tell us the spread.
 
@@ -75,11 +77,11 @@ intnorm <- rnorm(10000, 0, 6.83)
 slopenorm <- rnorm(10000, 0, 1.58)
 
 p2 <- ggplot(data.frame(intnorm), aes(intnorm)) + 
-  geom_density(fill="grey") +
+  geom_density(fill = "grey") +
   theme_void()
 
 p3 <- ggplot(data.frame(slopenorm), aes(slopenorm)) + 
-  geom_density(fill="grey") +
+  geom_density(fill = "grey") +
   theme_void() + coord_flip()
 
 design <- "
@@ -118,11 +120,11 @@ intnorm <- rnorm(10000, 0, 6.83)
 slopenorm <- rnorm(10000, 0, 1.58)
 
 p2 <- ggplot(data.frame(intnorm), aes(intnorm)) + 
-  geom_density(fill="grey") +
+  geom_density(fill = "grey") +
   theme_void()
 
 p3 <- ggplot(data.frame(slopenorm), aes(slopenorm)) + 
-  geom_density(fill="grey") +
+  geom_density(fill = "grey") +
   theme_void() + coord_flip()
 
 design <- "
@@ -138,7 +140,9 @@ p1 + p2 + p3 + plot_layout(design = design)
 :::
 :::
 
-But we can also use the `ranef` function from `lme4` to extract the actual random coefficients, and plot those against each other.
+Okay, so that's what simulated versions of the random coefficients would look like.
+
+Let's compare it to what we actually see in our fitted model. To do this, we'll extract the actual random coefficients using the `ranef` function, and then plot them in the same way (each point corresponding to a different subject/cluster).
 
 ::: {.panel-tabset group="language"}
 ## R
@@ -156,11 +160,11 @@ intnorm <- rnorm(10000, 0, 6.83)
 slopenorm <- rnorm(10000, 0, 1.58)
 
 p2 <- ggplot(data.frame(intnorm), aes(intnorm)) + 
-  geom_density(fill="grey") +
+  geom_density(fill = "grey") +
   theme_void()
 
 p3 <- ggplot(data.frame(slopenorm), aes(slopenorm)) + 
-  geom_density(fill="grey") +
+  geom_density(fill = "grey") +
   theme_void() + coord_flip()
 
 p4 + p2 + p3 + plot_layout(design = design)
@@ -191,7 +195,7 @@ $$
 
 This is a variance-covariance matrix. It contains the standard deviations of each of the two random effects, $\tau^2_{00}$ and $\tau^2_{10}$, plus the correlation between them, $\rho_{01}$, which gets written out twice just because of the mirrored layout.
 
-The variance-covariance matrix can also be observed in the model summary in `lme4`.
+The values that populate the variance-covariance matrix are reported in the model summary in `lme4`.
 
 ::: {.panel-tabset group="language"}
 ## R
@@ -200,7 +204,7 @@ summary(lme_plank)
 ```
 :::
 
-The right hand column for the random effects, `Corr`, specifies the strength of the correlation. Here, we can see that there is indeed a negative correlation between the slopes and intercepts for our set of subjects - a strong one.
+The right hand column for the random effects, `Corr`, specifies the strength of the correlation (i.e., $\rho_{01}$). Here, we can see that there is indeed a negative correlation between the slopes and intercepts for our set of subjects - a strong one.
 
 If we had more than two random effects for a single clustering variable, our variance-covariance matrix can grow quite quickly. With three random effects, we estimate three correlations; with four random effects, that's six correlations.
 
@@ -215,7 +219,8 @@ If so, there is syntax in `lme4` that allows us to explicitly not estimate the c
 ::: {.panel-tabset group="language"}
 ## R
 ```{r}
-lme_plank_nocorr <- lmer(plank_time ~ week + (1 + week||subject), data=planking)
+lme_plank_nocorr <- lmer(plank_time ~ week + (1 + week||subject), 
+                         data = planking)
 
 summary(lme_plank_nocorr)
 ```

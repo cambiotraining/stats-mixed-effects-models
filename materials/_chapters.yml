@@ -7,7 +7,7 @@ book:
         - materials/fitting-mixed-models.qmd
     - part: "Interpreting mixed models"
       chapters:
-        - materials/significance-testing.qmd
+        - materials/significance-and-model-comparison.qmd
         - materials/checking-assumptions.qmd 
     - part: "More complex designs"
       chapters:

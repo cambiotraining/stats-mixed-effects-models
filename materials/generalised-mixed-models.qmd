@@ -260,6 +260,8 @@ Not perfect - but perhaps better?
 
 Even `glmmTMB` is not the end of the road. There are others one could use, including packages such as `brms` and `GLMMadaptive`, or the `glmmPQL` function from `MASS`, and you may see these cropping up in online tutorials or even papers.
 
+For a detailed list of packages, [this resource](https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html#which-r-packages-functions-fit-glmms) from Bolker et al. is a great starting point.
+
 A note of caution: not all packages will implement exactly the same computational methods "under the hood" as `lme4`, because fitting and assessing mixed effects models, especially non-linear and generalised ones, is difficult to do and therefore is still an area of active research and discussion in statistics. 
 
 So, if you notice that you get different estimates and numbers when fitting models in different packages, don't panic. What matters more than anything is the conclusion you draw from your data overall, and how confident you are in that conclusion.
