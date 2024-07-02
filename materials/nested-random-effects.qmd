@@ -270,7 +270,9 @@ And, no matter which method you choose, always check the model output to see tha
 
 ## Exercises
 
-### Exercise 1 - Cake
+### Cake {#sec-exr_cake}
+
+::: {.callout-exercise}
 
 {{< level 2 >}}
 
@@ -302,7 +304,7 @@ For this exercise:
 3. Consider how you might recode the dataset to reflect implicit nesting
 4. Fit and test at least one appropriate model
 
-::: {.callout-note collapse="true"}
+::: {.callout-tip collapse="true"}
 #### Worked answer
 
 #### Consider the experimental design
@@ -417,12 +419,12 @@ ggplot(augment(lme_cake), aes(x = temperature, y = angle, colour = recipe)) +
 ```
 :::
 
-
+:::
 
 :::
 
-::: {.callout-tip appearance="minimal"}
-#### Follow-up questions
+::: {.callout-exercise}
+#### Bonus questions
 
 {{< level 2 >}}
 
@@ -435,7 +437,9 @@ If you want to think a bit harder about this dataset, consider these additional 
 
 For more information on the very best way to bake a chocolate cake (and a lovely demonstration at the end about the dangers of extrapolating from a linear model), [this blog post](https://www.sumsar.net/blog/source-of-the-cake-dataset/) is a nice source. It's written by a data scientist who was so curious about the quirky `cake` dataset that he contacted Iowa State University, who helped him unearth Cook's original thesis.
 
-### Exercise 2 - Parallel fibres
+### Parallel fibres {#sec-exr_parallel}
+
+::: {.callout-exercise}
 
 {{< level 2 >}}
 
@@ -466,7 +470,7 @@ For this exercise:
 2. Determine whether the dataset requires recoding or explicit nesting
 3. Fit and test at least one appropriate model
 
-::: {.callout-note collapse="true"}
+::: {.callout-tip collapse="true"}
 #### Worked answer
 
 #### Visualise the design
@@ -593,8 +597,10 @@ Our diagnostic plots look pretty good for our simpler, intercepts-only model, bu
 
 :::
 
-::: {.callout-tip appearance="minimal"}
-#### Optional follow-up question: notation
+:::
+
+::: {.callout-exercise}
+#### Bonus question: notation
 
 {{< level 3 >}}
 
@@ -604,7 +610,7 @@ What would the equation of a three level model fitted to the `parallel` dataset 
 
 Hint: you'll need more subscript letters than you did for a two-level model!
 
-::: {.callout-note collapse="true"}
+::: {.callout-tip collapse="true"}
 #### Answer: three-level intercepts-only
 
 E.g., `length ~ depth + (1|slice:cat) + (1|cat)`
@@ -641,7 +647,7 @@ $$
 
 :::
 
-::: {.callout-note collapse="true"}
+::: {.callout-tip collapse="true"}
 #### Answer: three-level intercepts & slopes
 
 E.g., `length ~ depth + (1|slice:cat) + (1 + depth|cat)`

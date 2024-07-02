@@ -139,7 +139,9 @@ If you check the output, you can see that we do indeed have 4 groups each for `r
 
 ## Exercises
 
-### Exercise 1 - Penicillin
+### Penicillin {#sec-exr_penicillin}
+
+::: {.callout-exercise}
 
 {{< level 2 >}}
 
@@ -169,7 +171,7 @@ For this exercise:
 3. Check the model assumptions
 4. Visualise the model
 
-::: {.callout-note collapse="true"}
+::: {.callout-tip collapse="true"}
 #### Worked answer
 
 This is quite a simple dataset, in that there are only two variables besides the response. But, given the research question, we likely want to consider both of these two variables as random effects.
@@ -210,7 +212,11 @@ ggplot(augment(lme_penicillin), aes(x = plate, y = diameter, colour = sample)) +
 
 :::
 
-### Exercise 2 - Politeness
+:::
+
+### Politeness {#sec-exr_solutions}
+
+::: {.callout-exercise}
 
 {{< level 2 >}}
 
@@ -243,7 +249,7 @@ To answer this question:
 2. Try drawing out the structure of the dataset, and think about what levels the different variables are varying at
 3. You may want to assess the quality and significance of the model to help you draw your final conclusions
 
-::: {.callout-note collapse="true"}
+::: {.callout-tip collapse="true"}
 #### Worked answer
 
 #### Consider the experimental design
@@ -334,6 +340,8 @@ ggplot(augment(lme_polite_red), aes(x = paste(gender, context), y = pitch, colou
 Based on the model output and the visualisation, we might therefore conclude that on average, speakers do use higher pitch for polite sentences compared to informal ones. Although there is a difference in pitch between male and female speakers overall, the effect of context is similar across genders.
 
 In the final line of code for the plot, we've included the lines of best fit for each subject-sentence combination, which have fixed gradients but random intercepts. You can view sentence-wise lines of best fit (summarised across all 6 subjects) by writing `group = sentence`, or subject-wise lines of best fit (summarised across all 7 sentences) by writing `group = subject`. These tell you a little bit more about how much variation there is between the subjects and sentences.
+
+:::
 
 :::
 

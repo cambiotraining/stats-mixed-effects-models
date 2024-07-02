@@ -410,11 +410,13 @@ If you're curious, you could start some follow-up reading [here](https://bbolker
 
 ## Exercises
 
-### Exercise 1 - Dragons revisited
+### Dragons revisited {#sec-exr_dragons2}
+
+::: {.callout-exercise}
 
 {{< level 2 >}}
 
-Let's return to the dataset from our previous example, our dragons dataset.
+Let's return to the dataset from a previous exercise, [Exercise -@sec-exr_dragons].
 
 Previously, we fit a mixed model to this dataset that included response variable `intelligence`, fixed effects of `wingspan`, `scales` and `wingspan:colour`, and two random effects: random intercepts `1|mountain`, and random slopes for `wingspan|mountain`.
 
@@ -438,7 +440,7 @@ If you're feeling adventurous, you can also:
 - use LRTs, AIC and/or bootstrapping to assess the random effects, and compare the results
 - use other methods to assess the significance of the fixed effects, and compare the results
 
-::: {.callout-note collapse="true"}
+::: {.callout-tip collapse="true"}
 #### Worked answer
 
 Let's start by using an LRT to test the overall significance of our model. We'll construct a null model, and then use `anova` to compare it to our model.
@@ -606,11 +608,15 @@ Do we need to reduce the number of random parameters in our model? Our dataset i
 
 :::
 
-### Exercise 2 - Irrigation revisited
+:::
+
+### Irrigation revisited {#sec-exr_irrigation2}
+
+::: {.callout-exercise}
 
 {{< level 2 >}}
 
-Once again, we'll return to a dataset from the previous section of the course, and the model we fitted to it.
+Once again, we'll return to a dataset from the previous section of the course, this time [Exercise -@sec-exr_irrigation], and the model we fitted to it.
 
 ::: {.panel-tabset group="language"}
 ## R
@@ -629,6 +635,8 @@ Compare and contrast the results from likelihood ratio test and other methods, t
 There's no worked answer for this exercise, but you can use the code from the `sleepstudy` and `dragons` examples to scaffold your work.
 
 Consider also the random intercepts. If an LRT or bootstrap indicated that the random effect wasn't significant, would you drop the intercepts from the model? Why/why not? Feel free to chat to a neighbour or trainer to help make your decision.
+
+:::
 
 ## Summary
 

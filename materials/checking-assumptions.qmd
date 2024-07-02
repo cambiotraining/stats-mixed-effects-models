@@ -138,11 +138,13 @@ If you find the green, blue and red default colours in `check_model` to be a lit
 
 ## Exercises
 
-### Exercise 1 - Dragons revisited (again)
+### Dragons revisited (again) {#sec-exr_dragons3}
+
+::: {.callout-exercise}
 
 {{< level 1 >}}
 
-Let's once again revisit the `dragons` dataset, and the minimal model that we chose in the previous section based on significance testing:
+Let's once again revisit the `dragons` dataset, and the minimal model that we chose in [Exercise -@sec-exr_dragons2] based on significance testing:
 
 ::: {.panel-tabset group="language"}
 ## R
@@ -157,7 +159,7 @@ lme_dragons_dropx <- lmer(intelligence ~ wingspan + scales +
 
 Fit diagnostic plots for this model using the code given above. What do they show?
 
-::: {.callout-note collapse="true"}
+::: {.callout-tip collapse="true"}
 #### Worked answer
 
 ::: {.panel-tabset group="language"}
@@ -175,7 +177,11 @@ check_model(lme_dragons_dropx,
 
 Try comparing these diagnostic plots to the diagnostic plots for the full model, `intelligence ~ wingspan*scales + (1 + wingspan|mountain)`. Are the assumptions better met? Why/why not?
 
-### Exercise 2 - Arabidopsis
+:::
+
+### Arabidopsis {#sec-exr_arabidopsis}
+
+::: {.callout-exercise}
 
 {{< level 2 >}}
 
@@ -209,7 +215,7 @@ Fit the following mixed effects model:
 
 and check its assumptions. What can you conclude about the suitability of a linear mixed effects model for this dataset?
 
-::: {.callout-note collapse="true"}
+::: {.callout-tip collapse="true"}
 #### Worked answer
 
 #### Fitting the model
@@ -263,6 +269,7 @@ To figure out why, and whether it's fixable, think about the types of variables 
 
 Chat about these bonus questions with a neighbour, or a trainer. Understanding why these diagnostic plots look bad, and why we might need to take a closer look at the dataset before we fit things, will serve you really well when working with your own data.
 
+:::
 :::
 
 ## Summary

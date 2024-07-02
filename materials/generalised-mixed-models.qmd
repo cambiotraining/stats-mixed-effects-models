@@ -60,9 +60,9 @@ The assumptions of a GLMM are an amalgamation of the assumptions of a GLM and a 
 - Correct link function; there is a linear relationship between the linearised model
 - Normally distributed random effects
 
-## Revisiting arabidopsis
+## Revisiting Arabidopsis
 
-To give an illustration of how we fit and assess generalised linear mixed effects models (GLMMs), we'll look at the internal dataset `Arabidopsis` from `lme4`.
+To give an illustration of how we fit and assess generalised linear mixed effects models (GLMMs), we'll look at the internal dataset `Arabidopsis`, which we investigated earlier in the course in [Exercise -@sec-exr_arabidopsis].
 
 ::: {.panel-tabset group="language"}
 ## R

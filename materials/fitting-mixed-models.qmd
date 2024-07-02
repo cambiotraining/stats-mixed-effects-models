@@ -429,7 +429,9 @@ This idea of taking into account the global average when calculating our set of 
 
 ## Exercises
 
-### Exercise 1 - Irrigation
+### Irrigation {#sec-exr_irrigation}
+
+::: {.callout-exercise}
 
 {{< level 1 >}}
 
@@ -458,7 +460,7 @@ For this exercise:
 
 Does it look as if `irrigation` method or crop `variety` are likely to affect `yield`?
 
-::: {.callout-note collapse="true"}
+::: {.callout-tip collapse="true"}
 #### Worked answer
 
 #### Visualise the data
@@ -536,7 +538,11 @@ ggplot(augment(lme_yield), aes(x = irrigation, y = yield, shape = variety)) +
 
 :::
 
-### Exercise 2 - Solutions
+:::
+
+### Solutions {#sec-exr_solutions}
+
+::: {.callout-exercise}
 
 {{< level 2 >}}
 
@@ -554,7 +560,11 @@ There is no worked answer provided for this exercise, in order to challenge you 
 Note: if you encounter the `boundary (singular) fit: see help('isSingular')` error, this doesn't mean that you've used the `lme4` syntax incorrectly; as we'll discuss later in the course, it means that the model you've fitted is too complex to be supported by the size of the dataset.
 :::
 
-### Exercise 3 - Dragons
+:::
+
+### Dragons {#sec-exr_dragons}
+
+::: {.callout-exercise}
 
 {{< level 2 >}}
 
@@ -576,7 +586,7 @@ With more variables, there are more possible models that could be fitted. Think 
 
 Try to work through this yourself, before expanding the answer below.
 
-::: {.callout-note collapse="true"}
+::: {.callout-tip collapse="true"}
 #### Worked answer
 
 Here, we'll work through how to fit and visualise one possible mixed effects model that could be fitted to these data.
@@ -738,7 +748,9 @@ You might also notice in the model summary that the estimated variance for the r
 
 :::
 
-::: {.callout-tip appearance="minimal"}
+:::
+
+::: {.callout-exercise}
 #### Bonus questions
 
 {{< level 3 >}}
@@ -777,6 +789,8 @@ $$
 $$
 
 Where $y$ is `intelligence`, $x_1$ is `wingspan`, $x_2$ is `scales`, $j$ represents mountain ranges and $i$ represents individual dragons within those mountain ranges.
+
+:::
 
 :::
 
