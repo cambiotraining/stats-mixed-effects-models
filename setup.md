@@ -47,3 +47,33 @@ Download and install all these using default options:
 
 :::
 
+## R packages
+
+From an R console, you can run the following command to install all the packages used in this course: 
+
+```r
+install.packages(c("broom", 
+                   "corrr", 
+                   "distributional", 
+                   "downlit", 
+                   "downloadthis", 
+                   "ggdist", 
+                   "ggResidpanel", 
+                   "janitor", 
+                   "kableExtra", 
+                   "knitr", 
+                   "lme4", 
+                   "patchwork", 
+                   "pwr", 
+                   "reticulate", 
+                   "rstatix", 
+                   "tidyverse", 
+                   "lmerTest", 
+                   "broom.mixed", 
+                   "performance", 
+                   "glmmTMB", 
+                   "brms", 
+                   "MASS", 
+                   "RLRsim", 
+                   "pbkrtest"))
+```
