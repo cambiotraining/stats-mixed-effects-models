@@ -44,11 +44,14 @@ book:
     logo: "_extensions/courseformat/img/university_crest_reversed.png"
     right:
       - icon: github
-        href: https://github.com/cambiotraining/
+        href: https://github.com/cambiotraining/stats-mixed-effects-models
         aria-label: Bioinformatics Training Facility GitHub
       - icon: twitter
         href: https://twitter.com/bioinfocambs
         aria-label: Bioinformatics Training Facility Twitter
+      - icon: mastodon
+        href: https://genomic.social/@BioInfoCambs
+        aria-label: Bioinformatics Training Facility Mastodon
     title: "Mixed effects models"
   chapters:
     - part: "Welcome"
