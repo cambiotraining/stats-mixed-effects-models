@@ -59,6 +59,7 @@ This dataset contains four variables:
 Of the 36 items, 18 are congruent, and 18 are incongruent. Each subject in the study saw and responded to all 36 items, in a randomised (counterbalanced) order.
 
 Our fixed predictor is `congruency`, and we can treat both `subject` and `item` as clustering variables that create non-independent clusters amongst the 432 total observations of `reaction_time`.
+We also consider that the reaction time change between congruent/incongruent tasks may differ across participants (i.e. we fit random slopes at the participant level).
 
 Therefore, we fit the following model:
 
@@ -88,7 +89,7 @@ This allows us to capture the fixed relationship between `congruency` and `react
 
 In the example above, each participant in the study experienced each of the task items. We'd call this a fully-crossed design (or perhaps, a full factorial design). But, if each participant had only responded to a randomised subset of the task items, then we would instead say that the `item` and `subject` random effects are *partially* crossed.
 
-Partially crossed designs are common in research, such as when using the classic Latin square design. We'll look at an example of that, using the `abrasion` dataset.
+Partially crossed designs are common in research, such as when using the classic Latin square design, which we'll elaborate on with the next example.
 
 ### The abrasion dataset
 

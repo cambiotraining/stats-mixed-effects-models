@@ -112,9 +112,9 @@ We want to improve the way that we're modelling this variable by including a lin
 
 ### The glmer function
 
-Since `total.fruits` is a count variable, there's a decent chance it follows a Poisson distribution. So as a first step in trying to improve our model, let's try specifying the log link function.
+Since `total.fruits` is a count variable, so we should consider a model that uses a discrete distribution, instead of the normal distribution we've been assuming so far. We can start with the Poisson distribution, which is the simplest of the commonly-used count distributions.
 
-We do this in `lme4` using the `glmer` function. It combines the syntax that you're already used to from `lmer`, with the syntax from the `glm` function. In other words, we keep all the same syntax for random effects, and we include the `family` argument to determine which link function we're using.
+We do this in `lme4` using the `glmer` function (the `g` in the function name is for "generalised"). It combines the syntax that you're already used to from `lmer`, with the syntax from the standard `glm` function in base R. In other words, we keep all the same syntax for random effects, and we include the `family` argument to determine which link function we're using.
 
 ::: {.panel-tabset group="language"}
 ## R
