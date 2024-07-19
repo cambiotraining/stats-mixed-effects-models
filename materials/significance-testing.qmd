@@ -176,15 +176,16 @@ This table gives us the chi-square statistic (i.e., the likelihood ratio) and an
 
 Here, we have a large chi-square statistic and a small p-value. This tells us that dropping the random slopes term from our model *does* have a significant effect - in other words, the random slopes term is meaningful and useful when predicting reaction times.
 
-We can also test the significance of our fixed effect of `Days`. We keep the structure of random effects the same, and replace our fixed effect with `1`.
+We can also test the significance of the overall effect of `Days`. In this case we remove this variable from both the fixed effects and random effects part of the model.
 
 ```{r}
-lme_random <- lmer(Reaction ~ 1 + (1 + Days|Subject), data = sleepstudy)
+lme_random <- lmer(Reaction ~ 1 + (1|Subject), data = sleepstudy)
 
 anova(lme_sleep2, lme_random)
 ```
 
-Once again, there is a significant difference between the two models, as seen by our small p-value. This tells us that the fixed effect of days is a significant predictor of reaction time.
+Given the random slopes for `Days` was already significant, it may not be surprising that removing both the fixed and random effect for this variable is also significant. 
+Overall, our analysis of these data suggests that `Days` is a predictor of reaction time, even after accounting for the possible heterogenous response across participants.
 
 ## Method 3: t-to-z approximations
 

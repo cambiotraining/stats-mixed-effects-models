@@ -220,7 +220,7 @@ and check its assumptions. What can you conclude about the suitability of a line
 
 #### Fitting the model
 
-Our research question tell us that `total.fruits` is the response variable, and that `nutrient` and `amd` are fixed predictors of interest. The rest of our variables are confounds that we'd like to control for.
+Our research question tell us that `total.fruits` is the response variable, and that `nutrient` and `amd` are fixed predictors of interest. The rest of our variables are confounds that we'd like to adjust for.
 
 Only some of these additional variables have sufficient levels/categories to be treated as random effects, but both `popu` and `gen` do qualify. So far we've only talked about having one clustering variable at a time within a dataset; we'll talk more about this in subsequent sessions, and for now, we've shown you how to correctly do it for the current dataset:
 

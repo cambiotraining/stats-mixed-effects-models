@@ -510,14 +510,13 @@ This output shows us that our global average yield is 38.5 (the Intercept line f
 
 #### Visualise the model
 
-Since we're not comparing multiple different models in the same plot, we can be more efficient by putting the augmented model object directly into the first line of our `ggplot` function. Because both of our fixed predictors are categorical variables, we can more easily visualise the model with boxplots than with lines of best fit. 
+Since we're not comparing multiple different models in the same plot, we can be more efficient by putting the augmented model object directly into the first line of our `ggplot` function. Since we have very few observations per group we plot this using points, but for more observations we may have wanted to use boxplots:
 
 ::: {.panel-tabset group="language"}
 ## R
 ```{r}
 ggplot(augment(lme_yield), aes(x = irrigation, y = yield, colour = variety)) +
-  geom_point() +
-  geom_boxplot(aes(y = .fitted, group = paste(variety, irrigation)))
+  geom_point(position = position_dodge(width = 0.5))
 ```
 :::
 
@@ -530,9 +529,9 @@ In the next session of the course, we'll talk about how to check whether these r
 ::: {.panel-tabset group="language"}
 ## R
 ```{r}
-ggplot(augment(lme_yield), aes(x = irrigation, y = yield, shape = variety)) +
-  geom_point() +
-  geom_point(aes(y = .fitted, group = paste(field, variety, irrigation), colour = field))
+ggplot(augment(lme_yield), aes(x = irrigation, y = yield, colour = variety)) +
+  geom_point(aes(shape = "observed"), size = 3) +
+  geom_point(aes(y = .fitted, shape = "predicted"), size = 3)
 ```
 :::
 
@@ -700,12 +699,11 @@ We'll start by building a plot that's faceted by `mountain`, since we know this 
 ::: {.panel-tabset group="language"}
 ## R
 ```{r}
-ggplot(dragons, aes(x = wingspan, y = intelligence, colour = scales)) +
+# use augment so that we can plot our mixed model predictions
+ggplot(augment(lme_dragons), aes(x = wingspan, y = intelligence, colour = scales)) +
   facet_wrap(vars(mountain)) +
   geom_point() +
-  
-  # use augment so that we can plot our mixed model
-  geom_line(data = augment(lme_dragons), aes(y = .fitted))
+  geom_line(aes(y = .fitted))
 ```
 :::
 
@@ -714,14 +712,11 @@ Alternatively (or additionally) we can view all of these lines on a single plot,
 ::: {.panel-tabset group="language"}
 ## R
 ```{r}
-ggplot(dragons, aes(x = wingspan, y = intelligence, colour = mountain)) +
-  geom_point() +
-  
-  # plot the mixed model
-  geom_line(data = augment(lme_dragons), aes(y = .fitted, 
-                    linetype = scales, group = paste(mountain, scales))) +
-  
-  # add the global average line
+ggplot(augment(lme_dragons), aes(x = wingspan, y = intelligence, colour = mountain)) +
+  geom_point() +  
+  # plot the mixed model predictions
+  geom_line(aes(y = .fitted, linetype = scales)) +
+  # add the global average regression line
   geom_smooth(method = "lm", se = FALSE, colour = "black")
 ```
 :::
@@ -750,9 +745,9 @@ You might also notice in the model summary that the estimated variance for the r
 
 :::
 
-::: {.callout-exercise}
-#### Bonus questions
+### Bonus questions
 
+::: {.callout-exercise}
 {{< level 3 >}}
 
 For those who want to push their understanding a bit further, here's a few additional things to think about. We won't give the answers here, but if you're interested, call a trainer over to chat about them more.
@@ -785,7 +780,7 @@ $$
 and,
 
 $$
-\left( \begin{array}{c} U_{0j} \\ U_{1j} \\ U_{2j} \end{array} \right) ∼ N \left( \begin{array}{c} 0 \\ 0 \\ 0 \end{array}   , \begin{array}{cc} \tau^2_{00} & \rho_{01} & \rho_{02} \\ \rho_{01} &  \tau^2_{10} & \rho_{12} \\ \rho_{02} & \rho_{12} & \tau^2_{20} \end{array} \right)
+\left( \begin{array}{c} U_{0j} \\ U_{1j} \\ U_{2j} \end{array} \right) ∼ N \left( \begin{array}{c} 0 \\ 0 \\ 0 \end{array} \; \; , \; \; \begin{array}{cc} \tau^2_{00} & \rho_{01} & \rho_{02} \\ \rho_{01} &  \tau^2_{10} & \rho_{12} \\ \rho_{02} & \rho_{12} & \tau^2_{20} \end{array} \right)
 $$
 
 Where $y$ is `intelligence`, $x_1$ is `wingspan`, $x_2$ is `scales`, $j$ represents mountain ranges and $i$ represents individual dragons within those mountain ranges.
@@ -794,7 +789,6 @@ Where $y$ is `intelligence`, $x_1$ is `wingspan`, $x_2$ is `scales`, $j$ represe
 
 :::
 
-:::
 
 ## Summary
 

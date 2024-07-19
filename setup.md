@@ -14,11 +14,12 @@ Note that we use tabsets to provide instructions for all three major operating s
 
 The data used in these materials are provided as a zip file.
 
-Download and unzip the folder to your Desktop or project folder to follow along with the materials.
+First, create a folder on your computer for the course (e.g. `mixed-models`).
+Then, download and unzip the the following data to the project folder you created.
 
 <!-- Note for Training Developers: add the link to 'href' -->
-<a href="https://github.com/cambiotraining/stats-mixed-effects-models/blob/main/materials/data/data.zip">
-  <button class="btn"><i class="fa fa-download"></i> Download</button>
+<a href="https://github.com/cambiotraining/stats-mixed-effects-models/raw/main/materials/data/data.zip">
+  <button class="btn"><i class="fa fa-download"></i> Download (Zip file)</button>
 </a>
 
 ## R and RStudio
@@ -47,3 +48,35 @@ Download and install all these using default options:
 
 :::
 
+## R packages
+
+From an R console, you can run the following command to install all the packages used in this course: 
+
+```r
+install.packages(c("broom", 
+                   "corrr", 
+                   "distributional", 
+                   "downlit", 
+                   "downloadthis", 
+                   "ggdist", 
+                   "ggResidpanel", 
+                   "janitor", 
+                   "kableExtra", 
+                   "knitr", 
+                   "lme4", 
+                   "patchwork", 
+                   "pwr", 
+                   "reticulate", 
+                   "rstatix", 
+                   "tidyverse", 
+                   "lmerTest", 
+                   "broom.mixed", 
+                   "performance", 
+                   "see",
+                   "glmmTMB", 
+                   "brms", 
+                   "MASS", 
+                   "RLRsim", 
+                   "pbkrtest",
+                   "DHARMa"))
+```

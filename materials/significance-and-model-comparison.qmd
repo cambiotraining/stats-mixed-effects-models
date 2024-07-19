@@ -146,7 +146,7 @@ anova(lme_sleep, lme_sleep_random)
 ```
 :::
 
-This output tells us that, for the reduction in the number of parameters (i.e., removing `Days`), the difference in deviances is significantly big. In other words, a fixed effect of `Days` is meaningful and useful when predicting reaction times.
+This output tells us that, for the reduction in the number of parameters (i.e., removing `Days`), the difference in deviances is significantly big. In other words, a fixed effect of `Days` is meaningful when predicting reaction times.
 
 ### Method 2: Approximation of the degrees of freedom
 
@@ -159,7 +159,7 @@ For this approach, we will use the companion package to `lme4`, a package called
 ::: {.callout-note collapse="true"}
 #### lmerTest
 
-The package provides an "updated" version of the `lmer()` function, one that can approximate the number of degrees of freedom, and thus provide estimated p-values.
+The package provides a modified version of the `lmer()` function, one that can approximate the number of degrees of freedom, and thus provide estimated p-values.
 
 If you have `lmerTest` loaded, R will automatically default to its updated version of the `lmer()` function, and perform the degrees of freedom approximation as standard. (You can prevent it from doing so by typing `lme4::lmer()` instead.)
 :::
@@ -584,7 +584,7 @@ anova(lme_dragons, lme_dragons_dropslope)
 
 These results would seem to suggest that the random slopes are significant, but the random intercepts are not. 
 
-This is borne out by the change in information criteria values. When we remove `1|mountain`, both AIC and BIC decrease (by 3.9 and 10.5 respectively), suggesting improvement in the model quality - remember that lower values are better for these criteria. In contrast, when we remove `wingspan|moutnain`, both AIC and BIC increase by a large amount (by 90.1 and 83.5 respectively), suggesting we have worsened the quality of the model.
+This is borne out by the change in information criteria values. When we remove `1|mountain`, both AIC and BIC decrease (by 3.9 and 10.5 respectively), suggesting improvement in the model quality - remember that lower values are better for these criteria. In contrast, when we remove `wingspan|mountain`, both AIC and BIC increase by a large amount (by 90.1 and 83.5 respectively), suggesting we have worsened the quality of the model.
 
 But, we know that the LRT p-values and AIC/BIC values for random effects aren't always great, so let's compare to a parametric bootstrap just to be sure.
 
@@ -630,7 +630,7 @@ lme_yield <- lmer(yield ~ irrigation*variety + (1|field), data = irrigation)
 Compare and contrast the results from likelihood ratio test and other methods, to assess:
 
 - the significance of the model overall
-- the significance/usefulness of the fixed predictors
+- the significance of the fixed predictors
 
 There's no worked answer for this exercise, but you can use the code from the `sleepstudy` and `dragons` examples to scaffold your work.
 

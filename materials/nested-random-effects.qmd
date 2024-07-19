@@ -162,7 +162,7 @@ The experimental design, when drawn out, looks like this:
 
 At first glance, this might look as if it's a four-level model: assays within samples within casks within deliveries. However, that's a bit of a overcomplication. There is only one `sample` collected per `cask`, meaning that we can really just think about assays being nested within casks directly.
 
-There is no fixed predictor in this dataset, only a response variable. This means we won't include any fixed effects in the model - instead, we simply write `1` for the fixed portion of our model. We also won't have any random slopes, only random intercepts. 
+The aim of this experiment was simply to assess the average strength of the chemical paste, adjusting for variation across batches and casks. Therefore, there are no fixed effects in the model - instead, we simply write `1` for the fixed portion of our model. We also won't have any random slopes, only random intercepts. 
 
 If we follow the same procedure we did above for the `health` example, we might try something like this:
 
@@ -185,12 +185,12 @@ But this isn't what we want. There is no link between cask A in batch A, and cas
 
 As shown above, the formula `strength ~ 1 + (1|batch) + (1|cask)` does not produce the model we want, because we don't have implicit coding in the `cask` variable.
 
-So, let's create a new variable that gives unique values to each of the casks in our dataset. We'll do this using the `mutate` function and the `:` syntax, which you might recognise from generating interaction terms in standard linear models.
+So, let's create a new variable that gives unique values to each of the casks in our dataset. We'll do this using the `mutate` function and the `paste()` function to create a unique ID for each cask.
 
 ::: {.panel-tabset group="language"}
 ## R
 ```{r}
-Pastes <- Pastes %>% mutate(unique_cask = batch:cask)
+Pastes <- Pastes %>% mutate(unique_cask = paste(batch, cask, sep = "_"))
 
 head(Pastes)
 ```
