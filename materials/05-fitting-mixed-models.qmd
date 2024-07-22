@@ -745,7 +745,7 @@ You might also notice in the model summary that the estimated variance for the r
 
 :::
 
-### Bonus questions
+#### Bonus questions: Dragons
 
 ::: {.callout-exercise}
 {{< level 3 >}}

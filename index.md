@@ -54,7 +54,7 @@ About the authors:
   <a href="https://orcid.org/0000-0001-9373-2726" target="_blank"><i class="fa-brands fa-orcid" style="color:#a6ce39"></i></a> 
   <a href="https://github.com/tavareshugo" target="_blank"><i class="fa-brands fa-github" style="color:#4078c0"></i></a> \
   _Affiliation_: Bioinformatics Training Facility, University of Cambridge  
-  _Roles_: conceptualisation; coding
+  _Roles_: writing - review & editing; conceptualisation; coding
 
 - **Paul Fannon** \
   _Affiliation_: Bioinformatics Training Facility, University of Cambridge  

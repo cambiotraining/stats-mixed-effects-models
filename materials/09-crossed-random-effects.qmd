@@ -215,7 +215,7 @@ ggplot(augment(lme_penicillin), aes(x = plate, y = diameter, colour = sample)) +
 
 :::
 
-### Politeness {#sec-exr_solutions}
+### Politeness {#sec-exr_politeness}
 
 ::: {.callout-exercise}
 

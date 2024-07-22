@@ -139,7 +139,7 @@ We do this separately for each of the random effects.
 # Level 3
 tau0 <- 8 # 1|mountain
 tau1 <- 0.8 # wingspan|mountain
-tau2 <- 8 # slopes|mountain
+tau2 <- 8 # scales|mountain
 
 # Level 2
 tau3 <- 9 # 1|cave
