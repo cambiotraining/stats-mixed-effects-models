@@ -1,5 +1,5 @@
 ---
-title: "Additional worked answers"
+title: "Worked answers"
 output: html_document
 ---
 
@@ -72,7 +72,7 @@ lme_sol_slopes <- lmer(dissolve ~ solute + (1+solute|solvent), data = solutions)
 
 View the original [Exercise -@sec-exr_dragons].
 
-::: {.callout-exercise appearance="minimal"}
+::: {.callout-exercise collapse="true"}
 #### Worked answer (bonus questions)
 
 #### Question 1
@@ -125,6 +125,7 @@ Therefore, the model would be `intelligence ~ wingspan*scales + (1 + wingspan + 
 View the original [Exercise -@sec-exr_irrigation2].
 
 ::: {.callout-exercise collapse="true"}
+#### Worked answer
 
 The model of interest is as follows:
 

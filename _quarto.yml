@@ -12,7 +12,7 @@ project:
     - materials.md
     - materials/*
     - "!materials/*/no_render"
-
+    
 format: courseformat-html
 
 filters:
@@ -60,4 +60,4 @@ book:
           href: index.md
         - text: "Data & Setup"
           href: setup.md
-    
+          

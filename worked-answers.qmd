@@ -1,0 +1,395 @@
+---
+title: "Worked answers"
+output: html_document
+---
+
+```{r}
+#| echo: false
+#| message: false
+#| results: hide
+source(file = "setup_files/setup.R")
+```
+
+This page contains worked answers to examples that are not given in the course materials.
+
+## Libraries and functions
+
+```{r}
+#| eval: false
+# load the required packages for fitting & visualising
+library(tidyverse)
+library(lme4)
+library(lmerTest)
+library(broom)
+library(broom.mixed)
+library(patchwork)
+```
+
+## Solutions
+
+View the original [Exercise -@sec-exr_solutions].
+
+::: {.callout-exercise collapse="true"}
+#### Worked answer
+
+```{r}
+solutions <- read_csv("data/solutions.csv")
+```
+
+An appropriate visualisation might be:
+
+```{r}
+ggplot(solutions, aes(x=solvent, y=dissolve, colour=solute)) +
+  geom_point()
+```
+
+Reading the description of the dataset carefully, the technician is not interested directly in the `solvent` variable, but instead in the fixed effect of `solute`. However, we need to adjust for the non-independence that is created by dissolving each `solute` in each `solvent` multiple times.
+
+So, we will fit a fixed effect for `solute`, and a random effect for `solvent`:
+
+```{r}
+lme_sol_intercepts <- lmer(dissolve ~ solute + (1|solvent), data = solutions)
+summary(lme_sol_intercepts)
+```
+
+This model can be visualised by adding to the plot above:
+
+```{r}
+ggplot(augment(lme_sol_intercepts), aes(x=solvent, y=dissolve, colour=solute)) +
+  geom_point() +
+  geom_line(aes(y=.fitted, group=solute))
+```
+
+If students attempt to fit a more complex model, with random slopes and intercepts, they'll receive an error informing them of singular fit. This is because either the dataset isn't large enough to support this more complex random effects structure (most likely in this case), or because the variance component of one/both of the random effects is close to zero.
+
+```{r}
+lme_sol_slopes <- lmer(dissolve ~ solute + (1+solute|solvent), data = solutions)
+```
+
+:::
+
+## Dragons (bonus questions)
+
+View the original [Exercise -@sec-exr_dragons].
+
+::: {.callout-exercise appearance="minimal"}
+#### Worked answer (bonus questions)
+
+#### Question 1
+
+To adapt the code to exclude `scales` as a fixed predictor, it should be dropped like so:
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+dragons <- read_csv("data/dragons.csv")
+
+lme_noscales <- lmer(intelligence ~ wingspan + (1 + wingspan|mountain), data = dragons)
+```
+:::
+
+There is an interesting question to be raised here, of whether including `scales|mountain` as a random effect would constitute also estimating a fixed effect (since whenever the distribution for a random effect is estimated, this includes a mean).
+
+#### Question 2
+
+To visualise the shrinkage,
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+dragons <- read_csv("data/dragons.csv")
+
+lme_noscales <- lmer(intelligence ~ wingspan + (1 + wingspan|mountain), data = dragons)
+```
+:::
+
+#### Question 3
+
+The equation in question calls for three random effects:
+
+- Random intercepts `1|mountain`, $\beta_{0j}$
+- Random slopes for $x_1$, `wingspan|mountain`, $\beta_{1j}$
+- Random slopes for $x_2$, `scales|mountain`, $\beta_{2j}$
+
+We can see in the second part of the equation that we are also estimating $\gamma_{00}$, $\gamma_{10}$ and $\gamma_{20}$, which are the fixed grand average/intercept, the fixed effect of `wingspan` and the fixed effect of `scales` respectively.
+
+The interaction term, however, is fixed only. The coefficient $\beta_3$ has no alphabet subscripts, indicating that it does not change/takes only one value.
+
+Therefore, the model would be `intelligence ~ wingspan*scales + (1 + wingspan + scales|mountain)`.
+
+:::
+
+
+## Irrigation revisited
+
+View the original [Exercise -@sec-exr_irrigation2].
+
+::: {.callout-exercise collapse="true"}
+
+The model of interest is as follows:
+
+::: {.panel-tabset group="language"}
+## R
+```{r, message=FALSE}
+irrigation <- read_csv("data/irrigation.csv")
+
+lme_yield <- lmer(yield ~ irrigation*variety + (1|field), data = irrigation)
+```
+:::
+
+#### Question 1
+
+First, we can compare this model to the null, and see that it's significant overall (just about).
+
+::: {.panel-tabset group="language"}
+##R
+```{r}
+lm_null <- lm(yield ~ 1, data = irrigation)
+
+anova(lme_yield, lm_null)
+```
+:::
+
+#### Question 2
+
+Then, we'll look at the individual predictors.
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+lme_additive <- lmer(yield ~ irrigation + variety + (1|field), data = irrigation)
+
+anova(lme_yield, lme_additive)
+```
+
+The interaction is not significant.
+
+```{r}
+lme_dropvar <- lmer(yield ~ irrigation + (1|field), data = irrigation)
+
+anova(lme_additive, lme_dropvar)
+```
+
+Neither is `variety`.
+
+```{r}
+lme_dropirrig <- lmer(yield ~ variety + (1|field), data = irrigation)
+
+anova(lme_additive, lme_dropirrig)
+```
+
+And neither is `irrigation`.
+:::
+
+This is an interesting situation, because none of the fixed effects are significant individually, but the model as a whole versus the null is.
+
+The exercise also asks some final questions about the random intercepts term. We could try investigating them with LRT/bootstrapping methods:
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+lm_yield <- lm(yield ~ irrigation*variety, data = irrigation)
+
+anova(lme_yield, lm_yield)
+```
+:::
+
+A quick LRT suggests that there is a difference between the models with and without the random intercepts - in fact, quite a big one.
+
+Even if this p-value weren't quite so small, though, it's probably still be better overall to leave these random intercepts in. Without them, the model becomes a standard linear model and there's no capturing of the hierarchical structure.
+
+:::
+
+## Arabidopsis
+
+View the original [Exercise -@sec-exr_arabidopsis].
+
+::: {.callout-exercise collapse="true"}
+#### Worked answer
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+lme_arabidopsis <- lmer(total.fruits ~ nutrient + rack + status + amd + reg + 
+                          (1|popu) + (1|gen), data = Arabidopsis)
+```
+:::
+
+#### Question 1
+
+There are several fixed effects in the model, and an error about boundary fit. For speed, we'll use the Satterthwaite approximation to investigate these fixed effects further to see if dropping them might help.
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+library(lmerTest)
+
+# refit with lmerTest::lmer
+lme_arabidopsis <- lmer(total.fruits ~ nutrient + rack + status + amd + reg + 
+                          (1|popu) + (1|gen), data = Arabidopsis)
+
+anova(lme_arabidopsis)
+```
+:::
+
+However, even when we drop our insignificant `status` and/or `amd` fixed effects, our error persists.
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+lme_arabidopsis_dropfix <- lmer(total.fruits ~ nutrient + rack + reg + 
+                          (1|popu) + (1|gen), data = Arabidopsis)
+```
+:::
+
+That's because the real issue (or at least, one of the issues) is the tiny variance component for the random intercepts on `gen`, which we can see in our model summary:
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+summary(lme_arabidopsis)
+```
+:::
+
+Why is this an issue? 
+
+Well, it means that during the maximum likelihood search, the model never really left zero when estimating this parameter. Hence, our estimate of the variance is on the boundary of the possible space.
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+lme_arabidopsis_dropran <- lmer(total.fruits ~ nutrient + rack + status + amd + reg + 
+                          (1|popu), data = Arabidopsis)
+```
+:::
+
+Indeed, when removing those random intercepts, we lose the error.
+
+#### Question 2
+
+The problems with the diagnostic plots persist regardless of which fixed or random effects we drop. For example:
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+check_model(lme_arabidopsis_dropran, 
+            check = c("linearity", "homogeneity", "qq", "outliers"))
+
+check_model(lme_arabidopsis_dropran, 
+            check = c("reqq", "pp_check"))
+```
+:::
+
+That's because of the nature of our response variable, `total.fruits`. It is not a continuous variable, but instead a count variable.
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+ggplot(Arabidopsis, aes(x = total.fruits)) +
+  geom_histogram()
+```
+:::
+
+A linear mixed effects model is not suitable for this response variable. Instead, a generalised mixed effects model would be better - see Chapter 10 for more information.
+
+:::
+
+## Cake (bonus questions)
+
+View the original [Exercise -@sec-exr_cake].
+
+::: {.callout-exercise collapse="true"}
+#### Worked answer
+
+Our current working model is as follows.
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+data("cake")
+
+cake <- cake %>%
+  mutate(batch = recipe:replicate)
+
+lme_cake <- lmer(angle ~ recipe*temperature + (1|batch), 
+                 data = cake)
+```
+:::
+
+#### Question 1
+
+If one attempts to fit the `temperature|batch` random slopes in addition to the above, the model fails.
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+#| eval: false
+lme_cake_slopes <- lmer(angle ~ recipe*temperature + (1 + temperature|batch), 
+                 data = cake)
+```
+:::
+
+This is because of a combination of things: one, the fact that `temperature` is a categorical variable or factor, and two, that there is only one measurement per `temperature` per `batch`.
+
+In other words, there are not enough data points for each `temperature:batch` combination to estimate the random slopes.
+
+However, if we try using the continuous `temp` variable instead, the model runs - though arguably, the results may not be very trustworthy. We still get warnings telling us that the model failed to converge.
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+lme_cake_slopes2 <- lmer(angle ~ recipe*temperature + (1 + temp|batch), 
+                 data = cake)
+```
+:::
+
+#### Question 2
+
+What happens if we replace `temperature` with `temp` in our fixed effects (leaving off random slopes)?
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+lme_cake2 <- lmer(angle ~ recipe*temp + (1|batch), 
+                 data = cake)
+```
+
+The outputs from `anova` (using the Satterthwaite approximation) are similar, and the random effect doesn't really change.
+
+However, but we get a vastly different number of fixed effects when using our categorical `temperature` variable - which makes sense, because we are estimating individual group means rather than a single gradient.
+
+```{r}
+fixef(lme_cake)
+
+fixef(lme_cake2)
+```
+:::
+
+Using the continuous variable, then, might be less taxing in terms of statistical power. 
+
+There is a philosophical question here, of course, about whether it's *better*. While we know that temperature in the real world is in fact a continuous variable, in this particular dataset, the different temperatures really were treated as distinct levels or categories by the original researcher.
+
+#### Question 3
+
+If we are considering treating temperature as a random effect, then we need the categorical `temperature` version. There are, thankfully, enough levels to make this possible.
+
+We would **not** fit this as a nested random effect, however, but instead as a crossed one. That is because each level of `temperature` occurs within every level of `batch` in a factorial design, rather than being unique.
+
+::: {.panel-tabset group="language"}
+## R
+```{r}
+lme_cake3 <- lmer(angle ~ recipe + (1|batch) + (1|temperature), 
+                 data = cake)
+```
+:::
+
+This model cannot help us compare between temperatures any more. 
+
+In theory, it *should* allow us to better investigate how breakage `angle` is affected by the `recipe`, across all possible batches and temperatures that one might use...
+
+However: our set of temperatures isn't really a random selection of all possible temperatures we could've baked our cakes at. This model would not extrapolate very well to temperatures below 100 or above 300 degrees, most likely. So generalisability is very poor and this defeats the purpose of fitting a random effect for the variable.
+
+We probably don't want to fit `temperature` as a random effect, after all.
+
+:::
+
