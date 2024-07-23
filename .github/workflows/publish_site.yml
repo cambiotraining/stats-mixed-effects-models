@@ -24,7 +24,8 @@ jobs:
           
       - name: Install R packages
         run: |
-          R -e "install.packages('rmarkdown','knitr')"
+          R -e "install.packages('rmarkdown')"
+          R -e "install.packages('knitr')"
 
       - name: Render Site
         run: |
