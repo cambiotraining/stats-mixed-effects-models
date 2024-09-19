@@ -1,0 +1,41 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+# Note: we use the author alias to record author contributions
+# This is a known limitation of CFF files: https://github.com/citation-file-format/citation-file-format/issues/112
+
+cff-version: 1.2.0
+title: Mixed effects models
+message: >-
+  You may cite these materials using the metadata in this
+  file. Please cite our materials if you publish materials
+  derived from these, run a workshop using them, or use
+  the information in your own work.
+type: dataset
+authors:
+  - given-names: Vicki
+    family-names: Hodgson
+    affiliation: Cambridge Centre for Research Informatics Training
+    website: 'https://bioinfotraining.bio.cam.ac.uk/staff/vicki-hodgson-phd'
+    orcid: 'https://orcid.org/0000-0001-5619-2118'
+    alias: 'writing - original draft, review & editing; conceptualisation; coding'
+  - given-names: Hugo
+    family-names: Tavares
+    affiliation: Cambridge Centre for Research Informatics Training
+    website: 'https://bioinfotraining.bio.cam.ac.uk/staff/hugo-tavares-phd'
+    orcid: 'https://orcid.org/0000-0001-9373-2726'
+    alias: 'writing - review & editing; conceptualisation; coding'
+  - given-names: Paul
+    family-names: Fannon
+    affiliation: Cambridge Centre for Research Informatics Training
+    alias: 'conceptualisation'
+  - given-names: Martin
+    family-names: van Rongen
+    affiliation: Cambridge Centre for Research Informatics Training
+    orcid: 'https://orcid.org/0000-0002-1441-367X'
+    alias: 'conceptualisation'
+repository-code: 'https://github.com/cambiotraining/stats-mixed-effects-models'
+url: 'https://cambiotraining.github.io/stats-mixed-effects-models'
+license: CC-BY-4.0
+commit: 9709676e6d5c8c9ebdc948b666e7d2bb7017e22d
+date-released: '2024-07-15'
