@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>9&nbsp; Crossed random effects</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../materials/10-generalised-mixed-models.html" rel="next">
+<link href="../materials/08-nested-random-effects.html" rel="prev">
+<link href="../site_libs/quarto-contrib/quarto-project/courseformat/img/university-of-cambridge-favicon.ico" rel="icon">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-bce20943a2e3f93eb31aa65a0aa0ff1d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../site_libs/quarto-contrib/quarto-project/courseformat/img/university_crest_reversed.png" alt="" class="navbar-logo">
+    </a>
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Mixed effects models</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/cambiotraining/stats-mixed-effects-models"> <i class="bi bi-github" role="img" aria-label="Bioinformatics Training Facility GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/bioinfocambs"> <i class="bi bi-twitter" role="img" aria-label="Bioinformatics Training Facility Twitter">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://genomic.social/@BioInfoCambs"> <i class="bi bi-mastodon" role="img" aria-label="Bioinformatics Training Facility Mastodon">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../materials/08-nested-random-effects.html">More complex designs</a></li><li class="breadcrumb-item"><a href="../materials/09-crossed-random-effects.html"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Crossed random effects</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Welcome</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Overview</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../setup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Data &amp; Setup</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Random effects</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../materials/03-independence-psuedoreplication.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Independence &amp; pseudoreplication</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../materials/04-random-effects.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Introducing random effects</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../materials/05-fitting-mixed-models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Fitting mixed models</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Interpreting mixed models</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../materials/06-significance-and-model-comparison.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Significance &amp; model comparison</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../materials/07-checking-assumptions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Checking assumptions</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">More complex designs</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../materials/08-nested-random-effects.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Nested random effects</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../materials/09-crossed-random-effects.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Crossed random effects</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Bonus materials</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../materials/10-generalised-mixed-models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Generalised mixed models</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../materials/11-correlations-between-random-effects.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Correlations between random effects</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../materials/12-simulating-hierarchical-data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Simulating hierarchical data</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#what-are-crossed-random-effects" id="toc-what-are-crossed-random-effects" class="nav-link active" data-scroll-target="#what-are-crossed-random-effects"><span class="header-section-number">9.1</span> What are crossed random effects?</a>
+  <ul class="collapse">
+  <li><a href="#fast-food-example" id="toc-fast-food-example" class="nav-link" data-scroll-target="#fast-food-example"><span class="header-section-number">9.1.1</span> Fast food example</a></li>
+  </ul></li>
+  <li><a href="#fitting-crossed-random-effects" id="toc-fitting-crossed-random-effects" class="nav-link" data-scroll-target="#fitting-crossed-random-effects"><span class="header-section-number">9.2</span> Fitting crossed random effects</a>
+  <ul class="collapse">
+  <li><a href="#the-stroop-dataset" id="toc-the-stroop-dataset" class="nav-link" data-scroll-target="#the-stroop-dataset"><span class="header-section-number">9.2.1</span> The Stroop dataset</a></li>
+  </ul></li>
+  <li><a href="#partially-crossed-random-effects" id="toc-partially-crossed-random-effects" class="nav-link" data-scroll-target="#partially-crossed-random-effects"><span class="header-section-number">9.3</span> Partially crossed random effects</a>
+  <ul class="collapse">
+  <li><a href="#the-abrasion-dataset" id="toc-the-abrasion-dataset" class="nav-link" data-scroll-target="#the-abrasion-dataset"><span class="header-section-number">9.3.1</span> The abrasion dataset</a></li>
+  <li><a href="#fitting-partially-crossed-random-effects" id="toc-fitting-partially-crossed-random-effects" class="nav-link" data-scroll-target="#fitting-partially-crossed-random-effects"><span class="header-section-number">9.3.2</span> Fitting partially crossed random effects</a></li>
+  </ul></li>
+  <li><a href="#exercises" id="toc-exercises" class="nav-link" data-scroll-target="#exercises"><span class="header-section-number">9.4</span> Exercises</a>
+  <ul class="collapse">
+  <li><a href="#sec-exr_penicillin" id="toc-sec-exr_penicillin" class="nav-link" data-scroll-target="#sec-exr_penicillin"><span class="header-section-number">9.4.1</span> Penicillin</a></li>
+  <li><a href="#sec-exr_politeness" id="toc-sec-exr_politeness" class="nav-link" data-scroll-target="#sec-exr_politeness"><span class="header-section-number">9.4.2</span> Politeness</a></li>
+  </ul></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary"><span class="header-section-number">9.5</span> Summary</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../materials/08-nested-random-effects.html">More complex designs</a></li><li class="breadcrumb-item"><a href="../materials/09-crossed-random-effects.html"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Crossed random effects</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Crossed random effects</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>The previous section of course materials discussed how to fit random effects in <code>lme4</code> when there are multiple clustering variables within the dataset/experimental design, with a focus on nested random effects.</p>
+<p>This section similarly explains how to determine the random effects structure for more complex experimental designs, but deals with the situations where the clustering variables are not nested.</p>
+<section id="what-are-crossed-random-effects" class="level2" data-number="9.1">
+<h2 data-number="9.1" class="anchored" data-anchor-id="what-are-crossed-random-effects"><span class="header-section-number">9.1</span> What are crossed random effects?</h2>
+<p>We describe two clustering variables as “crossed” if they can be combined in different ways to generate unique groupings, but one of them doesn’t “nest” inside the other.</p>
+<p>This concept is similar to the idea of a “factorial” design in regular linear modelling.</p>
+<section id="fast-food-example" class="level3" data-number="9.1.1">
+<h3 data-number="9.1.1" class="anchored" data-anchor-id="fast-food-example"><span class="header-section-number">9.1.1</span> Fast food example</h3>
+<p>For instance, imagine a fast food franchise is looking to perform quality control checks across different branches. In 5 randomly selected branches, testers sample 6 different items of food from the menu. They sample the same 6 items in each branch, randomly selected from the wider menu.</p>
+<p>Here, both <code>branch</code> and <code>menu item</code> would be considered random effects, but one is not nested within the other. In this situation, item A in branch 1 and item A in branch 2 are not unconnected or unique; they are the same menu item. We would want to estimate a set of 6 random intercepts/slopes for <code>branch</code>, and separately, 5 random intercepts/slopes for <code>menu item</code>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images_mixed-effects/fastfood_design.png" class="img-fluid figure-img" style="width:40.0%"></p>
+<figcaption>Branch and item as crossed effects</figcaption>
+</figure>
+</div>
+<p>A useful rule of thumb is that if the best way to draw out your experimental design is with a table or grid like this, rather than a tree-shaped diagram, then your effects are likely to be crossed rather than nested.</p>
+</section>
+</section>
+<section id="fitting-crossed-random-effects" class="level2" data-number="9.2">
+<h2 data-number="9.2" class="anchored" data-anchor-id="fitting-crossed-random-effects"><span class="header-section-number">9.2</span> Fitting crossed random effects</h2>
+<p>Implementing crossed random effects in your <code>lme4</code> model is very easy. You don’t need to worry about additional syntax or explicit nesting.</p>
+<p>We’ll use a behavioural dataset from a cognitive psychology study, where the classic Stroop task was administered, as a test case.</p>
+<section id="the-stroop-dataset" class="level3" data-number="9.2.1">
+<h3 data-number="9.2.1" class="anchored" data-anchor-id="the-stroop-dataset"><span class="header-section-number">9.2.1</span> The Stroop dataset</h3>
+<p>In the Stroop task, participants are asked to identify the colour of font that a word is written in. The words themselves, however, are the names of different colours. Typically, when the font colour does not match the word itself, people are slower to identify the font colour.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images_mixed-effects/stroop.png" class="img-fluid figure-img" style="width:70.0%"></p>
+<figcaption>The Stroop task</figcaption>
+</figure>
+</div>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" aria-current="page">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>cognitive <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/stroop.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 432 Columns: 4
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (2): subject, congruency
+dbl (2): item, reaction_time
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>This dataset contains four variables:</p>
+<ul>
+<li><code>subject</code>, of which there are 12</li>
+<li><code>item</code>, referring to task item, of which there are 36 in total</li>
+<li><code>congruency</code>, whether the colour of the font matched the word or not (congruent vs incongruent)</li>
+<li><code>reaction_time</code>, how long it took the participant to give a response (ms)</li>
+</ul>
+<p>Of the 36 items, 18 are congruent, and 18 are incongruent. Each subject in the study saw and responded to all 36 items, in a randomised (counterbalanced) order.</p>
+<p>Our fixed predictor is <code>congruency</code>, and we can treat both <code>subject</code> and <code>item</code> as clustering variables that create non-independent clusters amongst the 432 total observations of <code>reaction_time</code>. We also consider that the reaction time change between congruent/incongruent tasks may differ across participants (i.e.&nbsp;we fit random slopes at the participant level).</p>
+<p>Therefore, we fit the following model:</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>lme_cognitive <span class="ot">&lt;-</span> <span class="fu">lmer</span>(reaction_time <span class="sc">~</span> congruency <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>item) <span class="sc">+</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>                        (<span class="dv">1</span><span class="sc">+</span>congruency<span class="sc">|</span>subject), <span class="at">data=</span>cognitive)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lme_cognitive)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: reaction_time ~ congruency + (1 | item) + (1 + congruency | subject)
+   Data: cognitive
+
+REML criterion at convergence: 4041.3
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-3.4839 -0.6472  0.0008  0.5949  3.2836 
+
+Random effects:
+ Groups   Name                  Variance Std.Dev. Corr 
+ item     (Intercept)            42.2     6.496        
+ subject  (Intercept)           140.4    11.847        
+          congruencyincongruent 159.4    12.626   -0.68
+ Residual                       609.9    24.696        
+Number of obs: 432, groups:  item, 36; subject, 12
+
+Fixed effects:
+                      Estimate Std. Error      df t value Pr(&gt;|t|)    
+(Intercept)            247.995      4.107  14.240   60.39  &lt; 2e-16 ***
+congruencyincongruent   58.222      4.860  15.581   11.98 2.87e-09 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr)
+cngrncyncng -0.686</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>In this model, we’ve included a fixed effect of congruency, as well as three random effects:</p>
+<ul>
+<li>random intercepts for <code>item</code></li>
+<li>random intercepts for <code>subject</code></li>
+<li>random slopes for <code>congruency</code> on <code>subject</code></li>
+</ul>
+<p>We do not fit random slopes for <code>congruency</code> on <code>item</code>, as <code>congruency</code> does not vary within individual task items.</p>
+<p>Crucially, <code>item</code> is not nested within <code>subject</code>. Item 4 for subject A is exactly the same as item 4 for subject E - we haven’t given each subject their own set of items. You can see from the model output that we have therefore fitted 12 random intercepts/slopes for <code>subject</code>, and 36 random intercepts for <code>item</code>.</p>
+<p>This allows us to capture the fixed relationship between <code>congruency</code> and <code>reaction_time</code>, with both <code>subject</code> and <code>item</code> accounted for.</p>
+</section>
+</section>
+<section id="partially-crossed-random-effects" class="level2" data-number="9.3">
+<h2 data-number="9.3" class="anchored" data-anchor-id="partially-crossed-random-effects"><span class="header-section-number">9.3</span> Partially crossed random effects</h2>
+<p>In the example above, each participant in the study experienced each of the task items. We’d call this a fully-crossed design (or perhaps, a full factorial design). But, if each participant had only responded to a randomised subset of the task items, then we would instead say that the <code>item</code> and <code>subject</code> random effects are <em>partially</em> crossed.</p>
+<p>Partially crossed designs are common in research, such as when using the classic Latin square design, which we’ll elaborate on with the next example.</p>
+<section id="the-abrasion-dataset" class="level3" data-number="9.3.1">
+<h3 data-number="9.3.1" class="anchored" data-anchor-id="the-abrasion-dataset"><span class="header-section-number">9.3.1</span> The abrasion dataset</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>abrasion <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/abrasion.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 16 Columns: 4
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (1): material
+dbl (3): run, position, wear
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>In this experiment, four different types of <code>material</code> are being tested (A, B, C and D) for their wear, by feeding them into a wear-testing machine.</p>
+<p>The machine could process four material samples at a time in each <code>run</code>, and it’s believed that there are differences between runs. There is also evidence that the <code>position</code> within the machine might also generate some differences in wear. Therefore, four runs were made in total, with each <code>material</code> placed at each different <code>position</code> across the <code>run</code>. For each of the 16 samples, the response variable <code>wear</code> is assessed by measuring the loss of weight in 0.1mm of material over the testing period.</p>
+<p>On first read, it might sound as if <code>position</code> and <code>run</code> are somehow nested effects, but actually, they represent a Latin square design:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images_mixed-effects/latin_square.png" class="img-fluid figure-img" style="width:30.0%"></p>
+<figcaption>Latin square design of abrasion experiment</figcaption>
+</figure>
+</div>
+<p>A Latin square is a particular type of randomised design, in which each experimental condition (in this case, materials A through D) appear once and only once in each column and row of the design matrix. This sort of randomisation might be used to randomise the layout of plants in greenhouses, or samples in wells on plates.</p>
+<p>In the <code>abrasion</code> example, this design matrix is actually stored within the structure of the dataset itself. You can reconstruct it by looking at the raw data, or by using the following code:</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-4-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-1" role="tab" aria-controls="tabset-4-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-4-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-4-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">matrix</span>(abrasion<span class="sc">$</span>material, <span class="dv">4</span>, <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2] [,3] [,4]
+[1,] "C"  "A"  "D"  "B" 
+[2,] "D"  "B"  "C"  "A" 
+[3,] "B"  "D"  "A"  "C" 
+[4,] "A"  "C"  "B"  "D" </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>The four possible positions are the same across each run, meaning that <code>position</code> is not nested within <code>run</code>, but is instead crossed. Position 1 in run 1 is linked to position 1 in run 3, for instance - we wouldn’t consider these to be “unique” positions, but would like to group them together when estimating variance in our model.</p>
+<p>But, because it’s impossible for each <code>material</code> to experience each <code>position</code> in each <code>run</code>, this is a partially crossed design rather than a fully crossed one.</p>
+</section>
+<section id="fitting-partially-crossed-random-effects" class="level3" data-number="9.3.2">
+<h3 data-number="9.3.2" class="anchored" data-anchor-id="fitting-partially-crossed-random-effects"><span class="header-section-number">9.3.2</span> Fitting partially crossed random effects</h3>
+<p>The good news is that fitting this in <code>lme4</code> doesn’t require any extra knowledge or special syntax. So long as the dataset is properly coded and accurately represents the structure of the experimental design, the code is identical to fully crossed random effects.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-5-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-1" role="tab" aria-controls="tabset-5-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-5-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-5-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>lme_abrasion <span class="ot">&lt;-</span> <span class="fu">lmer</span>(wear <span class="sc">~</span> material <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>run) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>position), <span class="at">data =</span> abrasion)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lme_abrasion)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: wear ~ material + (1 | run) + (1 | position)
+   Data: abrasion
+
+REML criterion at convergence: 100.3
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-1.08973 -0.30231  0.02697  0.42254  1.21052 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ run      (Intercept)  66.90    8.179  
+ position (Intercept) 107.06   10.347  
+ Residual              61.25    7.826  
+Number of obs: 16, groups:  run, 4; position, 4
+
+Fixed effects:
+            Estimate Std. Error      df t value Pr(&gt;|t|)    
+(Intercept)  265.750      7.668   7.475  34.656 1.57e-09 ***
+materialB    -45.750      5.534   6.000  -8.267 0.000169 ***
+materialC    -24.000      5.534   6.000  -4.337 0.004892 ** 
+materialD    -35.250      5.534   6.000  -6.370 0.000703 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+          (Intr) matrlB matrlC
+materialB -0.361              
+materialC -0.361  0.500       
+materialD -0.361  0.500  0.500</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>If you check the output, you can see that we do indeed have 4 groups each for <code>run</code> and <code>position</code>, which is correct. The model has done what we intended, and we could now go on to look at the differences between <code>material</code>, with the nuisance effects of <code>run</code> and <code>position</code> having been accounted for.</p>
+</section>
+</section>
+<section id="exercises" class="level2" data-number="9.4">
+<h2 data-number="9.4" class="anchored" data-anchor-id="exercises"><span class="header-section-number">9.4</span> Exercises</h2>
+<section id="sec-exr_penicillin" class="level3" data-number="9.4.1">
+<h3 data-number="9.4.1" class="anchored" data-anchor-id="sec-exr_penicillin"><span class="header-section-number">9.4.1</span> Penicillin</h3>
+<div class="callout callout-style-default callout-exercise callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Exercise
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<div>
+<div class="callout-exercise">
+<p><font style="font-variant: small-caps">Level:</font> <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><br></p>
+<p>For this exercise, we’ll use the internal <code>Penicillin</code> dataset from <code>lme4</code>.</p>
+<p>These data are taken from a study that assessed the concentration of a penicillin solution, by measuring how it inhibits the growth of organisms on a plate of agar.</p>
+<p>Six samples of the penicillin solution were taken. On each plate of agar, a few droplets of each of the six samples were allowed to diffuse into the medium. The diameter of the inhibition zones created could be measured, and is related in a known way to the concentration of the penicillin.</p>
+<p>There are three variables:</p>
+<ul>
+<li><code>sample</code>, the penicillin sample (A through F, 6 total)</li>
+<li><code>plate</code>, the assay plate (a through x, 24 total)</li>
+<li><code>diameter</code>, of the zone of inhibition (measured in mm)</li>
+</ul>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-6-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-1" role="tab" aria-controls="tabset-6-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-6-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-6-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"Penicillin"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<p>For this exercise:</p>
+<ol type="1">
+<li>Fit a sensible model to the data</li>
+<li>Perform significance testing/model comparison</li>
+<li>Check the model assumptions</li>
+<li>Visualise the model</li>
+</ol>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Worked answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>This is quite a simple dataset, in that there are only two variables besides the response. But, given the research question, we likely want to consider both of these two variables as random effects.</p>
+<p>How does that work? This is the first random-effects-only model that we’ve come across. (Well, technically there are still fixed effects - every time you estimate a random effect, a fixed effect will always be estimated as part of that.)</p>
+<section id="consider-the-experimental-design" class="level4">
+<h4 class="anchored" data-anchor-id="consider-the-experimental-design">Consider the experimental design</h4>
+<p>We have two variables for which we’d like to estimate random effects, and with no explicit fixed predictors, all that’s available to us is random intercepts.</p>
+<p>The two variables, <code>plate</code> and <code>sample</code>, are crossed in a factorial design (each of the six samples is included on each of the 24 plates). So, we want to fit these as crossed random effects.</p>
+</section>
+<section id="fit-the-model" class="level4">
+<h4 class="anchored" data-anchor-id="fit-the-model">Fit the model</h4>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-7-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-1" role="tab" aria-controls="tabset-7-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-7-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-7-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>lme_penicillin <span class="ot">&lt;-</span> <span class="fu">lmer</span>(diameter <span class="sc">~</span> (<span class="dv">1</span><span class="sc">|</span>sample) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>plate), <span class="at">data =</span> Penicillin)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lme_penicillin)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: diameter ~ (1 | sample) + (1 | plate)
+   Data: Penicillin
+
+REML criterion at convergence: 330.9
+
+Scaled residuals: 
+     Min       1Q   Median       3Q      Max 
+-2.07923 -0.67140  0.06292  0.58377  2.97959 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ plate    (Intercept) 0.7169   0.8467  
+ sample   (Intercept) 3.7311   1.9316  
+ Residual             0.3024   0.5499  
+Number of obs: 144, groups:  plate, 24; sample, 6
+
+Fixed effects:
+            Estimate Std. Error      df t value Pr(&gt;|t|)    
+(Intercept)  22.9722     0.8086  5.4866   28.41 3.62e-07 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>This shows us that the average diameter of the inhibition zone is around 23mm. Looking at the random effects, there’s more variance due to <code>sample</code> than there is to <code>plate</code>.</p>
+</section>
+<section id="visualise-the-model" class="level4">
+<h4 class="anchored" data-anchor-id="visualise-the-model">Visualise the model</h4>
+<p>We can see these different variances by visualising the model. Here, a jagged line of best fit is drawn for each of the samples; the overall shape of the lines are the same, since we have random intercepts only. You can see that the spread within each of the lines (which represents variance for <code>plate</code>) is overall less than the spread of the lines themselves (which represents the variance for <code>sample</code>).</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-8-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-8-1" role="tab" aria-controls="tabset-8-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-8-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-8-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">augment</span>(lme_penicillin), <span class="fu">aes</span>(<span class="at">x =</span> plate, <span class="at">y =</span> diameter, <span class="at">colour =</span> sample)) <span class="sc">+</span> </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">width =</span> <span class="fl">0.2</span>, <span class="at">height =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> .fitted, <span class="at">group =</span> sample))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="09-crossed-random-effects_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-exr_politeness" class="level3" data-number="9.4.2">
+<h3 data-number="9.4.2" class="anchored" data-anchor-id="sec-exr_politeness"><span class="header-section-number">9.4.2</span> Politeness</h3>
+<div class="callout callout-style-default callout-exercise callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Exercise
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<div>
+<div class="callout-exercise">
+<p><font style="font-variant: small-caps">Level:</font> <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><br></p>
+<p>For this exercise, we’ll use a real dataset called <code>politeness</code>, taken from a paper by Winter &amp; Grawunder (<a href="https://doi.org/10.1016/j.wocn.2012.08.006">2012</a>).</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-9-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-9-1" role="tab" aria-controls="tabset-9-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-9-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-9-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>politeness <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/politeness.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<p>The study was designed to investigate whether voice pitch is higher in polite contexts than in informal ones, and whether this effect is consistent between male and female speakers.</p>
+<p>There are five variables in this dataset:</p>
+<ul>
+<li><code>subject</code>, the participant (6 total)</li>
+<li><code>gender</code>, treated here as a binary categorical variable (male vs female)</li>
+<li><code>sentence</code>, the sentence that was spoken (7 total)</li>
+<li><code>context</code>, whether the speaker was in a polite or informal setting</li>
+<li><code>pitch</code>, the measured voice pitch across the sentence</li>
+</ul>
+<p>Each participant in the study spoke each of the seven sentences twice, once in each of the two contexts.</p>
+<p>Is there a difference between vocal pitch in different contexts? Is this effect consistent for male and female speakers?</p>
+<p>To answer this question:</p>
+<ol type="1">
+<li>Consider which variables you want to treat as fixed and random effects</li>
+<li>Try drawing out the structure of the dataset, and think about what levels the different variables are varying at</li>
+<li>You may want to assess the quality and significance of the model to help you draw your final conclusions</li>
+</ol>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Worked answer
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<section id="consider-the-experimental-design-1" class="level4">
+<h4 class="anchored" data-anchor-id="consider-the-experimental-design-1">Consider the experimental design</h4>
+<p>In this dataset, there are two variables for which we might want to fit random effects: <code>subject</code> and <code>sentence</code>. The particular sets of participants and sentences have been chosen at random from the larger population of participants/speakers and possible sentences that exist.</p>
+<p>The other two variables, <code>gender</code> and <code>context</code>, are fixed effects of interest.</p>
+<p>Let’s sketch out the design of this experiment. You could choose to visualise/sketch out this design in a couple of ways:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images_mixed-effects/politeness_design.png" class="img-fluid figure-img" style="width:60.0%"></p>
+<figcaption>Experimental design for voice pitch experiment #1</figcaption>
+</figure>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="images_mixed-effects/politeness_design2.png" class="img-fluid figure-img" style="width:60.0%"></p>
+<figcaption>Experimental design for voice pitch experiment #2</figcaption>
+</figure>
+</div>
+<p>The <code>subject</code> and <code>sentence</code> variables are not nested within one another - they’re crossed. There are 42 combinations of <code>subject</code> and <code>sentence</code>.</p>
+<p>Each of those combinations then happens twice: once for each <code>context</code>, for a total of 84 possible unique utterances. (Note that there is actually one instance of missing data, so we only have 83.)</p>
+<p>Now, <code>context</code> varies within both <code>subject</code> and <code>sentence</code> - because each subject-sentence combination is spoken twice. But <code>gender</code> does not vary within <code>subject</code> in this instance; each participant is labelled as either male or female.</p>
+</section>
+<section id="fit-a-full-model" class="level4">
+<h4 class="anchored" data-anchor-id="fit-a-full-model">Fit a full model</h4>
+<p>So, the full possible model we could fit is the following:</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-10-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-10-1" role="tab" aria-controls="tabset-10-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-10-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-10-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>lme_polite <span class="ot">&lt;-</span> <span class="fu">lmer</span>(pitch <span class="sc">~</span> gender<span class="sc">*</span>context <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> gender<span class="sc">*</span>context<span class="sc">|</span>sentence)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>                   <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> context<span class="sc">|</span>subject), <span class="at">data =</span> politeness)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>boundary (singular) fit: see help('isSingular')</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lme_polite)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: pitch ~ gender * context + (1 + gender * context | sentence) +  
+    (1 + context | subject)
+   Data: politeness
+
+REML criterion at convergence: 762.5
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-1.5177 -0.6587 -0.0521  0.5299  3.5192 
+
+Random effects:
+ Groups   Name               Variance Std.Dev. Corr             
+ sentence (Intercept)        398.96   19.97                     
+          genderM            116.03   10.77    -0.97            
+          contextpol         217.26   14.74    -0.09 -0.06      
+          genderM:contextpol 292.04   17.09     0.11 -0.10 -0.78
+ subject  (Intercept)        597.74   24.45                     
+          contextpol           1.21    1.10    1.00             
+ Residual                    548.79   23.43                     
+Number of obs: 83, groups:  sentence, 7; subject, 6
+
+Fixed effects:
+                   Estimate Std. Error       df t value Pr(&gt;|t|)    
+(Intercept)         260.686     16.804    5.822  15.513 5.88e-06 ***
+genderM            -116.195     21.618    4.306  -5.375  0.00468 ** 
+contextpol          -27.400      9.149    6.760  -2.995  0.02094 *  
+genderM:contextpol   15.892     12.191    8.183   1.304  0.22783    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr) gendrM cntxtp
+genderM     -0.703              
+contextpol  -0.137  0.080       
+gndrM:cntxt  0.111 -0.141 -0.723
+optimizer (nloptwrap) convergence code: 0 (OK)
+boundary (singular) fit: see help('isSingular')</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>This full model has a singular fit, almost certainly because we don’t have a sufficient sample size for 6 random effects plus fixed effects.</p>
+</section>
+<section id="alternative-better-models" class="level4">
+<h4 class="anchored" data-anchor-id="alternative-better-models">Alternative (better) models</h4>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-11-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-11-1" role="tab" aria-controls="tabset-11-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-11-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-11-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>lme_polite_red <span class="ot">&lt;-</span> <span class="fu">lmer</span>(pitch <span class="sc">~</span> gender<span class="sc">*</span>context <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>sentence) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>subject), </span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">data =</span> politeness)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lme_polite_red)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+lmerModLmerTest]
+Formula: pitch ~ gender * context + (1 | sentence) + (1 | subject)
+   Data: politeness
+
+REML criterion at convergence: 766.8
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.1191 -0.5604 -0.0768  0.5111  3.3352 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ sentence (Intercept) 218.3    14.77   
+ subject  (Intercept) 617.1    24.84   
+ Residual             637.4    25.25   
+Number of obs: 83, groups:  sentence, 7; subject, 6
+
+Fixed effects:
+                   Estimate Std. Error       df t value Pr(&gt;|t|)    
+(Intercept)         260.686     16.348    5.737  15.946  5.7e-06 ***
+genderM            -116.195     21.728    4.566  -5.348 0.004023 ** 
+contextpol          -27.400      7.791   69.017  -3.517 0.000777 ***
+genderM:contextpol   15.572     11.095   69.056   1.403 0.164958    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Correlation of Fixed Effects:
+            (Intr) gendrM cntxtp
+genderM     -0.665              
+contextpol  -0.238  0.179       
+gndrM:cntxt  0.167 -0.252 -0.702</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(lme_polite, lme_polite_red)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>refitting model(s) with ML (instead of REML)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Data: politeness
+Models:
+lme_polite_red: pitch ~ gender * context + (1 | sentence) + (1 | subject)
+lme_polite: pitch ~ gender * context + (1 + gender * context | sentence) + (1 + context | subject)
+               npar    AIC    BIC  logLik deviance Chisq Df Pr(&gt;Chisq)
+lme_polite_red    7 807.11 824.04 -396.55   793.11                    
+lme_polite       18 825.15 868.69 -394.58   789.15 3.952 11     0.9713</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>Fitting a simpler model that contains only random intercepts, and comparing this to our more complicated model, shows no difference between the two - i.e., the simpler model is better.</p>
+<p>You can keep comparing different models with different random effects structures, if you like, for practice - this dataset is a good sandbox for it!</p>
+</section>
+<section id="check-assumptions" class="level4">
+<h4 class="anchored" data-anchor-id="check-assumptions">Check assumptions</h4>
+<p>For now, we’re going to quickly check the assumptions of this simpler, intercepts-only model:</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-12-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-12-1" role="tab" aria-controls="tabset-12-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-12-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-12-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_model</span>(lme_polite_red, </span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>            <span class="at">check =</span> <span class="fu">c</span>(<span class="st">"linearity"</span>, <span class="st">"homogeneity"</span>, <span class="st">"qq"</span>, <span class="st">"outliers"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="09-crossed-random-effects_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_model</span>(lme_polite_red, </span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>            <span class="at">check =</span> <span class="fu">c</span>(<span class="st">"reqq"</span>, <span class="st">"pp_check"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="09-crossed-random-effects_files/figure-html/unnamed-chunk-13-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>Not bad! Maybe one overly influential point (31) that deserves testing - you can try refitting the model without it, and seeing whether that changes the overall conclusions. The Q-Q plot veers off a tiny bit on the right hand side, but it’s only really 3 residuals, so probably not worth worrying about.</p>
+<p>The random intercepts look nicely normally distributed, and the posterior predictive check is quite convincing.</p>
+</section>
+<section id="visualise-the-model-1" class="level4">
+<h4 class="anchored" data-anchor-id="visualise-the-model-1">Visualise the model</h4>
+<p>Last but not least, let’s visualise the model:</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset" data-group="language">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-13-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-13-1" role="tab" aria-controls="tabset-13-1" aria-selected="true">R</a></li></ul>
+<div class="tab-content" data-group="language">
+<div id="tabset-13-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-13-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="fu">augment</span>(lme_polite_red), <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">paste</span>(gender, context), <span class="at">y =</span> pitch, <span class="at">colour =</span> gender)) <span class="sc">+</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">"point"</span>, <span class="at">size =</span> <span class="dv">4</span>) <span class="sc">+</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> .fitted, <span class="at">group =</span> <span class="fu">paste</span>(sentence, subject)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="09-crossed-random-effects_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>Based on the model output and the visualisation, we might therefore conclude that on average, speakers do use higher pitch for polite sentences compared to informal ones. Although there is a difference in pitch between male and female speakers overall, the effect of context is similar across genders.</p>
+<p>In the final line of code for the plot, we’ve included the lines of best fit for each subject-sentence combination, which have fixed gradients but random intercepts. You can view sentence-wise lines of best fit (summarised across all 6 subjects) by writing <code>group = sentence</code>, or subject-wise lines of best fit (summarised across all 7 sentences) by writing <code>group = subject</code>. These tell you a little bit more about how much variation there is between the subjects and sentences.</p>
+</section>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="summary" class="level2" data-number="9.5">
+<h2 data-number="9.5" class="anchored" data-anchor-id="summary"><span class="header-section-number">9.5</span> Summary</h2>
+<p>This section has addressed how to fit models with multiple clustering variables, in scenarios where those clustering variables are not nested with one another.</p>
+<p>This, along with the previous section on nested random effects, helps to extend the basic linear mixed effects model that was introduced earlier in the course. It emphasises the need to understand your variables and experimental design, in order to fit a suitable model.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Key points
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Two random effects are “crossed” if they interact to create multiple unique groups/combinations (as we see in factorial experimental designs), and are not nested</li>
+<li>Random effects can be fully or partially crossed</li>
+<li>Crossed random effects are fitted in <code>lme4</code> by creating multiple distinct random effects structures within the model formula</li>
+</ul>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../materials/08-nested-random-effects.html" class="pagination-link" aria-label="Nested random effects">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Nested random effects</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../materials/10-generalised-mixed-models.html" class="pagination-link" aria-label="Generalised mixed models">
+        <span class="nav-page-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Generalised mixed models</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Licensed <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> <img src="https://creativecommons.org/images/deed/cc_icon_black_x2.png" class="img-fluid" width="25"> Bioinformatics Training Facility</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
