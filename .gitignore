@@ -24,3 +24,5 @@ _site
 
 # Mac
 .DS_Store
+
+**/*.quarto_ipynb
