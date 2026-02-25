@@ -3,7 +3,7 @@ title: "Simulating hierarchical data"
 output: html_document
 ---
 
-```{r}
+```{r source_setup_files}
 #| echo: false
 #| message: false
 #| results: hide
@@ -17,7 +17,7 @@ source(file = "setup_files/setup.R")
 
 Key packages include several that we've already encountered, in addition to the new `MASS` package.
 
-```{r}
+```{r load_simulation_packages}
 #| eval: false
 # load the required packages for fitting & visualising
 library(tidyverse)
@@ -43,7 +43,7 @@ The code below explains how to simulate a dataset containing:
 
 We're going to simulate a dataset with the following structure. Random effects are shown in purple, and fixed effects in orange.
 
-![Design for `dragons` dataset](images_mixed-effects/full_dragons_design.png)
+![Design for `dragons` dataset](images/full_dragons_design.png)
 
 There are three levels in this dataset, i.e., we have nested random effects: 
 
@@ -78,7 +78,7 @@ In other words, if you keep all the parameters and numbers the same and run this
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r set_seed_for_reproducibility}
 set.seed(20)
 ```
 :::
@@ -87,7 +87,7 @@ Then, we set the number of clusters and individuals, to give us the hierarchical
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r set_sample_sizes}
 nr <- 6 # number of researchers (crossed random effect)
 nk <- 5 # number of mountain ranges (level 3)
 nj <- 7 # number of caves per mountain range (level 2)
@@ -105,7 +105,7 @@ To keep things simple, we're going to make `wingspan` and `scales` additive, rat
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r set_fixed_effect_parameters}
 b0 <- 70 # global intercept
 b1 <- 0.5 # global slope for wingspan (fixed)
 b2 <- c(0, 12) # global slopes/offsets for scales (fixed)
@@ -118,7 +118,7 @@ Lastly, we're going to set a fixed standard deviation for individual dragons. We
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r set_individual_sd}
 sdi <- 10
 ```
 :::
@@ -135,7 +135,7 @@ We do this separately for each of the random effects.
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r set_random_effect_sds}
 # Level 3
 tau0 <- 8 # 1|mountain
 tau1 <- 0.8 # wingspan|mountain
@@ -157,7 +157,7 @@ The first step in doing this is to set the correlations between the three random
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r create_variance_covariance_matrix}
 rho01 <- 0.8*tau0*tau1 # correlation between 1|mountain and wingspan|mountain
 rho02 <- 0.4*tau0*tau2 # correlation between 1|mountain and scales|mountain
 rho12 <- 0.6*tau1*tau2 # correlation between wingspan|mountain and scales|mountain
@@ -173,7 +173,7 @@ Now, we can simulate from a multivariate normal distribution, using the matrix w
                 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r simulate_mountain_random_effects}
 mountain_randomeffs <- mvrnorm(n = nk, mu = c(rep(0, times = 3)), Sigma = sigma)
 ```
 :::
@@ -182,7 +182,7 @@ Our intercepts for `cave` and `researcher` can be estimated more simply, since t
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r simulate_cave_researcher_random_effects}
 cave_randomeffs <- rnorm(n = nj*nk, mean = 0, sd = tau3)
 
 researcher_randomeffs <- rnorm(n = nr, mean = 0, sd = tau4)
@@ -199,7 +199,7 @@ Here, we create unique IDs for each `mountain` range and each `cave`. (Important
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r create_mountain_cave_ids}
 mountain <- rep(LETTERS[1:nk],each = ni*nj)
 
 cave <- as.factor(rep(1:(nj*nk), each = ni))
@@ -210,7 +210,7 @@ We'll also create unique IDs for each `dragon`. This variable will essentially j
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r create_dragon_ids}
 dragon <- 1:(nj*ni*nk)
 ```
 :::
@@ -219,7 +219,7 @@ And finally, we create unique IDs for each `researcher`. We're just going to var
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r assign_researchers_randomly}
 researcher <- sample(rep(c("AP", "RS", "LO", "CN", "YW", "KH"), 
                          length.out = ni*nj*nk))
 ```
@@ -231,7 +231,7 @@ For `wingspan`, we sample a continuous variable from a uniform distribution (you
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r generate_wingspan_variable}
 wingspan <- round(runif(nj*ni*nk, 13, 96))
 ```
 :::
@@ -242,7 +242,7 @@ According to our design, `scales` varies at the level of `cave`, level 2. We cod
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r generate_scales_variable}
 scales <- rep(c(rep("chromatic", times = ni), rep("metallic", times = ni)), 
               length.out = ni*nj*nk)
 ```
@@ -255,7 +255,7 @@ If you wanted `scales` to instead vary only between `mountain` ranges - i.e., ea
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r scales_varying_at_level3_optional}
 scales_lvl3 <- rep(c(rep("chromatic", times = ni*nj), 
                      rep("metallic", times = ni*nj)), 
                    length.out = ni*nj*nk)
@@ -266,7 +266,7 @@ Or, if you wanted `scales` to vary down at the individual level, you can drop th
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r scales_varying_at_level1_optional}
 scales_lvl1 <- sample(rep(c("chromatic", "metallic"), length.out = ni*nj*nk))
 ```
 :::
@@ -278,7 +278,7 @@ It's useful here to pause and look at the variables you've created, all together
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r check_data_structure}
 tibble(dragon, wingspan, scales, mountain, cave, researcher)
 ```
 ::: 
@@ -293,7 +293,7 @@ First, we produce a set of theoretical **average** values for `intelligence` for
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r calculate_average_response}
 average_response <- b0 + b1*wingspan + model.matrix(~ 0 + scales) %*% b2 +
   model.matrix(~ 0 + mountain + wingspan:mountain + scales:mountain) %*% as.vector(mountain_randomeffs) +
   model.matrix(~ 0 + cave) %*% as.vector(cave_randomeffs) +
@@ -310,7 +310,7 @@ Matrix multiplication has its own set of rules, going well beyond mixed models o
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r explore_model_matrix, eval=FALSE}
 view(model.matrix(~ 0 + mountain + wingspan:mountain + scales:mountain))
 
 view(as.vector(mountain_randomeffs))
@@ -327,7 +327,7 @@ For each value of `intelligence`, we sample from a normal distribution where the
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r simulate_intelligence_responses}
 intelligence <- round(rnorm(nj*ni*nk, average_response, sdi))
 ```
 :::
@@ -338,7 +338,7 @@ Last but not least, let's build the dataframe so we can look at the data.
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r create_dragons_dataframe}
 dragons <- tibble(dragon, intelligence, wingspan, scales, 
                   mountain, cave, researcher)
 ```
@@ -350,7 +350,7 @@ Having simulated based on a model, it's useful to check that the model does in f
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r fit_simulated_dragon_model}
 lme_test <- lmer(intelligence ~ wingspan + scales + 
                    (1 + wingspan + scales|mountain) + 
                    (1|cave) +
@@ -363,7 +363,7 @@ This model formula mirrors exactly the formula we used to create `average_respon
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r summarize_fitted_model}
 summary(lme_test)
 
 # extract values for fixed effects
@@ -384,7 +384,7 @@ Based on how we simulated the dataset, a linear mixed model should be perfectly 
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r check_simulated_model_assumptions}
 check_model(lme_test, 
             check = c("linearity", "homogeneity", "qq", "outliers"))
 
@@ -401,7 +401,7 @@ In this first plot, we'll look at the dataset in a single plot, with separate li
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r plot_dragon_model_all_observations}
 ggplot(augment(lme_test), aes(y = intelligence, x = wingspan, 
                               colour = mountain, linetype = scales)) +
   geom_point() +
@@ -415,7 +415,7 @@ In this second plot, we facet by `researcher`, to see what effects there are.
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r plot_dragon_model_by_researcher}
 ggplot(augment(lme_test), aes(y = intelligence, x = wingspan, 
                               colour = mountain, linetype = scales)) +
   facet_wrap(~ researcher) +
@@ -430,7 +430,7 @@ Finally, let's look at things by mountain, with individual lines of best fit for
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r plot_dragon_model_by_mountain}
 ggplot(augment(lme_test), aes(y = intelligence, x = wingspan, 
                               colour = researcher, linetype = scales)) +
   facet_wrap(~ mountain) +

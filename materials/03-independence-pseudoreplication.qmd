@@ -9,7 +9,7 @@ library(tidyverse)
 library(lme4)
 ```
 
-```{r}
+```{r source_setup_files}
 #| echo: false
 #| message: false
 #| results: hide
@@ -66,7 +66,7 @@ Imagine a scenario in which a researcher is investigating the effect of two diff
 
 To speed up time, the research decides to apply the treatment to pregnant dams, and then to use the offspring as their sample.
 
-![Treatment applied to pregnant dams](images_mixed-effects/repl_1.png){height=150}
+![Treatment applied to pregnant dams](images/repl_1.png){height=150}
 
 There are three reasons why this does not work, and leads to pseudoreplication:
 
@@ -80,7 +80,7 @@ The offspring are therefore not true biological replicates. The biological repli
 
 To resolve the lack of independence in the way that the treatment is applied, the researcher might wait until the mice are born, and treat them individually.
 
-![Treatment applied to offspring after birth](images_mixed-effects/repl_2.png){height=150}
+![Treatment applied to offspring after birth](images/repl_2.png){height=150}
 
 However - we have only resolved one of the three problems. It's still the case that:
 
@@ -91,7 +91,7 @@ However - we have only resolved one of the three problems. It's still the case t
 
 The researcher now tries a totally different tactic:
 
-![Treatment applied to cages of unrelated mice](images_mixed-effects/repl_3.png){height=150}
+![Treatment applied to cages of unrelated mice](images/repl_3.png){height=150}
 
 Now, they get 8 genetically unrelated mice, and separate them into two cages. They then put the treatment in the water of the cages.
 
@@ -106,7 +106,7 @@ However:
 
 Even if the researcher applies the treatment to mice independently, as below:
 
-![Treatment applied to each mouse within the cage](images_mixed-effects/repl_4.png){height=150}
+![Treatment applied to each mouse within the cage](images/repl_4.png){height=150}
 
 This still results in non-independence, as there may be other factors that affect entire cages (handling by different researchers, environmental conditions, etc.) and the mice in each condition are still able to influence one another.
 
@@ -114,7 +114,7 @@ This still results in non-independence, as there may be other factors that affec
 
 The only way that the researcher could achieve true independent replication with this group would be with a set-up such as the following:
 
-![True independent replication](images_mixed-effects/repl_5.png){height=150}
+![True independent replication](images/repl_5.png){height=150}
 
 With this experimental design, we can see that:
 

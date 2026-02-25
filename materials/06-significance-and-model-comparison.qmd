@@ -10,7 +10,7 @@ library(lme4)
 library(broom.mixed)
 ```
 
-```{r}
+```{r source_setup_files}
 #| echo: false
 #| message: false
 #| results: hide
@@ -24,7 +24,7 @@ source(file = "setup_files/setup.R")
 
 We'll primarily be using the `lmerTest` package for performing certain types of significance tests. The `pbkrtest` package is also introduced.
 
-```{r}
+```{r load_significance_libraries}
 #| eval: false
 library(lmerTest)
 library(pbkrtest)
@@ -73,7 +73,7 @@ Let's try this out on the trusty `sleepstudy` dataset. We create both our candid
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r fit_sleepstudy_models}
 data("sleepstudy")
 
 lme_sleep <- lmer(Reaction ~ Days + (1 + Days|Subject),
@@ -87,7 +87,7 @@ Then, we use the old faithful `anova` function to compare our candidate model to
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r compare_model_to_null}
 anova(lme_sleep, lm_null)
 ```
 :::
@@ -125,13 +125,13 @@ Crucially, we are only able to use this sort of test when one of the two models 
 
 So while we could perform an LRT just fine between two models `Y ~ A + B + C` and `Y ~ A + B + C + D`, to investigate the effect of `D`, or between any model and the null (`Y ~ 1`), we would not be able to use this test to compare `Y ~ A + B + C` and `Y ~ A + B + D`.
 
-![Two ways to use likelihood ratio tests](images_mixed-effects/LRT_schematic.png){width=70%}
+![Two ways to use likelihood ratio tests](images/LRT_schematic.png){width=70%}
 
 Let's use an LRT to test the fixed effect of `Days` in our `sleepstudy` example. First, we'll fit a random-effects-only model (we do this by replacing `Days` with `1`, to indicate no fixed effects).
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r fit_random_only_model}
 lme_sleep_random <- lmer(Reaction ~ 1 + (1 + Days|Subject),
                    data = sleepstudy)
 ```
@@ -141,7 +141,7 @@ Then we use `anova` to compare them, again putting our more complex model first.
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r compare_fixed_effect_days_lrt}
 anova(lme_sleep, lme_sleep_random)
 ```
 :::
@@ -168,7 +168,7 @@ Let's look again at our random slopes & intercepts model for the `sleepstudy` da
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r fit_sleepstudy_with_lmertest}
 library(lmerTest)
 
 lme_sleep <- lmer(Reaction ~ Days + (1 + Days|Subject),
@@ -182,7 +182,7 @@ We'll use the `anova` function from the `lmerTest` package to produce an analysi
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r satterthwaite_anova}
 anova(lme_sleep)
 ```
 :::
@@ -203,7 +203,7 @@ If you wanted to switch to the Kenward-Roger approximation, you can do it easily
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r kenward_roger_anova}
 anova(lme_sleep, ddf = "Kenward-Roger")
 ```
 :::
@@ -236,7 +236,7 @@ Calculating the p-value for a z-score can be done quickly in R using the `pnorm`
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r t_to_z_pvalue}
 summary(lme_sleep)
 
 2*pnorm(q = 6.771, lower.tail = FALSE)
@@ -268,10 +268,26 @@ The syntax is very similar to the `anova` function, but you also set a seed.
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+
+```{r fit_models_for_bootstrap_fixed_effect}
+#| echo: false
+#| message: false
+#| results: hide
+#| warning: false
+
+# Note: we're refitting with lme4 as there is a bug in 
+# the current version of lmerTest that conflicts with pbkrtest
+lme_sleep_random <- lme4::lmer(Reaction ~ 1 + (1 + Days|Subject),
+                   data = sleepstudy)
+lme_sleep <- lme4::lmer(Reaction ~ Days + (1 + Days|Subject),
+                   data = sleepstudy)
+```
+
+```{r bootstrap_fixed_effect}
 #| warning: false
 pbkrtest::PBmodcomp(lme_sleep, lme_sleep_random, seed = 20)
 ```
+
 :::
 
 It takes several seconds, because running 1000 simulations and fitting 2000 models isn't instantaneous. You may also get a bunch of warnings (they've been suppressed here for these course materials, but don't be alarmed if they appear for you when running this example).
@@ -331,7 +347,7 @@ Then, use the `anova` function to perform the LRT.
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r compare_random_slopes_lrt}
 lme_sleep_intercepts <- lmer(Reaction ~ Days + (1|Subject),
                    data = sleepstudy)
 
@@ -345,7 +361,7 @@ You can even use the `anova` function to compare models with and without random 
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r compare_mixed_vs_linear}
 lm_sleep <- lm(Reaction ~ Days, data = sleepstudy)
 
 anova(lme_sleep, lm_sleep)
@@ -378,7 +394,20 @@ It works in exactly the same way: feed in two models, one with and one without t
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+
+```{r fit_models_for_bootstrap_random_effect}
+#| echo: false
+#| message: false
+#| results: hide
+#| warning: false
+
+# Note: we're refitting with lme4 as there is a bug in 
+# the current version of lmerTest that conflicts with pbkrtest
+lme_sleep_intercepts <- lme4::lmer(Reaction ~ Days + (1|Subject),
+                   data = sleepstudy)
+```
+
+```{r bootstrap_random_effect}
 #| warning: false
 pbkrtest::PBmodcomp(lme_sleep, lme_sleep_intercepts, seed = 20)
 ```
@@ -422,7 +451,7 @@ Previously, we fit a mixed model to this dataset that included response variable
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r, message=FALSE}
+```{r load_and_fit_dragons, message=FALSE}
 dragons <- read_csv("data/dragons.csv")
 
 lme_dragons <- lmer(intelligence ~ wingspan*scales + (1 + wingspan|mountain), 
@@ -440,14 +469,13 @@ If you're feeling adventurous, you can also:
 - use LRTs, AIC and/or bootstrapping to assess the random effects, and compare the results
 - use other methods to assess the significance of the fixed effects, and compare the results
 
-::: {.callout-tip collapse="true"}
-#### Worked answer
+::: {.callout-answer}
 
 Let's start by using an LRT to test the overall significance of our model. We'll construct a null model, and then use `anova` to compare it to our model.
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r compare_dragons_model_to_null}
 lme_dragons_null <- lm(intelligence ~ 1, data = dragons)
 
 anova(lme_dragons, lme_dragons_null)
@@ -462,7 +490,7 @@ We'll start with the interaction. To test this, we'll build an additive model, a
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r compare_dragons_interaction_lrt}
 lme_dragons_dropx <- lmer(intelligence ~ wingspan + scales + (1 + wingspan|mountain), 
                           data = dragons)
 
@@ -479,7 +507,7 @@ Now, we're going to test the main effects of `scales` and `wingspan` by construc
 
 First, we'll test the interaction term by comparing our additive model to our original full model.
 
-```{r}
+```{r compare_dragons_main_effects_lrt}
 lme_dragons_dropscale <- lmer(intelligence ~ wingspan + (1 + wingspan|mountain), 
                               data = dragons)
 
@@ -498,7 +526,7 @@ Comfortingly, this aligns with what we see in an analysis of variance table usin
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r dragons_anova_satterthwaite}
 anova(lme_dragons)
 ```
 :::
@@ -510,19 +538,19 @@ We would draw the same overall conclusion using t-to-z approximations as well (u
 
 The interaction term:
 
-```{r}
+```{r dragons_interaction_t_to_z}
 2*pnorm(q = -1.157, lower.tail = FALSE)
 ```
 
 The main effect of scales:
 
-```{r}
+```{r dragons_scales_t_to_z}
 2*pnorm(q = 3.256, lower.tail = FALSE) # scales main effect
 ```
 
 The main effect of wingspan:
 
-```{r}
+```{r dragons_wingspan_t_to_z}
 2*pnorm(q = 4.244, lower.tail = FALSE) # wingspan main effect
 ```
 :::
@@ -532,7 +560,29 @@ And finally, you can check the results from a parametric bootstrap (once again, 
 ::: {.panel-tabset group="language"}
 ## R
 
-```{r}
+```{r fit_dragons_models_for_bootstrap}
+#| echo: false
+#| message: false
+#| results: hide
+#| warning: false
+
+# Note: we're refitting with lme4 as there is a bug in 
+# the current version of lmerTest that conflicts with pbkrtest
+lme_dragons <- lme4::lmer(intelligence ~ wingspan*scales + 
+                          (1 + wingspan|mountain), 
+                          data = dragons)
+lme_dragons_dropx <- lme4::lmer(intelligence ~ wingspan + scales + 
+                                (1 + wingspan|mountain), 
+                                data = dragons)
+lme_dragons_dropscale <- lme4::lmer(intelligence ~ wingspan + 
+                                    (1 + wingspan|mountain), 
+                                    data = dragons)
+lme_dragons_dropwing <- lme4::lmer(intelligence ~ scales + 
+                                   (1 + wingspan|mountain),
+                                   data = dragons)
+```
+
+```{r bootstrap_dragons_fixed_effects}
 #| warning: false
 pbkrtest::PBmodcomp(lme_dragons, lme_dragons_dropx, seed = 20)
 
@@ -548,7 +598,7 @@ We can visualise that like so:
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r plot_dragons_dropx_facets}
 ggplot(dragons, aes(x = wingspan, y = intelligence, colour = scales)) +
   facet_wrap(vars(mountain)) +
   geom_point() +
@@ -565,7 +615,7 @@ Let's test them first with LRTs (and AIC/BIC).
 
 We construct two new models, one with each of the random effects dropped. We keep the fixed effects structure the same, so that the models are otherwise comparable.
 
-```{r}
+```{r fit_dragons_random_effect_models}
 lme_dragons_dropslope <- lmer(intelligence ~ wingspan*scales + (1|mountain), 
                               data = dragons)
 
@@ -575,7 +625,7 @@ lme_dragons_dropint <- lmer(intelligence ~ wingspan*scales + (0 + wingspan|mount
 
 Then, we use the `anova` function to compare:
 
-```{r}
+```{r compare_dragons_random_effects_lrt}
 anova(lme_dragons, lme_dragons_dropint)
 
 anova(lme_dragons, lme_dragons_dropslope)
@@ -590,12 +640,31 @@ But, we know that the LRT p-values and AIC/BIC values for random effects aren't 
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+
+
+```{r fit_dragons_random_models_for_bootstrap}
+#| echo: false
+#| message: false
+#| results: hide
+#| warning: false
+
+# Note: we're refitting with lme4 as there is a bug in 
+# the current version of lmerTest that conflicts with pbkrtest
+lme_dragons_dropslope <- lme4::lmer(intelligence ~ wingspan*scales + 
+                                    (1|mountain),
+                                    data = dragons)
+lme_dragons_dropint <- lme4::lmer(intelligence ~ wingspan*scales + 
+                                  (0 + wingspan|mountain),
+                                  data = dragons)
+```
+
+```{r bootstrap_dragons_random_effects}
 #| warning: false
 pbkrtest::PBmodcomp(lme_dragons, lme_dragons_dropint, seed = 20)
 
 pbkrtest::PBmodcomp(lme_dragons, lme_dragons_dropslope, seed = 20)
 ```
+
 :::
 
 The p-values are indeed different, but not different enough to change our conclusions. 
@@ -620,7 +689,7 @@ Once again, we'll return to a dataset from the previous section of the course, t
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r, message=FALSE}
+```{r load_and_fit_irrigation, message=FALSE}
 irrigation <- read_csv("data/irrigation.csv")
 
 lme_yield <- lmer(yield ~ irrigation*variety + (1|field), data = irrigation)

@@ -2,7 +2,7 @@ book:
   chapters:
     - part: "Random effects"
       chapters:
-        - materials/03-independence-psuedoreplication.qmd
+        - materials/03-independence-pseudoreplication.qmd
         - materials/04-random-effects.qmd 
         - materials/05-fitting-mixed-models.qmd
     - part: "Interpreting mixed models"

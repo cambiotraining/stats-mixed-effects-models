@@ -9,7 +9,7 @@ library(tidyverse)
 library(lme4)
 ```
 
-```{r}
+```{r source_setup_files}
 #| echo: false
 #| message: false
 #| results: hide
@@ -80,12 +80,11 @@ For twelve schools across the UK, she records the following variables for each c
 
 The response variable in this example is the standardised academic test scores, and we have two predictors: `gender` and `SES score`. Note that we have also tested these variables across three schools.
 
-![Predictor variables](images_mixed-effects/example1_1.png)
+![Predictor variables](images/example1_1.png)
 
 Which of these predictors should be treated as fixed versus random effects? Are there any other "hidden" grouping variables that we should consider, based on the description of the experiment?
 
-::: {.callout-tip collapse="true"}
-#### Answer
+::: {.callout-answer}
 
 We care about the effects of `gender` and `SES score`. We might also be interested in testing for the interaction between them, like so: `academic test scores ~ SES + gender + SES:gender`.
 
@@ -93,7 +92,7 @@ This helps us to determine straight away that both `gender` and `SES score` are 
 
 However, `school` should be treated as a random effect. We collected data from 12 different schools, but we are not particularly interested in differences between these specific schools. In fact we'd prefer to generalise our results to students across all UK primary schools, and so it makes sense to share information across the levels. But we can't neglect `school` as a variable in this case, as it does create natural clusters in our dataset.
 
-![Fixed versus random effects](images_mixed-effects/example1_2.png)
+![Fixed versus random effects](images/example1_2.png)
 We also have two possible "hidden" random effects in this dataset, however.
 
 The first is `classroom`. If the final year students are grouped into more than one class within each school, then they have been further "clustered". Students from the same class share a teacher, and thus will be more similar to one another than to students in another class, even within the same school.
@@ -119,16 +118,15 @@ The height of each seedling is then measured repeatedly at five different time p
 
 What are our variables? What's the relationship we're interested in, and which of the variables (if any) should be treated as random effects?
 
-![Predictor variables](images_mixed-effects/example2_1.png){fig-alt="Graphic with three variables listed: Tray, Itensity and Timepoint"}
+![Predictor variables](images/example2_1.png){fig-alt="Graphic with three variables listed: Tray, Itensity and Timepoint"}
 
-::: {.callout-tip collapse="true"}
-#### Answer
+::: {.callout-answer}
 
 There are four things here that vary: `tray`, `light intensity`, `timepoint` and `height`. 
 
 We're interested in the relationship between growth rate and light intensity. This makes our first two predictor variables easier to decide about:
 
-![Fixed versus random effects](images_mixed-effects/example2_2.png){fig-alt="Graphic with three variables listed: Tray, Itensity and Timepoint. Tray is now identified as a random effect, while Intensity and Timepoint are identified as fixed effects."}
+![Fixed versus random effects](images/example2_2.png){fig-alt="Graphic with three variables listed: Tray, Itensity and Timepoint. Tray is now identified as a random effect, while Intensity and Timepoint are identified as fixed effects."}
 The variable `tray` is a random effect here. We are not interested in differences between these 10 particular trays that we've grouped our seedlings into, but we do need to recognise the non-independence created by these natural clusters - particularly because we've applied the "treatment" (changes in light intensity) to entire trays, rather than to individual seedlings.
 
 In contrast, `light intensity` - though a categorical variable - is a fixed effect. We are specifically interested in comparing across the three light intensity levels, so we don't want to share information between them; we want fixed estimates of the differences between the group means here.
@@ -156,10 +154,9 @@ An ecologist is conducting a study to demonstrate how the presence of wolves in 
 
 What's the relationship of interest? Is our total *n* really 60?
 
-![Predictor variables](images_mixed-effects/example3_1.png){fig-alt="Graphic with three variables listed: Wolf population, National park and Year."}
+![Predictor variables](images/example3_1.png){fig-alt="Graphic with three variables listed: Wolf population, National park and Year."}
 
-::: {.callout-tip collapse="true"}
-#### Answer
+::: {.callout-answer}
 
 Though we have 60 observations, it would of course be a case of pseudoreplication if we failed to understand the clustering within these data.
 
@@ -167,7 +164,7 @@ We have four things that vary: `wolf population`, `flood depth`, `national park`
 
 With `flood depth` as our response variable, we already know how to treat that. And by now, you've hopefully got the pattern that our continuous effect of interest `wolf population` will always have to be a fixed effect. 
 
-![Fixed versus random effects](images_mixed-effects/example3_2.png){fig-alt="Graphic with three variables listed: Wolf population, National park and Year. Wolf population is now identified as a fixed effect, while National park and Year are identified as random effects."}
+![Fixed versus random effects](images/example3_2.png){fig-alt="Graphic with three variables listed: Wolf population, National park and Year. Wolf population is now identified as a fixed effect, while National park and Year are identified as random effects."}
 But there's also `year` and `national park` to contend with, and here, we likely want to treat both as random effects.
 
 We have measured across several national parks, and over a 10 year period, in order to give us a large enough dataset for sufficient statistical power - these are technical replicates. But from a theoretical standpoint, the exact years and the exact parks that we've measured from, probably aren't that relevant. It's fine if we share information across these different levels.

@@ -3,7 +3,7 @@ title: "Generalised mixed models"
 output: html_document
 ---
 
-```{r}
+```{r source_setup_files}
 #| echo: false
 #| message: false
 #| results: hide
@@ -27,7 +27,7 @@ These bonus materials are intended to follow on from the materials and concepts 
 
 We'll need several packages, including the new `glmmTMB`, to explore fitting generalised linear mixed models.
 
-```{r}
+```{r load_glmm_packages}
 #| eval: false
 library(performance)
 library(glmmTMB)
@@ -66,7 +66,7 @@ To give an illustration of how we fit and assess generalised linear mixed effect
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r load_arabidopsis_data}
 data("Arabidopsis")
 ```
 :::
@@ -88,7 +88,7 @@ In the previous section of the course on checking assumptions, we fitted a stand
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r fit_arabidopsis_lmm}
 lme_arabidopsis <- lmer(total.fruits ~ nutrient + amd + (1|popu) + (1|gen), 
                         data = Arabidopsis)
 
@@ -100,7 +100,7 @@ But we found that the diagnostic plots for this model did not look good, in part
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r check_arabidopsis_lmm_diagnostics}
 check_model(lme_arabidopsis, 
             check = c("linearity", "homogeneity", "qq", "pp_check"))
 ```
@@ -118,7 +118,7 @@ We do this in `lme4` using the `glmer` function (the `g` in the function name is
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r fit_arabidopsis_glmm_poisson}
 glmm_arabidopsis <- glmer(total.fruits ~ nutrient + amd + (1|popu) + (1|gen), 
                           data = Arabidopsis, family = "poisson")
 
@@ -134,7 +134,7 @@ Let's have a look at the diagnostic plots, and see if we've made any improvement
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r check_arabidopsis_glmm_poisson_diagnostics}
 check_model(glmm_arabidopsis, residual_type = "normal",
             check = c("pp_check", "outliers", "reqq"))
 ```
@@ -148,7 +148,7 @@ The posterior predictive check, however, raises some concerns. The blue simulate
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r check_arabidopsis_glmm_poisson_overdispersion}
 check_model(glmm_arabidopsis, residual_type = "normal",
             check = c("vif", "overdispersion"))
 
@@ -164,7 +164,7 @@ We can, instead of Poisson regression, try fitting a negative binomial regressio
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r fit_arabidopsis_glmm_negbin}
 glmmnb_arabidopsis <- glmer.nb(total.fruits ~ nutrient + amd + (1|popu) + (1|gen), 
                                data = Arabidopsis)
 
@@ -176,7 +176,7 @@ If we check the diagnostic plots, we can see a bit of improvement - the posterio
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r check_arabidopsis_glmm_negbin_diagnostics}
 check_model(glmmnb_arabidopsis, residual_type = "normal",
             check = c("pp_check", "outliers", "reqq"))
 
@@ -193,7 +193,7 @@ The lingering issues might be because of zero-inflation. If we look at the distr
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r plot_arabidopsis_fruit_histogram}
 ggplot(data = Arabidopsis, aes(x = total.fruits)) +
   geom_histogram()
 ```
@@ -219,7 +219,7 @@ How might we use the package to fit a zero-inflated Poisson model for the `Arabi
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r fit_arabidopsis_glmm_zero_inflated_poisson}
 glmmzip_arabidopsis <- glmmTMB(total.fruits ~ nutrient + rack + status + amd + reg + 
                           (1|popu) + (1|gen), data = Arabidopsis,
                           family = "poisson", ziformula = ~1)
@@ -234,7 +234,7 @@ We could look at all the diagnostic plots (and in a real analysis situation, you
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r check_arabidopsis_glmm_zero_inflated_poisson}
 check_model(glmmzip_arabidopsis, residual_type = "normal", check = "pp_check")
 ```
 :::
@@ -245,7 +245,7 @@ Perhaps a zero-inflated negative binomial model might do the trick for the `Arab
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r fit_arabidopsis_glmm_zero_inflated_negbin}
 glmmzinb_arabidopsis <- glmmTMB(total.fruits ~ nutrient + rack + status + amd + reg + 
                           (1|popu) + (1|gen), data = Arabidopsis,
                           family = "nbinom2", ziformula = ~1)

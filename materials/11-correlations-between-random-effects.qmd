@@ -3,7 +3,7 @@ title: "Correlations between random effects"
 output: html_document
 ---
 
-```{r}
+```{r source_setup_files}
 #| echo: false
 #| message: false
 #| results: hide
@@ -26,7 +26,7 @@ We want to know whether the number of weeks spent training predicts how long peo
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r message=FALSE}
+```{r load_planking_data, message=FALSE}
 planking <- read_csv("data/planking.csv")
 
 lme_plank <- lmer(plank_time ~ week + (1 + week|subject), data = planking)
@@ -48,7 +48,7 @@ We can extract these standard deviations from the model summary:
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r summarize_plank_model}
 summary(lme_plank)
 ```
 :::
@@ -61,7 +61,7 @@ We'll plot the intercepts and slopes against each other. Each point on the scatt
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r echo=FALSE}
+```{r simulate_expected_ranefs_plot, echo=FALSE}
 set.seed(13)
 intercepts <- rnorm(45, 0, 6.83)
 weeks <- rnorm(45, 0, 1.58)
@@ -100,7 +100,7 @@ p1 + p2 + p3 + plot_layout(design = design)
 #### View code for this plot
 ::: {.panel-tabset group="language"}
 ## R
-```{r eval=FALSE}
+```{r expected_ranefs_plot_code, eval=FALSE}
 library(patchwork)
 
 set.seed(13)
@@ -146,7 +146,7 @@ Let's compare it to what we actually see in our fitted model. To do this, we'll 
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r echo=FALSE}
+```{r plot_actual_ranefs, echo=FALSE}
 actual_ranefs <- ranef(lme_plank)$subject %>% 
   rename(intercepts = `(Intercept)`)
 
@@ -199,7 +199,7 @@ The values that populate the variance-covariance matrix are reported in the mode
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r summarize_plank_model_correlation}
 summary(lme_plank)
 ```
 :::
@@ -218,7 +218,7 @@ If so, there is syntax in `lme4` that allows us to explicitly not estimate the c
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r fit_plank_no_correlation}
 lme_plank_nocorr <- lmer(plank_time ~ week + (1 + week||subject), 
                          data = planking)
 
@@ -236,7 +236,7 @@ Importantly, however, choosing not to estimate the correlation between the rando
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r echo=FALSE}
+```{r plot_ranefs_no_correlation, echo=FALSE}
 actual_ranefs2 <- ranef(lme_plank_nocorr)$subject %>% 
   rename(intercepts = `(Intercept)`)
 

@@ -3,7 +3,7 @@ title: "Nested random effects"
 output: html_document
 ---
 
-```{r}
+```{r source_setup_files}
 #| echo: false
 #| message: false
 #| results: hide
@@ -28,7 +28,7 @@ Here's an image of how that experimental design looks. Level 1 is the patients, 
 
 This is, of course, a simplified version - we would hope that there are more than two hospitals, four doctors and eight patients in the full sample!
 
-![Experimental design](images_mixed-effects/nested-patients1.png){width=70%}
+![Experimental design](images/nested-patients1.png){width=70%}
 
 We have a single fixed predictor of interest `treatment` (for which there are two possible treatments, A or B), and some continuous response variable `outcome`.
 
@@ -42,14 +42,14 @@ It would be appropriate to fit two sets of random intercepts in this model, one 
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r, message=FALSE}
+```{r load_health_data, message=FALSE}
 health <- read_csv("data/health.csv")
 ```
 :::
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r fit_health_intercepts_model}
 lme_health_intercepts <- lmer(outcome ~ treatment + (1|doctor) + (1|hospital),
                    data = health)
 
@@ -67,13 +67,13 @@ Deciding what level(s) we want to fit random slopes at, requires us to think abo
 
 Let's start by imagining the following scenario: the `Treatment` variable is varying at our lowest level. Each patient receives only one type of treatment (A or B), but both treatment types are represented "within" each doctor and within each hospital:
 
-![Scenario 1: predictor varies at level 1 (between patients, within doctors)](images_mixed-effects/nested-patients2.png){width=70%}
+![Scenario 1: predictor varies at level 1 (between patients, within doctors)](images/nested-patients2.png){width=70%}
 
 As a result, it would be inappropriate to ask `lme4` to fit random slopes for the `treatment` variable at the patient level. Instead, the "full" model (i.e., a model containing all of the possible fixed and random effects) would be the following:
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r fit_health_slopes_model}
 lme_health_slopes <- lmer(outcome ~ treatment + (1 + treatment|doctor) + 
                       (1 + treatment|hospital), data = health)
 
@@ -89,20 +89,20 @@ Let's now imagine a (perhaps more realistic) scenario. Each doctor is in fact a 
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r, message=FALSE}
+```{r load_health2_data, message=FALSE}
 health2 <- read_csv("data/health2.csv")
 ```
 :::
 
 If you look closely at the dataset, you can see that `treatment` does not vary within `doctor`; instead, it only varies within `hospital`. 
 
-![Scenario 2: predictor varies at level 2 (between doctors, within hospitals)](images_mixed-effects/nested-patients3.png){width=70%}
+![Scenario 2: predictor varies at level 2 (between doctors, within hospitals)](images/nested-patients3.png){width=70%}
 
 This means we cannot fit random slopes for treatment at the second level any more. We have to drop our random slopes for `treatment` by `doctor`, like this:
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r fit_health_slopes_level2}
 lme_health_slopes2 <- lmer(outcome ~ treatment + (1|doctor) + 
                       (1 + treatment|hospital), data = health2)
 
@@ -116,7 +116,7 @@ This gives us three sets of random effects, as opposed to four.
 
 Finally, let's imagine a scenario where each hospital is only equipped to offer one type of treatment (hopefully, not a realistic scenario!). Here, all doctors and patients within each hospital use exactly the same method. 
 
-![Scenario 3: predictor varies at level 3 (between hospitals)](images_mixed-effects/nested-patients4.png){width=70%}
+![Scenario 3: predictor varies at level 3 (between hospitals)](images/nested-patients4.png){width=70%}
 
 At this stage, we can no longer include random slopes for the treatment predictor anywhere in our model. Each `hospital`, `doctor` and `patient` only experiences one of the two treatments, not both, so we have no variation between the treatments to estimate at any of these levels.
 
@@ -140,7 +140,7 @@ We'll use another internal `lme4` dataset, the `Pastes` dataset, to show you wha
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r load_pastes_data}
 data("Pastes")
 
 head(Pastes)
@@ -158,7 +158,7 @@ There are four variables:
 
 The experimental design, when drawn out, looks like this:
 
-![Pastes dataset design](images_mixed-effects/pastes_design.png){width=70%}
+![Pastes dataset design](images/pastes_design.png){width=70%}
 
 At first glance, this might look as if it's a four-level model: assays within samples within casks within deliveries. However, that's a bit of a overcomplication. There is only one `sample` collected per `cask`, meaning that we can really just think about assays being nested within casks directly.
 
@@ -168,7 +168,7 @@ If we follow the same procedure we did above for the `health` example, we might 
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r fit_paste_naive_model}
 lme_paste <- lmer(strength ~ 1 + (1|batch) + (1|cask), data = Pastes)
 
 summary(lme_paste)
@@ -189,7 +189,7 @@ So, let's create a new variable that gives unique values to each of the casks in
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r create_unique_cask}
 Pastes <- Pastes %>% mutate(unique_cask = paste(batch, cask, sep = "_"))
 
 head(Pastes)
@@ -202,7 +202,7 @@ Now, we can go ahead and fit our desired model:
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r fit_paste_implicit_model}
 lme_paste_implicit <- lmer(strength ~ 1 + (1|batch) + (1|unique_cask),
                   data = Pastes)
 
@@ -224,7 +224,7 @@ For the `Pastes` dataset, it would look like this:
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r fit_paste_explicit_model}
 lme_paste_explicit <- lmer(strength ~ 1 + (1|batch) + (1|batch:cask), data = Pastes)
 
 summary(lme_paste_explicit)
@@ -243,7 +243,7 @@ It works like this: when random effect B is nested inside random effect A, you c
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r fit_paste_shorthand_model}
 lme_paste_shorthand <- lmer(strength ~ 1 + (1|batch/cask), data = Pastes)
 
 summary(lme_paste_shorthand)
@@ -284,7 +284,7 @@ Cook's experiment worked as follows: for each recipe, she prepared 15 batches of
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r load_cake_data}
 data("cake")
 ```
 :::
@@ -304,14 +304,13 @@ For this exercise:
 3. Consider how you might recode the dataset to reflect implicit nesting
 4. Fit and test at least one appropriate model
 
-::: {.callout-tip collapse="true"}
-#### Worked answer
+::: {.callout-answer}
 
 #### Consider the experimental design
 
 The first thing to do is to draw out a diagram that captures the experimental design. That might look something like this:
 
-![Experimental design for Cook's cakes](images_mixed-effects/cake_design.png){width=70%}
+![Experimental design for Cook's cakes](images/cake_design.png){width=70%}
 
 We've got a 3-level dataset here: individual cakes within batches (replicates) within recipes. There are two fixed effects of interest - `recipe` and `temperature`, both categorical.
 
@@ -325,7 +324,7 @@ So, let's code up a new variable that captures unique replicates, and we'll call
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r create_cake_batch}
 cake <- cake %>%
   mutate(batch = recipe:replicate)
 ```
@@ -343,7 +342,7 @@ We don't, however, want to treat `recipe` as a random effect itself. It only has
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r fit_cake_full_model}
 lme_cake <- lmer(angle ~ recipe*temperature + (1|batch), data = cake)
 
 summary(lme_cake)
@@ -356,7 +355,7 @@ If you want to do a bit of significance testing, you can try a few other version
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r compare_cake_models}
 lme_cake2 <- lmer(angle ~ recipe + temperature + (1|batch), data = cake)
 lme_cake3 <- lmer(angle ~ recipe + (1|batch), data = cake)
 lme_cake4 <- lmer(angle ~ temperature + (1|batch), data = cake)
@@ -381,7 +380,7 @@ For completeness, we'll check the assumptions of `lme_cake4` and visualise it fo
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r check_cake_assumptions}
 check_model(lme_cake4, 
             check = c("linearity", "homogeneity", "qq", "outliers"))
 
@@ -398,7 +397,7 @@ Last but not least, we can visualise the model:
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r plot_cake_model}
 ggplot(augment(lme_cake4), aes(x = temperature, y = angle)) +
   geom_point(alpha = 0.7) +
   geom_line(aes(y = .fitted, group = batch), alpha = 0.5)
@@ -411,7 +410,7 @@ We can see visually that the `recipe` and `recipe:temperature` terms don't have 
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r plot_cake_full_model}
 ggplot(augment(lme_cake), aes(x = temperature, y = angle, colour = recipe)) +
   facet_wrap(~ recipe) +
   geom_point(alpha = 0.7) +
@@ -447,14 +446,14 @@ For this exercise, we'll be using a neurohistology dataset that focuses on a par
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r, message=FALSE}
+```{r load_parallel_data, message=FALSE}
 parallel <- read_csv("data/parallel.csv")
 ```
 :::
 
 To measure the length of the fibres (which are <10mm long - big for a neuron!), slices were taken from the cerebella of six cats, at different depths. The depth of each slice was recorded. These slices were then stained, so that individual parallel fibres could be identified and measured.
 
-![An example of a stained slice from cerebellar cortex](images_mixed-effects/cerebellum_histology.jpg){width=40%}
+![An example of a stained slice from cerebellar cortex](images/cerebellum_histology.jpg){width=40%}
 
 The dataset contains five variables:
 
@@ -470,14 +469,13 @@ For this exercise:
 2. Determine whether the dataset requires recoding or explicit nesting
 3. Fit and test at least one appropriate model
 
-::: {.callout-tip collapse="true"}
-#### Worked answer
+::: {.callout-answer}
 
 #### Visualise the design
 
 This is a nested design with three levels: `fibre` within `slice` within `cat`. But the fixed predictor `depth` varies at level 2, between slices (not between fibres).
 
-![Experimental design](images_mixed-effects/neurohist_design.png){width=70%}
+![Experimental design](images/neurohist_design.png){width=70%}
 
 #### Recoding
 
@@ -485,7 +483,7 @@ If we look at the structure of the dataset, we can see that the numbering for th
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r preview_parallel_data}
 parallel %>% slice(1:8, 46)
 ```
 :::
@@ -494,7 +492,7 @@ So, we need to recode a new variable, or be prepared to use explicit nesting in 
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r recode_parallel_nesting}
 parallel <- parallel %>%
   mutate(cat = as.factor(cat)) %>%
   mutate(slice = as.factor(slice)) %>%
@@ -510,7 +508,7 @@ The full model that we could fit to these data contains three random effects: ra
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r fit_parallel_full_model}
 lme_parallel <- lmer(length ~ depth + (1|slice:cat) + (1 + depth|cat), 
                      data = parallel)
 ```
@@ -522,7 +520,7 @@ However, most errors like this just mean that we're being too ambitious. So, the
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r fit_parallel_intercepts_model}
 lme_parallel_int <- lmer(length ~ depth + (1|slice:cat) + (1|cat), 
                          data = parallel)
 ```
@@ -534,7 +532,7 @@ Next, we check the assumptions of our intercepts-only nested model:
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r check_parallel_assumptions}
 check_model(lme_parallel_int, 
             check = c("linearity", "homogeneity", "qq", "outliers"))
 
@@ -551,7 +549,7 @@ Last but not least, we should have a look at our model predictions visually.
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r plot_parallel_model}
 ggplot(augment(lme_parallel_int), aes(x = depth, y = length, colour = cat)) +
   geom_point(alpha = 0.6) +
   geom_line(aes(y = .fitted, group = cat))
@@ -564,7 +562,7 @@ We can, however, extract just the set of intercepts by `cat`, and with a bit mor
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r plot_parallel_cat_lines}
 # use the coef function to extract the coefficients
 cat_coefs <- coef(lme_parallel_int)$cat
 
@@ -584,7 +582,7 @@ ggplot(augment(lme_parallel_int), aes(x = depth, y = length, colour = cat)) +
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r}
+```{r plot_parallel_by_cat_slice}
 ggplot(parallel, aes(x = depth, y = length, colour = slice)) +
   facet_wrap(~cat) +
   geom_point(alpha = 0.6)
@@ -610,7 +608,7 @@ What would the equation of a three level model fitted to the `parallel` dataset 
 
 Hint: you'll need more subscript letters than you did for a two-level model!
 
-::: {.callout-tip collapse="true"}
+::: {.callout-answer}
 #### Answer: three-level intercepts-only
 
 E.g., `length ~ depth + (1|slice:cat) + (1|cat)`
@@ -647,7 +645,7 @@ $$
 
 :::
 
-::: {.callout-tip collapse="true"}
+::: {.callout-answer}
 #### Answer: three-level intercepts & slopes
 
 E.g., `length ~ depth + (1|slice:cat) + (1 + depth|cat)`
