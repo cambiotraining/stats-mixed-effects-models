@@ -1,9 +1,9 @@
 ---
-title: "Power analysis"
+title: "Worked answers"
 output: html_document
 ---
 
-```{r source_setup_files}
+```{r}
 #| echo: false
 #| message: false
 #| results: hide
@@ -14,7 +14,7 @@ This page contains worked answers to examples that are not given in the course m
 
 ## Libraries and functions
 
-```{r load_worked_answer_libraries}
+```{r}
 #| eval: false
 # load the required packages for fitting & visualising
 library(tidyverse)
@@ -25,19 +25,20 @@ library(broom.mixed)
 library(patchwork)
 ```
 
+## Solutions
 
-<<<<<<< HEAD
 View the original [Exercise -@sec-exr_solutions].
 
-::: {.callout-answer}
+::: {.callout-exercise collapse="true"}
+#### Worked answer
 
-```{r load_solutions_data}
+```{r}
 solutions <- read_csv("data/solutions.csv")
 ```
 
 An appropriate visualisation might be:
 
-```{r visualize_solutions_data}
+```{r}
 ggplot(solutions, aes(x=solvent, y=dissolve, colour=solute)) +
   geom_point()
 ```
@@ -46,14 +47,14 @@ Reading the description of the dataset carefully, the technician is not interest
 
 So, we will fit a fixed effect for `solute`, and a random effect for `solvent`:
 
-```{r fit_solutions_intercepts_model}
+```{r}
 lme_sol_intercepts <- lmer(dissolve ~ solute + (1|solvent), data = solutions)
 summary(lme_sol_intercepts)
 ```
 
 This model can be visualised by adding to the plot above:
 
-```{r visualize_solutions_fit}
+```{r}
 ggplot(augment(lme_sol_intercepts), aes(x=solvent, y=dissolve, colour=solute)) +
   geom_point() +
   geom_line(aes(y=.fitted, group=solute))
@@ -61,7 +62,7 @@ ggplot(augment(lme_sol_intercepts), aes(x=solvent, y=dissolve, colour=solute)) +
 
 If students attempt to fit a more complex model, with random slopes and intercepts, they'll receive an error informing them of singular fit. This is because either the dataset isn't large enough to support this more complex random effects structure (most likely in this case), or because the variance component of one/both of the random effects is close to zero.
 
-```{r attempt_solutions_slopes_model}
+```{r}
 lme_sol_slopes <- lmer(dissolve ~ solute + (1+solute|solvent), data = solutions)
 ```
 
@@ -71,7 +72,7 @@ lme_sol_slopes <- lmer(dissolve ~ solute + (1+solute|solvent), data = solutions)
 
 View the original [Exercise -@sec-exr_dragons].
 
-::: {.callout-answer}
+::: {.callout-exercise collapse="true"}
 #### Worked answer (bonus questions)
 
 #### Question 1
@@ -80,7 +81,7 @@ To adapt the code to exclude `scales` as a fixed predictor, it should be dropped
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r fit_dragons_no_scales_question1}
+```{r}
 dragons <- read_csv("data/dragons.csv")
 
 lme_noscales <- lmer(intelligence ~ wingspan + (1 + wingspan|mountain), data = dragons)
@@ -95,7 +96,7 @@ To visualise the shrinkage,
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r fit_dragons_no_scales_question2}
+```{r}
 dragons <- read_csv("data/dragons.csv")
 
 lme_noscales <- lmer(intelligence ~ wingspan + (1 + wingspan|mountain), data = dragons)
@@ -123,13 +124,14 @@ Therefore, the model would be `intelligence ~ wingspan*scales + (1 + wingspan + 
 
 View the original [Exercise -@sec-exr_irrigation2].
 
-::: {.callout-answer}
+::: {.callout-exercise collapse="true"}
+#### Worked answer
 
 The model of interest is as follows:
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r load_irrigation_data, message=FALSE}
+```{r, message=FALSE}
 irrigation <- read_csv("data/irrigation.csv")
 
 lme_yield <- lmer(yield ~ irrigation*variety + (1|field), data = irrigation)
@@ -142,7 +144,7 @@ First, we can compare this model to the null, and see that it's significant over
 
 ::: {.panel-tabset group="language"}
 ##R
-```{r compare_irrigation_to_null}
+```{r}
 lm_null <- lm(yield ~ 1, data = irrigation)
 
 anova(lme_yield, lm_null)
@@ -155,7 +157,7 @@ Then, we'll look at the individual predictors.
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r test_irrigation_fixed_effects_interaction}
+```{r}
 lme_additive <- lmer(yield ~ irrigation + variety + (1|field), data = irrigation)
 
 anova(lme_yield, lme_additive)
@@ -163,7 +165,7 @@ anova(lme_yield, lme_additive)
 
 The interaction is not significant.
 
-```{r test_irrigation_fixed_effects_variety}
+```{r}
 lme_dropvar <- lmer(yield ~ irrigation + (1|field), data = irrigation)
 
 anova(lme_additive, lme_dropvar)
@@ -171,7 +173,7 @@ anova(lme_additive, lme_dropvar)
 
 Neither is `variety`.
 
-```{r test_irrigation_fixed_effects_irrigation}
+```{r}
 lme_dropirrig <- lmer(yield ~ variety + (1|field), data = irrigation)
 
 anova(lme_additive, lme_dropirrig)
@@ -186,7 +188,7 @@ The exercise also asks some final questions about the random intercepts term. We
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r test_irrigation_random_effect}
+```{r}
 lm_yield <- lm(yield ~ irrigation*variety, data = irrigation)
 
 anova(lme_yield, lm_yield)
@@ -203,11 +205,12 @@ Even if this p-value weren't quite so small, though, it's probably still be bett
 
 View the original [Exercise -@sec-exr_arabidopsis].
 
-::: {.callout-answer}
+::: {.callout-exercise collapse="true"}
+#### Worked answer
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r fit_arabidopsis_model}
+```{r}
 lme_arabidopsis <- lmer(total.fruits ~ nutrient + rack + status + amd + reg + 
                           (1|popu) + (1|gen), data = Arabidopsis)
 ```
@@ -219,7 +222,7 @@ There are several fixed effects in the model, and an error about boundary fit. F
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r test_arabidopsis_fixed_effects}
+```{r}
 library(lmerTest)
 
 # refit with lmerTest::lmer
@@ -234,7 +237,7 @@ However, even when we drop our insignificant `status` and/or `amd` fixed effects
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r fit_arabidopsis_reduced_fixed}
+```{r}
 lme_arabidopsis_dropfix <- lmer(total.fruits ~ nutrient + rack + reg + 
                           (1|popu) + (1|gen), data = Arabidopsis)
 ```
@@ -244,7 +247,7 @@ That's because the real issue (or at least, one of the issues) is the tiny varia
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r summarize_arabidopsis_original}
+```{r}
 summary(lme_arabidopsis)
 ```
 :::
@@ -255,7 +258,7 @@ Well, it means that during the maximum likelihood search, the model never really
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r fit_arabidopsis_reduced_random}
+```{r}
 lme_arabidopsis_dropran <- lmer(total.fruits ~ nutrient + rack + status + amd + reg + 
                           (1|popu), data = Arabidopsis)
 ```
@@ -269,7 +272,7 @@ The problems with the diagnostic plots persist regardless of which fixed or rand
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r check_arabidopsis_reduced_diagnostics}
+```{r}
 check_model(lme_arabidopsis_dropran, 
             check = c("linearity", "homogeneity", "qq", "outliers"))
 
@@ -282,7 +285,7 @@ That's because of the nature of our response variable, `total.fruits`. It is not
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r histogram_arabidopsis_fruits}
+```{r}
 ggplot(Arabidopsis, aes(x = total.fruits)) +
   geom_histogram()
 ```
@@ -296,13 +299,14 @@ A linear mixed effects model is not suitable for this response variable. Instead
 
 View the original [Exercise -@sec-exr_cake].
 
-::: {.callout-answer}
+::: {.callout-exercise collapse="true"}
+#### Worked answer
 
 Our current working model is as follows.
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r load_cake_data}
+```{r}
 data("cake")
 
 cake <- cake %>%
@@ -319,7 +323,7 @@ If one attempts to fit the `temperature|batch` random slopes in addition to the 
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r attempt_cake_random_slopes_categorical}
+```{r}
 #| eval: false
 lme_cake_slopes <- lmer(angle ~ recipe*temperature + (1 + temperature|batch), 
                  data = cake)
@@ -334,8 +338,7 @@ However, if we try using the continuous `temp` variable instead, the model runs 
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r attempt_cake_random_slopes_continuous}
-#| eval: false
+```{r}
 lme_cake_slopes2 <- lmer(angle ~ recipe*temperature + (1 + temp|batch), 
                  data = cake)
 ```
@@ -347,7 +350,7 @@ What happens if we replace `temperature` with `temp` in our fixed effects (leavi
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r compare_cake_temperature_vs_temp}
+```{r}
 lme_cake2 <- lmer(angle ~ recipe*temp + (1|batch), 
                  data = cake)
 ```
@@ -356,7 +359,7 @@ The outputs from `anova` (using the Satterthwaite approximation) are similar, an
 
 However, but we get a vastly different number of fixed effects when using our categorical `temperature` variable - which makes sense, because we are estimating individual group means rather than a single gradient.
 
-```{r examine_cake_fixed_effects}
+```{r}
 fixef(lme_cake)
 
 fixef(lme_cake2)
@@ -375,7 +378,7 @@ We would **not** fit this as a nested random effect, however, but instead as a c
 
 ::: {.panel-tabset group="language"}
 ## R
-```{r fit_cake_temperature_as_random}
+```{r}
 lme_cake3 <- lmer(angle ~ recipe + (1|batch) + (1|temperature), 
                  data = cake)
 ```
@@ -390,6 +393,4 @@ However: our set of temperatures isn't really a random selection of all possible
 We probably don't want to fit `temperature` as a random effect, after all.
 
 :::
-=======
->>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 

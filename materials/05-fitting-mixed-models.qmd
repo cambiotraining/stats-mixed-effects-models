@@ -19,7 +19,7 @@ In this section, we will learn how to fit these models in R, and how to visualis
 ::: {.callout-note collapse="true"}
 ## Click to expand
 
-We'll be using the `lme4` package in R, which is by far the most common and best choice of package for this type of model. (It's an update of the older package `nlme`, which you might also see people using.) The syntax is nice and simple and extends what we've been doing so far with the `lm()` function in (hopefully!) a very intuitive way. 
+We'll be using the `lme4` package in R, which is by far the most common and best choice of package for this type of model. (It's an update of the older package `nlme`, which you might also see people using.) The syntax is nice and simple and extends what we've been doing so far with the `lm()` function in (hopefully!) a very intuitive way.
 
 The package also contains functions for fitting non-linear mixed effects and generalised mixed effects models - though we won't be focusing on those here, it's nice to know that the package can handle them in case you ever choose to explore them in future!
 
@@ -40,15 +40,20 @@ library(patchwork)
 
 We'll be using the internal `sleepstudy` dataset from the `lme4` package in R as an example (this dataset is also provided as a `.csv` file, if you'd prefer to read it in or are using Python).
 
-This is a simple dataset taken from a real study that investigated the effects of sleep deprivation on reaction times in 18 subjects, and has just three variables: 
+This is a simple dataset taken from a real study that investigated the effects of sleep deprivation on reaction times in 18 subjects, and has just three variables:
 
-- `Reaction`, reaction time in milliseconds
-- `Days`, number of days of sleep deprivation
-- `Subject`, subject ID
+-   `Reaction`, reaction time in milliseconds
+-   `Days`, number of days of sleep deprivation
+-   `Subject`, subject ID
 
 ::: {.panel-tabset group="language"}
 ## R
+<<<<<<< HEAD
 ```{r load_sleepstudy_data}
+=======
+
+```{r}
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 #| message: false
 data("sleepstudy")
 ```
@@ -60,7 +65,12 @@ Let's start by doing something that we know is wrong, and ignoring this dependen
 
 ::: {.panel-tabset group="language"}
 ## R
+<<<<<<< HEAD
 ```{r plot_sleepstudy_scatter}
+=======
+
+```{r}
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 #| message: false
 ggplot(sleepstudy, aes(x = Days, y = Reaction)) +
   geom_point() +
@@ -76,14 +86,19 @@ But, as we've already pointed out, ignoring the fact that subjects' own reaction
 
 In this dataset, we want to treat `Subject` as a random effect, which means fitting a mixed effects model. Why `Subject`? There are two things at play here that make us what to treat this as a random effect:
 
-1. `Subject` is a *grouping* variable within our dataset, and is causing us problems with independence.
-2. It's not these specific 18 subjects that we're interested in - they instead represent 18 random selections from a broader distribution/population of subjects that we could have tested. We would like to generalise our findings to this broader population.
+1.  `Subject` is a *grouping* variable within our dataset, and is causing us problems with independence.
+2.  It's not these specific 18 subjects that we're interested in - they instead represent 18 random selections from a broader distribution/population of subjects that we could have tested. We would like to generalise our findings to this broader population.
 
 To fit the model, we use a different function to what we've used so far, but the syntax looks very similar. The difference is the addition of a new term `(1|Subject)`, which represents our random effect.
 
 ::: {.panel-tabset group="language"}
 ## R
+<<<<<<< HEAD
 ```{r fit_random_intercept_model}
+=======
+
+```{r}
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 # construct a linear mixed effects model with Subject
 # as a random effect
 lme_sleep1 <- lmer(Reaction ~ Days + (1|Subject), data = sleepstudy)
@@ -101,7 +116,12 @@ Here, we'll make use of the `broom` and `broom.mixed` packages to extract fitted
 
 ::: {.panel-tabset group="language"}
 ## R
+<<<<<<< HEAD
 ```{r plot_random_intercepts_facets}
+=======
+
+```{r}
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 # create a linear model - we'll use this in our graph
 lm_sleep <- lm(Reaction ~ Days, data = sleepstudy)
 
@@ -126,14 +146,19 @@ ggplot(sleepstudy, aes(x = Days, y = Reaction)) +
 
 Each plot represents a different subject's data. On each plot, we've added the following:
 
-* in black we have the same overall line of best fit from our original (incorrect) linear model.
-* in blue are the individual lines of best fit for each subject. These lines move up and down the plot relative to the global line of best fit. This reflects the fact that, though all subjects are declining as they become more sleep deprived, some of them started with slower baseline reaction times, with different y-intercepts to match. Subject 310, for instance, seems to have pretty good reflexes relative to everyone else, while subject 337 isn't quite as quick on the trigger.
+-   in black we have the same overall line of best fit from our original (incorrect) linear model.
+-   in blue are the individual lines of best fit for each subject. These lines move up and down the plot relative to the global line of best fit. This reflects the fact that, though all subjects are declining as they become more sleep deprived, some of them started with slower baseline reaction times, with different y-intercepts to match. Subject 310, for instance, seems to have pretty good reflexes relative to everyone else, while subject 337 isn't quite as quick on the trigger.
 
 We can visualise the same model slightly differently, to allow us to look at the set of lines of best fit together. Here, we will create a plot that doesn't have facets (but still shows us the same model predictions):
 
 ::: {.panel-tabset group="language"}
 ## R
+<<<<<<< HEAD
 ```{r plot_random_intercepts_all}
+=======
+
+```{r}
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 ggplot(sleepstudy, aes(x = Days, y = Reaction)) +
   geom_point() +
   
@@ -148,7 +173,7 @@ ggplot(sleepstudy, aes(x = Days, y = Reaction)) +
 
 The global line of best fit is in the middle (in black), with each of the individual subject lines of best fit around it.
 
-From this plot, we can see that the *gradient* of each of these blue lines is still the same as the overall line of best fit. This is because we've added a random intercept in our model, but have **kept the same slope**. 
+From this plot, we can see that the *gradient* of each of these blue lines is still the same as the overall line of best fit. This is because we've added a random intercept in our model, but have **kept the same slope**.
 
 This reflects an underlying assumption that the relationship between sleep deprivation and reaction time is the same - i.e. that people get worse at the same rate - even if their starting baselines differ.
 
@@ -162,7 +187,12 @@ Let's fit that new model and summarise it.
 
 ::: {.panel-tabset group="language"}
 ## R
+<<<<<<< HEAD
 ```{r fit_random_intercept_slope_model}
+=======
+
+```{r}
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 lme_sleep2 <- lmer(Reaction ~ Days + (1 + Days|Subject), data = sleepstudy)
 
 summary(lme_sleep2)
@@ -173,7 +203,12 @@ We can go ahead and add our new lines (in red) to our earlier facet plot. Only t
 
 ::: {.panel-tabset group="language"}
 ## R
+<<<<<<< HEAD
 ```{r plot_random_slopes_facets}
+=======
+
+```{r}
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 ggplot(sleepstudy, aes(x = Days, y = Reaction)) +
   facet_wrap(facets = vars(Subject), nrow = 3) +
   geom_point() +
@@ -196,7 +231,12 @@ Let's compare those different red lines, representing our random intercepts & sl
 
 ::: {.panel-tabset group="language"}
 ## R
+<<<<<<< HEAD
 ```{r plot_random_slopes_all}
+=======
+
+```{r}
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 ggplot(sleepstudy, aes(x = Days, y = Reaction)) +
   geom_point() +
   
@@ -215,13 +255,18 @@ Visualising all of our lines of best fit simultaneously like this makes it clear
 
 It's quite unusual to fit a model with random slopes but without random intercepts - but it's absolutely possible.
 
-The `lme4` package includes "implicit random intercepts", meaning that we don't actually need to specify the 1 in our random effects structure for random intercepts to be fitted. 
+The `lme4` package includes "implicit random intercepts", meaning that we don't actually need to specify the 1 in our random effects structure for random intercepts to be fitted.
 
 Try running the following, and compare the two outputs - these models are identical:
 
 ::: {.panel-tabset group="language"}
 ## R
+<<<<<<< HEAD
 ```{r compare_explicit_implicit_intercepts, results='hide'}
+=======
+
+```{r, results='hide'}
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 lme_explicit <- lmer(Reaction ~ Days + (1 + Days|Subject), data = sleepstudy)
 lme_implicit <- lmer(Reaction ~ Days + (Days|Subject), data = sleepstudy)
 
@@ -234,7 +279,12 @@ If we were determined to remove the random intercepts, we have to explicitly tel
 
 ::: {.panel-tabset group="language"}
 ## R
+<<<<<<< HEAD
 ```{r fit_random_slopes_only}
+=======
+
+```{r}
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 lme_slopesonly <- lmer(Reaction ~ Days + (0 + Days|Subject), data = sleepstudy)
 
 summary(lme_slopesonly)
@@ -245,7 +295,12 @@ You should see that the random intercepts have now disappeared from the output.
 
 ::: {.panel-tabset group="language"}
 ## R
+<<<<<<< HEAD
 ```{r plot_random_slopes_only}
+=======
+
+```{r}
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 ggplot(sleepstudy, aes(x = Days, y = Reaction)) +
   geom_point() +
   
@@ -272,7 +327,7 @@ Later in the course, we will look at more complicated models, where we have mult
 
 ### Equations & notation
 
-For those who are interested in notation and equations, the drop-down box below gives a little more detail on how this works for a linear mixed effects model. 
+For those who are interested in notation and equations, the drop-down box below gives a little more detail on how this works for a linear mixed effects model.
 
 This subsection skews a bit more in the maths direction, and won't be needed by everyone who uses mixed models in their research. But, it's included here as bonus material for anyone who finds equations helpful, or for those who might need this for reporting on and reading about mixed models!
 
@@ -287,7 +342,7 @@ $$
 
 The $x$ variable here is, of course, `Days`, and $y$ is our response variable `Reaction`.
 
-In this equation, $\beta_{0}$ represents the intercept, and $\beta_{1}$ represents the slope or gradient. Each of these is either a single fixed number, or, in the case of a categorical predictor, a set of fixed means for the groups. 
+In this equation, $\beta_{0}$ represents the intercept, and $\beta_{1}$ represents the slope or gradient. Each of these is either a single fixed number, or, in the case of a categorical predictor, a set of fixed means for the groups.
 
 The $\epsilon$ at the end represents our error, or noise. In the case of linear model, we measure this by calculating the residuals. As you already know from standard linear models, we assume that these residuals are random and normally distributed. So, we could additionally note that:
 
@@ -301,7 +356,7 @@ This is just fancy shorthand for: "the errors are drawn from a normal distributi
 
 When we add random effects to deal with the clustering variable `Subject`, however, we are doing more than just estimating a fixed mean or coefficient.
 
-That's because we're actually estimating a *distribution* of coefficients whenever we estimate a random effect. 
+That's because we're actually estimating a *distribution* of coefficients whenever we estimate a random effect.
 
 So, when we include random intercepts in our model `Reaction ~ Days + (1|Subject)`, we are not just estimating three numbers. We estimate an intercept for each `Subject` in the dataset. And, we are assuming that those intercepts have been drawn from a normal distribution with mean 0 - this is a baked-in assumption of a linear mixed model (more on assumptions in a later section).
 
@@ -347,8 +402,7 @@ Level 2:
 
 $$
 \beta_{0j} = \gamma_{00} + U_{0j}
-$$
-$$
+$$ $$
 \beta_{1j} = \gamma_{10} + U_{1j}
 $$
 
@@ -369,20 +423,19 @@ If that's a bit more complicated than you're interested in, don't worry. You don
 This table summarises and defines each of the terms included in the equation(s) above.
 
 | Parameter | Description |
-|:-|:-----|
-|$y_{ij}$|Response/outcome; value of `Reaction` for subject $j$ on day $i$|
-|$x_{ij}$|Predictor; value of `Days` for subject $j$ on day $i$|
-|$\beta_{0j}$|Level 1 intercept parameter, containing a fixed and a random effect|
-|$\gamma_{00}$|Fixed effect; grand (average) intercept|
-|$U_{0j}$|Random effect; deviation from grand intercept for subject $j$|
-|$\beta_{1j}$|Level 1 slope parameter, containing a fixed and a random effect|
-|$\gamma_{10}$|Fixed effect; grand (average) slope|
-|$U_{1j}$|Random effect; deviation from grand slope for subject $j$|
-|$\epsilon_{ij}$|Error/residual (difference between real value and predicted value) of `Reaction` for subject $j$ on day $i$|
-|$\tau^2_{00}$|Variance of random intercepts $U_{0j}$|
-|$\tau^2_{10}$|Variance of random slopes $U_{1j}$|
-|$\rho_{01}$|Covariance between random effects $U_{0j}$ and $U_{1j}$|
-
+|:------------------|:----------------------------------------------------|
+| $y_{ij}$ | Response/outcome; value of `Reaction` for subject $j$ on day $i$ |
+| $x_{ij}$ | Predictor; value of `Days` for subject $j$ on day $i$ |
+| $\beta_{0j}$ | Level 1 intercept parameter, containing a fixed and a random effect |
+| $\gamma_{00}$ | Fixed effect; grand (average) intercept |
+| $U_{0j}$ | Random effect; deviation from grand intercept for subject $j$ |
+| $\beta_{1j}$ | Level 1 slope parameter, containing a fixed and a random effect |
+| $\gamma_{10}$ | Fixed effect; grand (average) slope |
+| $U_{1j}$ | Random effect; deviation from grand slope for subject $j$ |
+| $\epsilon_{ij}$ | Error/residual (difference between real value and predicted value) of `Reaction` for subject $j$ on day $i$ |
+| $\tau^2_{00}$ | Variance of random intercepts $U_{0j}$ |
+| $\tau^2_{10}$ | Variance of random slopes $U_{1j}$ |
+| $\rho_{01}$ | Covariance between random effects $U_{0j}$ and $U_{1j}$ |
 :::
 
 ### Sharing information
@@ -393,7 +446,12 @@ As an extra observation, let's use `geom_smooth` to add the lines of best fit th
 
 ::: {.panel-tabset group="language"}
 ## R
+<<<<<<< HEAD
 ```{r plot_shrinkage_comparison}
+=======
+
+```{r}
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 #| message: false
 ggplot(sleepstudy, aes(x = Days, y = Reaction)) +
   facet_wrap(facets = vars(Subject), nrow = 3) +
@@ -417,11 +475,11 @@ Here, the black line (which is the same on every plot) represents a global line 
 
 The green lines, meanwhile, represent what happens when we split our dataset into separate groups by `Subject`, and fit individual regressions between `Reaction` and `Days` that are completely independent of each other. This is called **no pooling**, i.e., treating `Subject` as a fixed effect.
 
-The blue and red lines represent our mixed effects models - the difference between the two is whether we allowed the slope to vary randomly, as well as the random intercept. In both cases, we are using something called **partial pooling**. 
+The blue and red lines represent our mixed effects models - the difference between the two is whether we allowed the slope to vary randomly, as well as the random intercept. In both cases, we are using something called **partial pooling**.
 
-Comparing the green and red lines in particular allows us to see the phenomenon of "shrinkage", which occurs because of partial pooling. 
+Comparing the green and red lines in particular allows us to see the phenomenon of "shrinkage", which occurs because of partial pooling.
 
-The red lines are all closer to the black line than the green line is. In other words, the predictions for our mixed effects model are more similar to the global line of best fit, than the individual regression lines are to that global line. We say that the red lines (our mixed model) are showing some shrinkage towards the global line; Subjects 330, 335 and 370 perhaps show this best. 
+The red lines are all closer to the black line than the green line is. In other words, the predictions for our mixed effects model are more similar to the global line of best fit, than the individual regression lines are to that global line. We say that the red lines (our mixed model) are showing some shrinkage towards the global line; Subjects 330, 335 and 370 perhaps show this best.
 
 This happens because, when random effects are estimated, information is shared between the different levels of the random effect (in this case, between subjects). Though we still estimate separate slopes and/or intercepts for each subject, we take into account the global average, and this pulls the individual lines of best fit towards the global one.
 
@@ -431,8 +489,7 @@ This idea of taking into account the global average when calculating our set of 
 
 ### Irrigation {#sec-exr_irrigation}
 
-::: {.callout-exercise}
-
+:::::::::: callout-exercise
 {{< level 1 >}}
 
 This example uses the `irrigation` dataset. The study is a split-plot design, used for an agricultural trial aimed at maximising crop yield.
@@ -441,33 +498,49 @@ Two crop varieties and four different irrigation methods were tested across eigh
 
 ::: {.panel-tabset group="language"}
 ## R
+<<<<<<< HEAD
 ```{r load_irrigation_data, message=FALSE}
+=======
+
+```{r, message=FALSE}
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 irrigation <- read_csv("data/irrigation.csv")
 ```
 :::
 
 There are four variables in total:
 
-- `field` ID, f1 through f8
-- `irrigation` method used, i1 through i4
-- `variety` of crop, v1 or v2
-- `yield`, the total crop yield per field
+-   `field` ID, f1 through f8
+-   `irrigation` method used, i1 through i4
+-   `variety` of crop, v1 or v2
+-   `yield`, the total crop yield per field
 
-For this exercise: 
+For this exercise:
 
-1. Visualise the data
-2. Fit a mixed model
+1.  Visualise the data
+2.  Fit a mixed model
 
 Does it look as if `irrigation` method or crop `variety` are likely to affect `yield`?
 
+<<<<<<< HEAD
 ::: {.callout-answer}
+=======
+:::::::: {.callout-tip collapse="true"}
+#### Worked answer
+
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 #### Visualise the data
 
 This is quite a small dataset, with only 16 data points. We want to know whether `irrigation`, on the x axis, and/or `variety`, split by colour, affect `yield`; so let's put all of those variables on the same plot:
 
 ::: {.panel-tabset group="language"}
 ## R
+<<<<<<< HEAD
 ```{r plot_irrigation_by_variety}
+=======
+
+```{r}
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 ggplot(irrigation, aes(x = irrigation, y = yield, colour = variety)) +
   geom_point()
 ```
@@ -479,7 +552,12 @@ Our data points do all appear to be paired together, and this is almost certainl
 
 ::: {.panel-tabset group="language"}
 ## R
+<<<<<<< HEAD
 ```{r plot_irrigation_by_field}
+=======
+
+```{r}
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 ggplot(irrigation, aes(x = irrigation, y = yield, colour = field)) +
   geom_point()
 ```
@@ -497,7 +575,12 @@ We don't have enough observations in this dataset to add random slopes, so we on
 
 ::: {.panel-tabset group="language"}
 ## R
+<<<<<<< HEAD
 ```{r fit_irrigation_mixed_model}
+=======
+
+```{r}
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 lme_yield <- lmer(yield ~ irrigation*variety + (1|field), data = irrigation)
 
 summary(lme_yield)
@@ -512,7 +595,12 @@ Since we're not comparing multiple different models in the same plot, we can be 
 
 ::: {.panel-tabset group="language"}
 ## R
+<<<<<<< HEAD
 ```{r plot_irrigation_model_points}
+=======
+
+```{r}
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 ggplot(augment(lme_yield), aes(x = irrigation, y = yield, colour = variety)) +
   geom_point(position = position_dodge(width = 0.5))
 ```
@@ -526,21 +614,23 @@ In the next session of the course, we'll talk about how to check whether these r
 
 ::: {.panel-tabset group="language"}
 ## R
+<<<<<<< HEAD
 ```{r plot_irrigation_observed_predicted}
+=======
+
+```{r}
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 ggplot(augment(lme_yield), aes(x = irrigation, y = yield, colour = variety)) +
   geom_point(aes(shape = "observed"), size = 3) +
   geom_point(aes(y = .fitted, shape = "predicted"), size = 3)
 ```
 :::
-
-:::
-
-:::
+::::::::
+::::::::::
 
 ### Solutions {#sec-exr_solutions}
 
-::: {.callout-exercise}
-
+:::: callout-exercise
 {{< level 2 >}}
 
 A lab technician wants to test the purity of their stock of several common solutes. They take multiple samples of each solute, and dissolve them into six common solvents four times each (for a total of 72 solutions).
@@ -554,13 +644,11 @@ There is no worked answer provided for this exercise, in order to challenge you 
 
 Note: if you encounter the `boundary (singular) fit: see help('isSingular')` error, this doesn't mean that you've used the `lme4` syntax incorrectly; as we'll discuss later in the course, it means that the model you've fitted is too complex to be supported by the size of the dataset.
 :::
-
-:::
+::::
 
 ### Dragons {#sec-exr_dragons}
 
-::: {.callout-exercise}
-
+:::::::::::: callout-exercise
 {{< level 2 >}}
 
 *The inspiration for this example dataset is taken from an [online tutorial](https://ourcodingclub.github.io/tutorials/mixed-models/) by Gabriela K Hadjuk.*
@@ -569,11 +657,11 @@ Read in the `dragons.csv` file, explore these data, then fit, summarise and visu
 
 This is a slightly more complicated dataset, with five different variables:
 
-- `dragon`, which is simply an ID number for each dragon measured; here, each dragon is unique
-- `wingspan`, a measure of the size of the dragon
-- `scales`, a categorical (binary) variable for what colour scales the dragon has
-- `mountain`, a categorical variable representing which mountain range the dragon was found on
-- `intelligence`, our continuous response variable
+-   `dragon`, which is simply an ID number for each dragon measured; here, each dragon is unique
+-   `wingspan`, a measure of the size of the dragon
+-   `scales`, a categorical (binary) variable for what colour scales the dragon has
+-   `mountain`, a categorical variable representing which mountain range the dragon was found on
+-   `intelligence`, our continuous response variable
 
 We're interested in the relationships between `wingspan`, the colour of `scales` and `intelligence`, but we want to factor in the fact that we have measured these variables across 5 different mountain ranges.
 
@@ -581,7 +669,12 @@ With more variables, there are more possible models that could be fitted. Think 
 
 Try to work through this yourself, before expanding the answer below.
 
+<<<<<<< HEAD
 ::: {.callout-answer}
+=======
+::::::::::: {.callout-tip collapse="true"}
+#### Worked answer
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 
 Here, we'll work through how to fit and visualise one possible mixed effects model that could be fitted to these data.
 
@@ -593,14 +686,24 @@ Before we do anything else, let's have a look at what we're working with:
 
 ::: {.panel-tabset group="language"}
 ## R
+<<<<<<< HEAD
 ```{r load_dragons_data, message=FALSE}
+=======
+
+```{r, message=FALSE}
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 dragons <- read_csv("data/dragons.csv")
 ```
 :::
 
 ::: {.panel-tabset group="language"}
 ## R
+<<<<<<< HEAD
 ```{r plot_dragons_wingspan_scales}
+=======
+
+```{r}
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 ggplot(dragons, aes(x = wingspan, y = intelligence, colour = scales)) +
   geom_point()
 
@@ -617,7 +720,12 @@ Now, let's produce the same plots, but faceted/split by mountain range:
 
 ::: {.panel-tabset group="language"}
 ## R
+<<<<<<< HEAD
 ```{r plot_dragons_by_mountain}
+=======
+
+```{r}
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 ggplot(dragons, aes(x = wingspan, y = intelligence, colour = scales)) +
   facet_wrap(vars(mountain)) +
   geom_point()
@@ -628,18 +736,18 @@ ggplot(dragons, aes(x = scales, y = intelligence)) +
 ```
 :::
 
-The broad impression remains the same, but for one thing: the strength of the relationship between `wingspan` and `intelligence` seems to vary across our different facets, i.e. between mountain ranges. 
+The broad impression remains the same, but for one thing: the strength of the relationship between `wingspan` and `intelligence` seems to vary across our different facets, i.e. between mountain ranges.
 
 It's hard to tell whether the relationship between `scales` and `intelligence` also differs across mountain ranges, as this effect is subtler overall.
 
-#### Consider the fixed effects 
+#### Consider the fixed effects
 
 We have four options for our fixed effects structure:
 
-- No fixed effects (a random effects only model)
-- A single effect, of either `wingspan` or `scales`
-- An additive model
-- Including both main effects and an interaction
+-   No fixed effects (a random effects only model)
+-   A single effect, of either `wingspan` or `scales`
+-   An additive model
+-   Including both main effects and an interaction
 
 We'll talk in the next section of the course about how we can compare between different models and determine whether individual predictors are significant or not.
 
@@ -653,13 +761,13 @@ There is only one variable in this dataset that it would be suitable to consider
 
 However, as we learned by looking at the `sleepstudy` dataset, we can fit multiple separate random effects, meaning that even with just `mountain` as a clustering variable, we have options!
 
-- Random intercepts, by mountain; `(1|mountain)`
-- Random slopes for `wingspan`, by mountain; `(0 + wingspan|mountain)`
-- Random slopes for `scales`, by mountain; `(0 + scales|mountain)`
-- Random slopes for `wingspan:scales`, by mountain; `(0 + wingspan:scales|mountain)`
+-   Random intercepts, by mountain; `(1|mountain)`
+-   Random slopes for `wingspan`, by mountain; `(0 + wingspan|mountain)`
+-   Random slopes for `scales`, by mountain; `(0 + scales|mountain)`
+-   Random slopes for `wingspan:scales`, by mountain; `(0 + wingspan:scales|mountain)`
 
-::: {.callout-tip}
-This last option is worth taking a moment to unpack. 
+::: callout-tip
+This last option is worth taking a moment to unpack.
 
 Allowing `wingspan:scales` to vary by mountain means that we are asking the model to assume that the strength of the interaction between `wingspan` and `scales` varies between mountain ranges such that the different coefficients for that interaction are drawn from a random distribution.
 
@@ -678,7 +786,12 @@ For now, though, we'll just fit the first two random effects (random intercepts,
 
 ::: {.panel-tabset group="language"}
 ## R
+<<<<<<< HEAD
 ```{r fit_dragons_mixed_model}
+=======
+
+```{r}
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 lme_dragons <- lmer(intelligence ~ wingspan*scales + (1 + wingspan|mountain), 
                     data=dragons)
 summary(lme_dragons)
@@ -693,7 +806,12 @@ We'll start by building a plot that's faceted by `mountain`, since we know this 
 
 ::: {.panel-tabset group="language"}
 ## R
+<<<<<<< HEAD
 ```{r plot_dragons_mixed_model_facets}
+=======
+
+```{r}
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 # use augment so that we can plot our mixed model predictions
 ggplot(augment(lme_dragons), aes(x = wingspan, y = intelligence, colour = scales)) +
   facet_wrap(vars(mountain)) +
@@ -706,7 +824,12 @@ Alternatively (or additionally) we can view all of these lines on a single plot,
 
 ::: {.panel-tabset group="language"}
 ## R
+<<<<<<< HEAD
 ```{r plot_dragons_mixed_model_global}
+=======
+
+```{r}
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 ggplot(augment(lme_dragons), aes(x = wingspan, y = intelligence, colour = mountain)) +
   geom_point() +  
   # plot the mixed model predictions
@@ -722,7 +845,12 @@ What happens if we do fit the more complex random effects structures that were m
 
 ::: {.panel-tabset group="language"}
 ## R
+<<<<<<< HEAD
 ```{r fit_dragons_complex_model}
+=======
+
+```{r}
+>>>>>>> f958b0f (Saving local changes before pulling hugo updates)
 lme_dragons_complex <- lmer(intelligence ~ wingspan*scales + 
                               (1 + wingspan*scales|mountain), data=dragons)
 
@@ -735,21 +863,19 @@ This is the most complex model we could fit, with all the possible fixed and ran
 Our dataset is likely too small to support so many random effects; 200 might sound large, but in the context of a mixed effects model, it unfortunately is not.
 
 You might also notice in the model summary that the estimated variance for the random slopes of `wingspan:scales` is also very small. This is a decent indication that this random effect probably isn't useful in this model, probably because this effect isn't actually occurring in our underlying dragon population.
-
-:::
-
-:::
+:::::::::::
+::::::::::::
 
 #### Bonus questions: Dragons
 
-::: {.callout-exercise}
+:::: callout-exercise
 {{< level 3 >}}
 
 For those who want to push their understanding a bit further, here's a few additional things to think about. We won't give the answers here, but if you're interested, call a trainer over to chat about them more.
 
-- How could you adapt the code above to visualise a mixed effects model that did not include `scales` as a fixed predictor?
-- How much shrinkage do you observe for the lines of best fit in the `dragons` dataset? Is this more or less than in the `sleepstudy` dataset? Why might this be?
-- What syntax would you use in `lme4` to fit a model with the following equation to the dragons dataset?
+-   How could you adapt the code above to visualise a mixed effects model that did not include `scales` as a fixed predictor?
+-   How much shrinkage do you observe for the lines of best fit in the `dragons` dataset? Is this more or less than in the `sleepstudy` dataset? Why might this be?
+-   What syntax would you use in `lme4` to fit a model with the following equation to the dragons dataset?
 
 ::: {.callout-note collapse="true"}
 #### Model equation
@@ -764,11 +890,9 @@ Level 2:
 
 $$
 \beta_{0j} = \gamma_{00} + U_{0j}
-$$
-$$
+$$ $$
 \beta_{1j} = \gamma_{10} + U_{1j}
-$$
-$$
+$$ $$
 \beta_{2j} = \gamma_{20} + U_{2j}
 $$
 
@@ -779,11 +903,8 @@ $$
 $$
 
 Where $y$ is `intelligence`, $x_1$ is `wingspan`, $x_2$ is `scales`, $j$ represents mountain ranges and $i$ represents individual dragons within those mountain ranges.
-
 :::
-
-:::
-
+::::
 
 ## Summary
 
@@ -791,12 +912,12 @@ This section of the course is designed to introduce the syntax required for fitt
 
 Later sections will address significance testing and assumption checking, as well as how to fit more complex mixed models.
 
-::: {.callout-tip}
+::: callout-tip
 #### Key points
-- Mixed effects models can be fitted using the `lme4` package in R, which extends the linear model by introducing specialised syntax for random effects
-- For random intercepts, we use the format `(1|B)`, where B is our grouping variable
-- For random intercepts with random slopes, we use the format `(1 + A|B)`, where we allow the slope of A as well as the intercept to vary between levels of B
-- For random slopes only, we use `(0 + A|B)`, which gives random slopes for A without random intercepts
-- Random effects are fitted using partial pooling, which results in the phenomenon of "shrinkage"
-:::
 
+-   Mixed effects models can be fitted using the `lme4` package in R, which extends the linear model by introducing specialised syntax for random effects
+-   For random intercepts, we use the format `(1|B)`, where B is our grouping variable
+-   For random intercepts with random slopes, we use the format `(1 + A|B)`, where we allow the slope of A as well as the intercept to vary between levels of B
+-   For random slopes only, we use `(0 + A|B)`, which gives random slopes for A without random intercepts
+-   Random effects are fitted using partial pooling, which results in the phenomenon of "shrinkage"
+:::
