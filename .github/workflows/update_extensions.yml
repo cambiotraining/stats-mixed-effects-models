@@ -2,7 +2,7 @@ name: Scheduled Quarto Extensions Update
 
 on:
   schedule:
-    - cron: '0 6 1 * *'   # 06:00 UTC on the 1st of each month
+    - cron: '0 6 8 1,7 *' # twice a year 06:00 UTC on 8th Jan and Jul
   workflow_dispatch:
 
 permissions:
